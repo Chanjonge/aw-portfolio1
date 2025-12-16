@@ -11,7 +11,8 @@
 # next.js
 /aw-portfoiio-front/.next/
 /aw-portfoiio-front/out/
-
+/aw-portfoiio-api/.gradle
+/aw-portfoiio-api/build
 # production
 /build
 
