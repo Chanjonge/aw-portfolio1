@@ -10,7 +10,7 @@ interface FieldOption {
 interface RepeatableField {
     label: string;
     type: 'text' | 'file';
-    placeholder?: string;
+     placeholder?: string;
 }
 
 /** 옵션 스키마 (타입가드용) */
