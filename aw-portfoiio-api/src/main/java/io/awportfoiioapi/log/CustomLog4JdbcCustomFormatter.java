@@ -28,7 +28,7 @@ public class CustomLog4JdbcCustomFormatter implements SpyLogDelegator {
     @Override
     public void sqlOccurred(Spy spy, String methodCall, String rawSql) {
         // 1. 줄바꿈 정리
-        String cleanedSql = CLEAN_PATTERN.matcher(rawSql).replaceAll("\n");
+         String cleanedSql = CLEAN_PATTERN.matcher(rawSql).replaceAll("\n");
         
         // 2. SQL 키워드 기준으로 줄바꿈
         cleanedSql = SQL_KEYWORDS.matcher(cleanedSql).replaceAll("\n$1");
