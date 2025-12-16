@@ -107,7 +107,7 @@ jobs:
           node-version: "20"
 
       - name: 의존성 설치
-      - run: |
+        run: |
           cd aw-portfoiio-front
           npm i
 
