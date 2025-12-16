@@ -2,7 +2,7 @@
 
 # dependencies
 /aw-portfoiio-front/node_modules
-/.pnp
+/aw-portfoiio-front/.pnp
 .pnp.js
 
 # testing
@@ -10,7 +10,7 @@
 
 # next.js
 /aw-portfoiio-front/.next/
-/out/
+/aw-portfoiio-front/out/
 
 # production
 /build
@@ -36,7 +36,7 @@ yarn-error.log*
 next-env.d.ts
 
 # prisma
-prisma/*.db
+/aw-portfoiio-front/prisma/*.db
 prisma/*.db-journal
 
 # uploads
