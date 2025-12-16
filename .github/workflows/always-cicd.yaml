@@ -140,5 +140,5 @@ jobs:
             tar -xvf project.tar.gz
             npm i
             pm2 delete next-server || true
-            HOST=0.0.0.0 PORT=3000 pm2 start npm --name "next-server" -- start
+            pm2 start npm --name next-server -- start
             pm2 save
