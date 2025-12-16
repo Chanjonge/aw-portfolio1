@@ -127,7 +127,7 @@ jobs:
             host: ${{ secrets.EC2_HOST }}
             username: ${{ secrets.EC2_USERNAME }}
             key: ${{ secrets.EC2_PRIVATE_KEY }}
-            source: project.tar.gz
+            source: aw-portfoiio-front/project.tar.gz
             target: /home/ubuntu/nextjs-server/tobe
 
       - name: SSH로 EC2에 접속하기
