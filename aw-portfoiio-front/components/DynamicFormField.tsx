@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 
 interface FieldOption {
-    label: string;
+     label: string;
     hasInput?: boolean;
 }
 

@@ -112,7 +112,9 @@ jobs:
           npm i
 
       - name: 빌드
-        run: npm run build
+        run: |
+          cd aw-portfoiio-front
+          npm run build
 
       - name: SCP로 EC2에 빌드된 파일 전송하기
         uses: appleboy/scp-action@v0.1.7
