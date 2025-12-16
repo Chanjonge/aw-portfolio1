@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 
 // GET all questions (포트폴리오별로 필터링 가능)
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);

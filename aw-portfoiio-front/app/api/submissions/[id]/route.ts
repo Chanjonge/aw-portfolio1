@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 // PUT: 제출 내역 수정
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
     try {
         const { companyName, password, responses, isDraft } = await request.json();

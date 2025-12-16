@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 import { verifyToken } from '@/lib/auth';
-
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 export async function POST(request: NextRequest) {
     try {
         // 관리자는 인증 확인 (썸네일 업로드용)

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 
 // GET all categories
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
     try {
         const categories = await prisma.category.findMany({

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 // POST: 기존 제출 확인 (상호명 + 비밀번호)
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 export async function POST(request: NextRequest) {
     try {
         const { portfolioId, companyName, password } = await request.json();

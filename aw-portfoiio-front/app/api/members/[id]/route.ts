@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 
 // GET member by ID (Super Admin only)
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
     try {
         const token = request.headers.get('authorization')?.replace('Bearer ', '');

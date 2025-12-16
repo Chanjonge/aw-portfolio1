@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/lib/auth';
 import { verifyToken } from '@/lib/auth';
-
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 export async function POST(request: NextRequest) {
     try {
         const token = request.headers.get('authorization')?.replace('Bearer ', '');
