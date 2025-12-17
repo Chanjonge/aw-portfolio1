@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import RecoilProvider from "@/app/RecoilProvider";
+import AuthListener from "@/app/AuthListener";
 
 export const metadata: Metadata = {
     title: '언제나 디자인 타입형 리스트',
@@ -10,7 +12,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="ko">
             <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"></meta>
-            <body>{children}</body>
+            <body>
+                <RecoilProvider>
+                    <AuthListener/>
+                        {children}
+                </RecoilProvider>
+            </body>
         </html>
     );
 }

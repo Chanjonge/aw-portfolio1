@@ -1,5 +1,7 @@
 // utils/axiosInstance.ts
 import axios, { AxiosError, type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios';
+import {tokenStore} from "@/services/tokenStore";
+
 
 interface AuthAxiosRequestConfig extends InternalAxiosRequestConfig {
     __hadAuth?: boolean;
@@ -20,7 +22,8 @@ async function refreshToken(): Promise<string | null> {
             withCredentials: true,
         });
         const newToken = data?.token ?? null;
-        localStorage.setItem('token', newToken);
+        tokenStore.set(newToken);
+        window.dispatchEvent(new CustomEvent('auth:refreshed', { detail: { user: data?.user } }));
 
         return newToken;
     } catch (e) {
@@ -34,7 +37,7 @@ async function refreshToken(): Promise<string | null> {
 api.interceptors.request.use(async (config: AuthAxiosRequestConfig) => {
     if (config.url?.includes('/test/refresh')) return config; //api 수정 예정
 
-    let token = localStorage.getItem('token');
+    let token = tokenStore.get();
     if (!token) {
         if (!refreshing) refreshing = refreshToken(); // 첫 호출만 실제 실행
         token = await refreshing; // 모든 요칭이 같은 Promise를 기다림
@@ -102,13 +105,13 @@ api.interceptors.response.use(
                 .then(({ data }) => {
                     const newToken = data?.token;
                     if (!newToken) throw new Error('No access token from refresh');
-                    localStorage.setItem('token', newToken);
+                    tokenStore.set(newToken);
                     notifyAll(newToken); // 등록된 모든 대기 요청 재시도
                 })
                 .catch(e => {
                     waiters = []; // 실패 시 대기열 비움
                     // 토큰 삭제
-                    localStorage.removeItem('token');
+                    tokenStore.clear();
                 })
                 .finally(() => {
                     isRefreshing = false;
