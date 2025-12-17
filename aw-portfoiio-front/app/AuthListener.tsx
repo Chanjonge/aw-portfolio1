@@ -1,3 +1,4 @@
+'use client';
 import { useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
 import {userState} from "@/store/user";
