@@ -4,16 +4,20 @@ import io.awportfoiioapi.advice.exception.CategoryException;
 import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.category.dto.request.CategoryPostRequest;
 import io.awportfoiioapi.category.dto.request.CategoryPutRequest;
+import io.awportfoiioapi.category.dto.response.CategoryCountResponse;
 import io.awportfoiioapi.category.dto.response.CategoryGetResponse;
 import io.awportfoiioapi.category.entity.Category;
 import io.awportfoiioapi.category.repository.CategoryRepository;
 import io.awportfoiioapi.category.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -23,8 +27,20 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     
     @Override
-    public List<CategoryGetResponse> getCategoryList(Pageable pageable) {
-        return List.of();
+    public Page<CategoryGetResponse> getCategoryList(Pageable pageable) {
+        Page<CategoryGetResponse> categoryList = categoryRepository.getCategoryList(pageable);
+        List<CategoryCountResponse> counts  = categoryRepository.getCategoryCount();
+        Map<Long, Long> countMap =
+                counts.stream()
+                        .collect(Collectors.toMap(
+                                CategoryCountResponse::getId,
+                                CategoryCountResponse::getCnt
+                        ));
+        categoryList.forEach(category ->
+                category.getCount()
+                        .setPortfolios(countMap.getOrDefault(category.getId(), 0L))
+        );
+        return categoryList;
     }
     
     @Override

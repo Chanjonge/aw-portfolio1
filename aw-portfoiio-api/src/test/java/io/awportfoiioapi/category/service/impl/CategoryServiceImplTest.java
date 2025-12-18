@@ -5,9 +5,12 @@ import io.awportfoiioapi.advice.exception.CustomException;
 import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.category.dto.request.CategoryPostRequest;
 import io.awportfoiioapi.category.dto.request.CategoryPutRequest;
+import io.awportfoiioapi.category.dto.response.CategoryGetResponse;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -63,11 +66,22 @@ class CategoryServiceImplTest extends RepositoryAndServiceTestSupport {
     
     @DisplayName("카테고리 삭제 검증(포트폴리오)")
     @Test
-    void test(){
+    void test6(){
         assertThatThrownBy(() ->
                 categoryService.deleteCategory(1L)
         )
                 .isInstanceOf(CustomException.class)
                 .hasMessage("해당 카테고리에 등록된 포트폴리오가 있어 삭제할 수 없습니다.");
+    }
+    
+    @DisplayName("카테고리 조회(카운트포함)")
+    @Test
+    void test7(){
+        
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Page<CategoryGetResponse> categoryList = categoryService.getCategoryList(pageRequest);
+        
+        System.out.println("categoryList = " + categoryList);
+        
     }
 }
