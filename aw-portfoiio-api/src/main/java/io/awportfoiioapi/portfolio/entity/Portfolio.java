@@ -28,7 +28,7 @@ public class Portfolio extends DateSuperClass {
     
     // 포트폴리오 제목
     @Column(name = "PORTFOLIO_TITLE")
-    private String portfolioTitle;
+    private String title;
     
     // 포트폴리오 설명
     @Column(name = "PORTFOLIO_DESCRIPTION")

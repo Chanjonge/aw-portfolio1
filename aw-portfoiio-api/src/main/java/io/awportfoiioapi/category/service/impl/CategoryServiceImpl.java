@@ -1,6 +1,6 @@
 package io.awportfoiioapi.category.service.impl;
 
-import io.awportfoiioapi.advice.exception.CategoryException;
+import io.awportfoiioapi.advice.exception.CategoryAndPortfolioException;
 import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.category.dto.request.CategoryPostRequest;
 import io.awportfoiioapi.category.dto.request.CategoryPutRequest;
@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
         Integer order = request.getOrder();
         boolean result = categoryRepository.existsByOrder(order);
         if (result) {
-            throw new CategoryException("이미 존재 하는 카테고리 순서입니다.", "order");
+            throw new CategoryAndPortfolioException("이미 존재 하는 카테고리 순서입니다.", "order");
         }
         Category category = Category.builder()
                 .categoryName(request.getName())
@@ -62,7 +62,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public ApiResponse modifyCategory(CategoryPutRequest request) {
         Category category = categoryRepository.findById(request.getId())
-                .orElseThrow(() -> new CategoryException(
+                .orElseThrow(() -> new CategoryAndPortfolioException(
                         "존재하지 않는 카테고리입니다.",
                         "id"
                 ));
@@ -79,7 +79,7 @@ public class CategoryServiceImpl implements CategoryService {
             );
             
             if (exists) {
-                throw new CategoryException(
+                throw new CategoryAndPortfolioException(
                         "이미 존재하는 카테고리 순서입니다.",
                         "order"
                 );
@@ -94,7 +94,7 @@ public class CategoryServiceImpl implements CategoryService {
     public ApiResponse deleteCategory(Long id) {
         boolean result = categoryRepository.existsByPortfolio(id);
         if (result) {
-            throw new CategoryException("해당 카테고리에 등록된 포트폴리오가 있어 삭제할 수 없습니다.","portfolio");
+            throw new CategoryAndPortfolioException("해당 카테고리에 등록된 포트폴리오가 있어 삭제할 수 없습니다.","portfolio");
         }
         categoryRepository.deleteById(id);
         return new ApiResponse(200,true,"카테고리가 삭제되었습니다.");

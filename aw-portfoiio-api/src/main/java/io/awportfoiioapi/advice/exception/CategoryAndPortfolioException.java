@@ -2,9 +2,9 @@ package io.awportfoiioapi.advice.exception;
 
 import org.springframework.http.HttpStatus;
 
-public class CategoryException extends CustomException{
+public class CategoryAndPortfolioException extends CustomException{
     
-    public CategoryException(String message, String field) {
+    public CategoryAndPortfolioException(String message, String field) {
         super(message, field);
     }
     
