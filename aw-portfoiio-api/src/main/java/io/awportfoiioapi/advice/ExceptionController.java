@@ -2,7 +2,6 @@ package io.awportfoiioapi.advice;
 
 
 import io.awportfoiioapi.advice.exception.CustomException;
-import io.awportfoiioapi.advice.exception.ReservationConflictException;
 import io.awportfoiioapi.advice.response.ErrorMessageResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.List;
 
@@ -61,33 +59,23 @@ public class ExceptionController {
                 "잠시후 다시 시도해 주세요"
         );
     }
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(ReservationConflictException.class)
-    public ErrorMessageResponse handleReservationConflictException(CustomException e) {
-        log.info("공통 예외 ", e);
-        return new ErrorMessageResponse(
-                String.valueOf(HttpStatus.CONFLICT.value()),
-                e.getMessage()
-        );
-    }
     
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(CustomException.class)
     public ErrorMessageResponse handleRefreshTokenExpiredExceptionException(CustomException e) {
         log.info("공통 예외 ", e);
-        return new ErrorMessageResponse(
-                String.valueOf(HttpStatus.UNAUTHORIZED.value()),
-                e.getMessage()
-        );
-    }
-    
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(NoResourceFoundException.class)
-    public ErrorMessageResponse handleNoResourceFoundException(NoResourceFoundException  e) {
-        log.info("404 {}", e.getMessage());
-        return new ErrorMessageResponse(
-                String.valueOf(HttpStatus.NOT_FOUND.value()),
-                e.getMessage()
-        );
+        if (e.getField() != null) {
+            ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
+                    String.valueOf(e.getStatus()),
+                    e.getMessage()
+            );
+            errorMessageResponse.addValidation(e.getField(),e.getMessage());
+            return errorMessageResponse;
+        }else {
+            return new ErrorMessageResponse(
+                    String.valueOf(e.getStatus()),
+                    e.getMessage()
+            );
+        }
     }
 }
