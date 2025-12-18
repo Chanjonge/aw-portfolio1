@@ -61,13 +61,32 @@ public class CategoryServiceImpl implements CategoryService {
     
     @Override
     public ApiResponse modifyCategory(CategoryPutRequest request) {
-        Integer order = request.getOrder();
-        boolean result = categoryRepository.existsByOrder(order);
-        if (result) {
-            throw new CategoryException("이미 존재 하는 카테고리 순서입니다.", "order");
+        Category category = categoryRepository.findById(request.getId())
+                .orElseThrow(() -> new CategoryException(
+                        "존재하지 않는 카테고리입니다.",
+                        "id"
+                ));
+        
+        Integer newOrder = request.getOrder();
+        Integer currentOrder = category.getCategoryOrders();
+
+        // order가 변경된 경우에만 중복 체크
+        if (!currentOrder.equals(newOrder)) {
+            
+            boolean exists = categoryRepository.existsByOrder(
+                    newOrder,
+                    category.getId() // 자기 자신 제외
+            );
+            
+            if (exists) {
+                throw new CategoryException(
+                        "이미 존재하는 카테고리 순서입니다.",
+                        "order"
+                );
+            }
         }
-        Category category = categoryRepository.findById(request.getId()).orElseThrow(() -> new RuntimeException("존재하지않는 카테고리입니다."));
         category.modify(request);
+        
         return new ApiResponse(200, true, "카테고리가 수정되었습니다.");
     }
     

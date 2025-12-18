@@ -6,13 +6,11 @@ import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.category.dto.request.CategoryPostRequest;
 import io.awportfoiioapi.category.dto.request.CategoryPutRequest;
 import io.awportfoiioapi.category.dto.response.CategoryGetResponse;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CategoryServiceImplTest extends RepositoryAndServiceTestSupport {

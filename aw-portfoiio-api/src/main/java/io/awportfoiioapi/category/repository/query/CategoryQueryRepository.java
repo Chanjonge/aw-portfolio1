@@ -15,5 +15,7 @@ public interface CategoryQueryRepository  {
     
     boolean existsByOrder(Integer order);
     
+    boolean existsByOrder(Integer order, Long excludeCategoryId);
+    
     boolean existsByPortfolio(Long id);
 }

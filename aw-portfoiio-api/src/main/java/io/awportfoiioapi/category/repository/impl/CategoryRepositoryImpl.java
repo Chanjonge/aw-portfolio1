@@ -71,6 +71,17 @@ public class CategoryRepositoryImpl implements CategoryQueryRepository {
     }
     
     @Override
+    public boolean existsByOrder(Integer order, Long excludeCategoryId) {
+        return queryFactory
+                .selectFrom(category)
+                .where(
+                        category.categoryOrders.eq(order),
+                        category.id.ne(excludeCategoryId)
+                )
+                .fetchFirst() != null;
+    }
+    
+    @Override
     public boolean existsByPortfolio(Long id) {
         return queryFactory
                 .select(portfolio)
