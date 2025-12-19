@@ -2,6 +2,7 @@ package io.awportfoiioapi.security;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,6 +41,8 @@ public class PortfolioSecurityConfig {
     private final AuthorizationManager<RequestAuthorizationContext> portfolioAuthorizationManager;
     private final AccessDeniedHandler portfolioAccessDeniedHandler;
     
+    @Value("${cors.url}")
+    public String corsUrl;
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -76,7 +79,7 @@ public class PortfolioSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+        corsConfiguration.setAllowedOrigins(List.of(corsUrl));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setExposedHeaders(List.of("Set-Cookie", "Content-Disposition"));
