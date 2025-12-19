@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -17,7 +16,7 @@ public class MemberResponseDto {
     private Long id;
     private String name;
     private String email;
-    private String roles;
+    private String role;
     
     public static MemberResponseDto create(Member member, List<GrantedAuthority> authorities) {
         MemberResponseDto memberResponseDto = new MemberResponseDto();
@@ -26,10 +25,10 @@ public class MemberResponseDto {
       
         if (authorities != null && !authorities.isEmpty()) {
             for (GrantedAuthority auth : authorities) {
-                memberResponseDto.setRoles("ROLE_" + auth.getAuthority());
-                if("ROLE_SUPER_ADMIN".equals(memberResponseDto.getRoles())) {
+                memberResponseDto.setRole(auth.getAuthority());
+                if("ROLE_SUPER_ADMIN".equals(memberResponseDto.getRole())) {
                     memberResponseDto.setName("최고 관리자");
-                }else if("ROLE_ADMIN".equals(memberResponseDto.getRoles())) {
+                }else if("ROLE_ADMIN".equals(memberResponseDto.getRole())) {
                     memberResponseDto.setName("관리자");
                 }else {
                     memberResponseDto.setName("회원");
