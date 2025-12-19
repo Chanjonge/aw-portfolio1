@@ -148,3 +148,7 @@ jobs:
             pm2 delete next-server || true
             npx prisma generate
             npx prisma db push
+            DATABASE_URL="$DATABASE_URL" \
+            NODE_ENV=production \
+            pm2 start npm --name next-server -- start
+            pm2 save
