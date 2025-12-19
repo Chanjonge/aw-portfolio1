@@ -27,8 +27,12 @@ public class MemberResponseDto {
         if (authorities != null && !authorities.isEmpty()) {
             for (GrantedAuthority auth : authorities) {
                 memberResponseDto.setRoles("ROLE_" + auth.getAuthority());
-                if(memberResponseDto.getRoles().equals("SUPER_ADMIN")) {
+                if("ROLE_SUPER_ADMIN".equals(memberResponseDto.getRoles())) {
                     memberResponseDto.setName("최고 관리자");
+                }else if("ROLE_ADMIN".equals(memberResponseDto.getRoles())) {
+                    memberResponseDto.setName("관리자");
+                }else {
+                    memberResponseDto.setName("회원");
                 }
             }
         }
