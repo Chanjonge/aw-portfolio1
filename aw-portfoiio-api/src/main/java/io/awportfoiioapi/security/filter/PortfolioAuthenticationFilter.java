@@ -1,6 +1,8 @@
 package io.awportfoiioapi.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.awportfoiioapi.advice.exception.ValidationException;
+import io.awportfoiioapi.advice.response.ErrorMessageResponse;
 import io.awportfoiioapi.security.filter.request.PortfolioAuthenticationRequest;
 import io.awportfoiioapi.security.token.PortfolioAuthenticationToken;
 import jakarta.servlet.ServletException;
@@ -37,8 +39,21 @@ public class PortfolioAuthenticationFilter extends AbstractAuthenticationProcess
         ObjectMapper objectMapper = new ObjectMapper();
         PortfolioAuthenticationRequest loginRequest = objectMapper.readValue(request.getReader(), PortfolioAuthenticationRequest.class);
         
-        if (!StringUtils.hasText(loginRequest.getLoginId()) || !StringUtils.hasText(loginRequest.getPassword())) {
-            throw new AuthenticationServiceException("code 값이 없습니다.");
+        ErrorMessageResponse error = new ErrorMessageResponse("400", null);
+        
+        if (!StringUtils.hasText(loginRequest.getLoginId())) {
+            error.addValidation("loginId", "아이디는 필수 입력입니다.");
+        }
+        
+        if (!StringUtils.hasText(loginRequest.getPassword())) {
+            error.addValidation("password", "비밀번호는 필수 입력입니다.");
+        }
+        
+        if (error.getValidation() != null && !error.getValidation().isEmpty()) {
+            throw new AuthenticationServiceException(
+                    "400",
+                    new ValidationException(error)
+            );
         }
         PortfolioAuthenticationToken authRequest = new PortfolioAuthenticationToken(
                 loginRequest.getLoginId(),

@@ -1,7 +1,7 @@
 package io.awportfoiioapi.security.handler;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.awportfoiioapi.advice.exception.ValidationException;
 import io.awportfoiioapi.advice.response.ErrorMessageResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,13 +22,24 @@ public class PortfolioAuthenticationFailureHandler implements AuthenticationFail
     
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        String message = exception.getMessage();
-        ErrorMessageResponse errorResponse = new ErrorMessageResponse("401", message);
-        errorResponse.addValidation("message",message);
-        mapper.writeValue(response.getWriter(), errorResponse);
+        
+        // validation 에러
+      if (exception.getCause() instanceof ValidationException ve) {
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          mapper.writeValue(response.getWriter(), ve.getErrorResponse());
+          return;
+      }
+  
+      // 인증 실패 (아이디/비번 틀림)
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      mapper.writeValue(
+          response.getWriter(),
+          ErrorMessageResponse.messageError(
+              "401",
+              exception.getMessage()
+          )
+      );
     }
 }

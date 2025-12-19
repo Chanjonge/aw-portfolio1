@@ -25,13 +25,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Setter
 @Getter
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorMessageResponse {
     private final String  code;
     
     private final String message;
     
-    private List<Map<String, String>> validation;
+    private List<Map<String, String>> validation = new ArrayList<>();
     
     public void addValidation(String fieldName, String errorMessage) {
         if (this.validation == null) {
@@ -40,5 +39,9 @@ public class ErrorMessageResponse {
         Map<String, String> map = new HashMap<>();
         map.put(fieldName, errorMessage);
         this.validation.add(map);
+    }
+    
+    public static ErrorMessageResponse messageError(String code, String message) {
+        return new ErrorMessageResponse(code, message);
     }
 }
