@@ -39,3 +39,6 @@ logging:
 
 cookie:
   secure: true
+
+cors:
+  url: http://16.184.61.4

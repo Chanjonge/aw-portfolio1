@@ -145,5 +145,7 @@ jobs:
             npm i
             pm2 delete next-server || true
             DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+            npx prisma generate
+            npx prisma db push
             pm2 start npm --name next-server -- start
             pm2 save
