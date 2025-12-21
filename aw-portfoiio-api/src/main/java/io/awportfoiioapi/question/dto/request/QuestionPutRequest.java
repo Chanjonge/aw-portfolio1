@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -19,6 +22,22 @@ public class QuestionPutRequest {
     private Boolean requireMinLength;
     private Boolean isRequired;
     private ThumbnailRequest thumbnail;
+    private List<Notifications> notifications;
+    
+    public List<Notifications> getNotifications() {
+        if (this.notifications == null) {
+            this.notifications = new ArrayList<>();
+        }
+        return this.notifications;
+    }
+    
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Notifications {
+        private Long id;
+        private String value;
+    }
     
     @Data
     @AllArgsConstructor
