@@ -6,6 +6,8 @@ import io.awportfoiioapi.mapperd.DateSuperClass;
 import jakarta.persistence.*;
 import lombok.*;
 
+import static jakarta.persistence.GenerationType.*;
+
 @Table(name = "COMMON_FILE")
 @Entity
 @Getter
@@ -17,6 +19,7 @@ public class CommonFile extends DateSuperClass {
     // 공통 파일 ID
     @Id
     @Column(name = "COMMON_FILE_ID")
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
     
     // 공통 파일 타겟 ID
