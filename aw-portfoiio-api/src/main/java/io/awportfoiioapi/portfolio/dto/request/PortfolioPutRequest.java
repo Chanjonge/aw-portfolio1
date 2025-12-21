@@ -16,7 +16,12 @@ public class PortfolioPutRequest {
     private String domain;
     private Integer order;
     private String slug;
-    private MultipartFile thumbnail;
-    private Boolean removeThumbnail;
+    private ThumbnailRequest thumbnail;
     private Boolean isActive;
+    
+    @Data
+    public static class ThumbnailRequest{
+        private MultipartFile file;
+        private Boolean remove;
+    }
 }

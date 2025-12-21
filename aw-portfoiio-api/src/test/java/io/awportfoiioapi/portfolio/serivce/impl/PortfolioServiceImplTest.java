@@ -10,6 +10,7 @@ import io.awportfoiioapi.portfolio.entity.Portfolio;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -99,120 +100,68 @@ class PortfolioServiceImplTest extends RepositoryAndServiceTestSupport {
         ApiResponse portfolio = portfolioService.createPortfolio(request);
         System.out.println("portfolio = " + portfolio);
     }
-    
-    @DisplayName("포트폴리오 수정")
+    @DisplayName("포트폴리오 수정(파일 유지 - thumbnail 값 유지/미변경)")
     @Test
-    void test5() throws IOException {
-        File file1 = new File("src/test/java/io/awportfoiioapi/image/참새작.png");
-        FileInputStream fis1 = new FileInputStream(file1);
+    void test5() {
+        PortfolioPutRequest req = baseRequest();
+        req.setThumbnail(thumbnailKeep()); // 유지
         
-        MockMultipartFile multipartFile1 = new MockMultipartFile(
-                "portfolio", file1.getName(), "png",fis1
-        );
-        
-        PortfolioPutRequest result = new PortfolioPutRequest(
-                1L,
-                1L,
-                "포트폴리오 수정",
-                "포트폴리오 수정 설명",
-                "포트폴리오 수정 도메인",
-                1,
-                "포트폴리오 수정 슬러그",
-                multipartFile1,
-                Boolean.TRUE,
-                Boolean.TRUE
-        );
-        ApiResponse apiResponse = portfolioService.modifyPortfolio(result);
-        System.out.println("apiResponse = " + apiResponse);
-    }
-    @DisplayName("포트폴리오 수정(파일 첨부x)")
-    @Test
-    void test6() throws IOException {
-        File file1 = new File("src/test/java/io/awportfoiioapi/image/참새작.png");
-        FileInputStream fis1 = new FileInputStream(file1);
-        MockMultipartFile multipartFile1 = new MockMultipartFile(
-                "portfolio", file1.getName(), "png",fis1
-        );
-        PortfolioPutRequest result = new PortfolioPutRequest(
-                1L,
-                1L,
-                "포트폴리오 수정2",
-                "포트폴리오 수정 설명2",
-                "포트폴리오 수정 도메인2",
-                1,
-                "포트폴리오 수정 슬러그2",
-                multipartFile1,
-                Boolean.TRUE,
-                Boolean.TRUE
-        );
-        ApiResponse apiResponse = portfolioService.modifyPortfolio(result);
+        ApiResponse apiResponse = portfolioService.modifyPortfolio(req);
         System.out.println("apiResponse = " + apiResponse);
     }
     
-    @DisplayName("포트폴리오 수정(파일 첨부)")
+    @DisplayName("포트폴리오 수정(파일 첨부 - 새로 업로드)")
     @Test
-    void test7() throws IOException {
-        File file1 = new File("src/test/java/io/awportfoiioapi/image/참새작.png");
-        FileInputStream fis1 = new FileInputStream(file1);
-        MockMultipartFile multipartFile1 = new MockMultipartFile(
-                "portfolio", file1.getName(), "png",fis1
+    void modify_upload_thumbnail() throws IOException {
+        MockMultipartFile file = loadTestFile(
+                "src/test/java/io/awportfoiioapi/image/참새작.png",
+                "image/png"
         );
-        PortfolioPutRequest result = new PortfolioPutRequest(
-                1L,
-                1L,
-                "포트폴리오 수정2",
-                "포트폴리오 수정 설명2",
-                "포트폴리오 수정 도메인2",
-                1,
-                "포트폴리오 수정 슬러그2",
-                multipartFile1,
-                Boolean.TRUE,
-                Boolean.TRUE
-        );
-        ApiResponse apiResponse = portfolioService.modifyPortfolio(result);
+        
+        PortfolioPutRequest req = baseRequest();
+        req.setTitle("포트폴리오 수정(파일 첨부)");
+        req.setThumbnail(thumbnailReplace(file));
+        
+        ApiResponse apiResponse = portfolioService.modifyPortfolio(req);
         System.out.println("apiResponse = " + apiResponse);
     }
     
-    @DisplayName("포트폴리오 수정(파일 대체)")
+    @DisplayName("포트폴리오 수정(파일 대체 - 기존 삭제 후 새 파일 업로드)")
     @Test
-    void test8() throws IOException {
-        File file1 = new File("src/test/java/io/awportfoiioapi/image/이건 모자가 아니잖아.jpg");
-        FileInputStream fis1 = new FileInputStream(file1);
-        MockMultipartFile multipartFile1 = new MockMultipartFile(
-                "portfolio", file1.getName(), "png",fis1
+    void modify_replace_thumbnail() throws IOException {
+        MockMultipartFile file = loadTestFile(
+                "src/test/java/io/awportfoiioapi/image/이건 모자가 아니잖아.jpg",
+                "image/jpeg"
         );
-        PortfolioPutRequest result = new PortfolioPutRequest(
-                1L,
-                1L,
-                "포트폴리오 수정2",
-                "포트폴리오 수정 설명2",
-                "포트폴리오 수정 도메인32",
-                1,
-                "포트폴리오 수정 슬러그2",
-                multipartFile1,
-                Boolean.TRUE,
-                Boolean.TRUE
-        );
-        ApiResponse apiResponse = portfolioService.modifyPortfolio(result);
+        
+        PortfolioPutRequest req = baseRequest();
+        req.setTitle("포트폴리오 수정(파일 대체)");
+        req.setDomain("포트폴리오 수정 도메인32");
+        req.setThumbnail(thumbnailReplace(file));
+        
+        ApiResponse apiResponse = portfolioService.modifyPortfolio(req);
         System.out.println("apiResponse = " + apiResponse);
     }
-    @DisplayName("포트폴리오 수정(파일 없애기)")
+    
+    @DisplayName("포트폴리오 수정(파일 없애기 - remove=true)")
     @Test
-    void test9() throws IOException {
+    void modify_remove_thumbnail() {
+        PortfolioPutRequest req = baseRequest();
+        req.setTitle("포트폴리오 수정(파일 없애기)");
+        req.setThumbnail(thumbnailRemove()); // 삭제
         
-        PortfolioPutRequest result = new PortfolioPutRequest(
-                1L,
-                1L,
-                "포트폴리오 수정2",
-                "포트폴리오 수정 설명2",
-                "포트폴리오 수정 도메인32",
-                1,
-                "포트폴리오 수정 슬러그2",
-                null,
-                Boolean.TRUE,
-                Boolean.TRUE
-        );
-        ApiResponse apiResponse = portfolioService.modifyPortfolio(result);
+        ApiResponse apiResponse = portfolioService.modifyPortfolio(req);
+        System.out.println("apiResponse = " + apiResponse);
+    }
+    
+    @DisplayName("포트폴리오 수정(썸네일 파라미터 자체를 null로 보냄 - 유지로 처리)")
+    @Test
+    void modify_thumbnail_null_means_keep() {
+        PortfolioPutRequest req = baseRequest();
+        req.setTitle("포트폴리오 수정(thumbnail=null)");
+        req.setThumbnail(null); // 아예 안 보냄(유지로 간주)
+        
+        ApiResponse apiResponse = portfolioService.modifyPortfolio(req);
         System.out.println("apiResponse = " + apiResponse);
     }
     @DisplayName("포트폴리오 삭제(파일포함)")
@@ -228,5 +177,52 @@ class PortfolioServiceImplTest extends RepositoryAndServiceTestSupport {
         ApiResponse apiResponse = portfolioService.deletePortfolio(6L);
         System.out.println("apiResponse = " + apiResponse);
     
+    }
+    
+    private PortfolioPutRequest.ThumbnailRequest  thumbnailKeep() {
+        // 썸네일 유지: thumbnail 객체 자체를 null로 보내도 되고,
+        // 객체를 보내되 (file=null, remove=false)로 보내도 됨.
+        // 여기선 "null"로 보내는 케이스도 따로 테스트할 거라 keep용 객체를 하나 제공.
+        PortfolioPutRequest.ThumbnailRequest  t = new PortfolioPutRequest.ThumbnailRequest ();
+        t.setFile(null);
+        t.setRemove(false);
+        return t;
+    }
+    
+    private PortfolioPutRequest.ThumbnailRequest  thumbnailReplace(MultipartFile file) {
+        PortfolioPutRequest.ThumbnailRequest  t = new PortfolioPutRequest.ThumbnailRequest ();
+        t.setFile(file);
+        t.setRemove(false);
+        return t;
+    }
+    
+    private PortfolioPutRequest.ThumbnailRequest  thumbnailRemove() {
+        PortfolioPutRequest.ThumbnailRequest  t = new PortfolioPutRequest.ThumbnailRequest ();
+        t.setFile(null);
+        t.setRemove(true);
+        return t;
+    }
+    
+    private PortfolioPutRequest baseRequest() {
+        PortfolioPutRequest req = new PortfolioPutRequest();
+        req.setId(4L);
+        req.setCategoryId(1L);
+        req.setTitle("포트폴리오 수정");
+        req.setDescription("포트폴리오 수정 설명");
+        req.setDomain("포트폴리오 수정 도메인");
+        req.setOrder(1);
+        req.setSlug("포트폴리오 수정 슬러그");
+        req.setIsActive(true);
+        return req;
+    }
+    
+    
+    private MockMultipartFile loadTestFile(String path, String contentType) throws IOException {
+        File file = new File(path);
+        try (FileInputStream fis = new FileInputStream(file)) {
+            // 첫 번째 파라미터("thumbnail")는 multipart 파트의 name이야.
+            // 컨트롤러에서 @ModelAttribute로 바인딩할 때 필드명과 맞추는 게 좋아.
+            return new MockMultipartFile("thumbnail", file.getName(), contentType, fis);
+        }
     }
 }

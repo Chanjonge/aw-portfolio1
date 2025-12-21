@@ -136,16 +136,18 @@ public class PortfolioServiceImpl implements PortfolioService {
         }
         
         // 썸네일 수정 여부
-        MultipartFile thumbnail = request.getThumbnail();
-        Boolean removeThumbnail = request.getRemoveThumbnail();
+        PortfolioPutRequest.ThumbnailRequest thumbnail = request.getThumbnail();
         
-        // 4-1 썸네일 삭제
-        if (Boolean.TRUE.equals(removeThumbnail)) {
-            deleteThumbnail(portfolio);
-        }
-        // 4-2 썸네일 교체
-        if (thumbnail != null && !thumbnail.isEmpty()) {
-            replaceThumbnail(portfolio, thumbnail);
+        if (thumbnail != null) {
+            
+            // 5-1 썸네일 삭제
+            if (thumbnail.getRemove()) {
+                deleteThumbnail(portfolio);
+            }
+            // 5-2 썸네일 교체
+            if (thumbnail.getFile() != null && !thumbnail.getFile().isEmpty()) {
+                replaceThumbnail(portfolio, thumbnail.getFile());
+            }
         }
         
         return new ApiResponse(200, true, "포트폴리오가 수정되었습니다.");
