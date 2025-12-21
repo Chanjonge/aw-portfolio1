@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class QuestionPostRequest {
+    private Long portfolioId;
     private Integer step;
     private Integer order;
     private String title;
