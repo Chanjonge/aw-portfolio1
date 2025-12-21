@@ -5,6 +5,7 @@ import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.category.dto.request.CategoryPostRequest;
 import io.awportfoiioapi.category.dto.request.CategoryPutRequest;
 import io.awportfoiioapi.category.dto.response.CategoryCountResponse;
+import io.awportfoiioapi.category.dto.response.CategoryGetAllResponse;
 import io.awportfoiioapi.category.dto.response.CategoryGetResponse;
 import io.awportfoiioapi.category.entity.Category;
 import io.awportfoiioapi.category.repository.CategoryRepository;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -29,7 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Page<CategoryGetResponse> getCategoryList(Pageable pageable) {
         Page<CategoryGetResponse> categoryList = categoryRepository.getCategoryList(pageable);
-        List<CategoryCountResponse> counts  = categoryRepository.getCategoryCount();
+        List<CategoryCountResponse> counts = categoryRepository.getCategoryCount();
         Map<Long, Long> countMap =
                 counts.stream()
                         .collect(Collectors.toMap(
@@ -41,6 +43,15 @@ public class CategoryServiceImpl implements CategoryService {
                         .setPortfolios(countMap.getOrDefault(category.getId(), 0L))
         );
         return categoryList;
+    }
+    
+    @Override
+    public List<CategoryGetAllResponse> getAllResponse() {
+        List<Category> categoryAll = categoryRepository.findAll();
+        return categoryAll
+                .stream()
+                .map(item -> new CategoryGetAllResponse(item.getId(), item.getCategoryName(), item.getCategoryOrders()))
+                .collect(Collectors.toList());
     }
     
     @Override
@@ -69,7 +80,7 @@ public class CategoryServiceImpl implements CategoryService {
         
         Integer newOrder = request.getOrder();
         Integer currentOrder = category.getCategoryOrders();
-
+        
         // order가 변경된 경우에만 중복 체크
         if (!currentOrder.equals(newOrder)) {
             
@@ -94,9 +105,9 @@ public class CategoryServiceImpl implements CategoryService {
     public ApiResponse deleteCategory(Long id) {
         boolean result = categoryRepository.existsByPortfolio(id);
         if (result) {
-            throw new CategoryAndPortfolioException("해당 카테고리에 등록된 포트폴리오가 있어 삭제할 수 없습니다.","portfolio");
+            throw new CategoryAndPortfolioException("해당 카테고리에 등록된 포트폴리오가 있어 삭제할 수 없습니다.", "portfolio");
         }
         categoryRepository.deleteById(id);
-        return new ApiResponse(200,true,"카테고리가 삭제되었습니다.");
+        return new ApiResponse(200, true, "카테고리가 삭제되었습니다.");
     }
 }

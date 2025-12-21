@@ -6,7 +6,6 @@ import io.awportfoiioapi.portfolio.dto.request.PortfolioPostRequest;
 import io.awportfoiioapi.portfolio.dto.request.PortfolioPutRequest;
 import io.awportfoiioapi.portfolio.dto.response.PortfolioGetDetailResponse;
 import io.awportfoiioapi.portfolio.dto.response.PortfolioResponse;
-import io.awportfoiioapi.portfolio.entity.Portfolio;
 import io.awportfoiioapi.portfolio.serivce.PortfolioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
