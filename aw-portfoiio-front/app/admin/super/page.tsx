@@ -61,7 +61,8 @@ type TabType =
   | "categories"
   | "members";
 
-interface CategoryContent {
+// 카테고리 세부
+export interface CategoryContent {
   id: string;
   name: string;
   slug: string;
@@ -73,6 +74,7 @@ interface CategoryContent {
   };
 }
 
+//카테고리 전체
 interface Category {
   content: CategoryContent[];
   totalPages: number;
@@ -273,84 +275,68 @@ export default function SuperAdminPage() {
     }
   };
 
-  //카테고리 관리
+  //카테고리 목록 조회
   const fetchCategories = async () => {
     await request(
       () => CategoriesService.get({ page: page, size: 5 }),
       (res) => {
-        console.log("res---카테고리 데이터", res);
+        console.log("카테고리 목록 조회", res);
         setCategories(res.data);
       },
       { ignoreErrorRedirect: true },
     );
   };
-
+  //카테고리 저장 or 수정
   const handleCreateOrUpdateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
 
     try {
-      const url = "/api/categories";
-      const method = editingCategory ? "PUT" : "POST";
+      const method = editingCategory
+        ? CategoriesService.put
+        : CategoriesService.post;
       const body = editingCategory
         ? { ...categoryForm, id: editingCategory.id }
         : categoryForm;
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      await request(
+        () => method(body),
+        (res) => {
+          alert(
+            editingCategory
+              ? "카테고리가 수정되었습니다."
+              : "카테고리가 생성되었습니다.",
+          );
+          setShowCategoryForm(false);
+          setEditingCategory(null);
+          setCategoryForm({
+            name: "",
+            slug: "",
+            order: 0,
+          });
+          fetchCategories();
         },
-        body: JSON.stringify(body),
-      });
-
-      if (response.ok) {
-        alert(
-          editingCategory
-            ? "카테고리가 수정되었습니다."
-            : "카테고리가 생성되었습니다.",
-        );
-        setShowCategoryForm(false);
-        setEditingCategory(null);
-        setCategoryForm({
-          name: "",
-          slug: "",
-          order: 0,
-        });
-        await fetchCategories();
-      } else {
-        const data = await response.json();
-        alert(data.error || "카테고리 저장에 실패했습니다.");
-      }
+        { ignoreErrorRedirect: true },
+      );
     } catch (error) {
       console.error("Save category error:", error);
-      alert("카테고리 저장 중 오류가 발생했습니다.");
     }
   };
 
+  //카테고리 삭제
   const handleDeleteCategory = async (id: string) => {
     if (!confirm("정말로 이 카테고리를 삭제하시겠습니까?")) return;
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`/api/categories?id=${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await request(
+        () => CategoriesService.delete(id),
+        (res) => {
+          alert("카테고리가 삭제되었습니다.");
+          fetchCategories();
         },
-      });
-
-      if (response.ok) {
-        alert("카테고리가 삭제되었습니다.");
-        await fetchCategories();
-      } else {
-        const data = await response.json();
-        alert(data.error || "카테고리 삭제에 실패했습니다.");
-      }
+        { ignoreErrorRedirect: true },
+      );
     } catch (error) {
       console.error("Delete category error:", error);
-      alert("카테고리 삭제 중 오류가 발생했습니다.");
     }
   };
 
@@ -2199,7 +2185,9 @@ export default function SuperAdminPage() {
                 setCategoryForm({
                   name: "",
                   slug: "",
-                  order: categories?.content?.length ?? 0,
+                  order: categories?.content?.length
+                    ? categories?.content?.length + 1
+                    : 0,
                 });
                 setShowCategoryForm(true);
               }}
