@@ -807,7 +807,9 @@ export default function SuperAdminPage() {
                     slug: "",
                     thumbnail: "",
                     isActive: true,
-                    order: portfolios?.content?.length ?? 0,
+                    order: portfolios?.content?.length
+                      ? portfolios?.content?.length + 1
+                      : 0,
                     categoryId: "",
                     domain: "",
                     thumbnailFile: null,
