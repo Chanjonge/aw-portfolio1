@@ -1,8 +1,8 @@
 package io.awportfoiioapi.portfolio.repository.impl;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import io.awportfoiioapi.options.entity.QOptions;
 import io.awportfoiioapi.portfolio.dto.response.*;
 import io.awportfoiioapi.portfolio.repository.query.PortfolioQueryRepository;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +69,28 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
     }
     
     @Override
+    public List<PortfolioResponse> getPortfolioList(Boolean active, Long categoryId) {
+        return queryFactory
+                .select(
+                        new QPortfolioResponse(
+                                portfolio.id,
+                                portfolio.category.id,
+                                portfolio.title,
+                                portfolio.description,
+                                portfolio.domain,
+                                portfolio.orders,
+                                portfolio.slug,
+                                portfolio.thumbnail,
+                                portfolio.isActive
+                        )
+                )
+                .from(portfolio)
+                .where(whereIsAction(active), whereCategoryId(categoryId))
+                .orderBy(portfolio.orders.asc())
+                .fetch();
+    }
+    
+    @Override
     public List<PortfolioQuestionCountResponse> findByQuestionCount() {
         return queryFactory
                 .select(
@@ -102,5 +124,19 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
                 .from(portfolio)
                 .where(portfolio.id.eq(id))
                 .fetchFirst();
+    }
+    
+    private BooleanExpression whereIsAction(Boolean active) {
+        if (active == null) {
+            return null;
+        }
+        return portfolio.isActive.eq(active);
+    }
+    
+    private BooleanExpression whereCategoryId(Long categoryId) {
+        if (categoryId == null) {
+            return null;
+        }
+        return portfolio.category.id.eq(categoryId);
     }
 }

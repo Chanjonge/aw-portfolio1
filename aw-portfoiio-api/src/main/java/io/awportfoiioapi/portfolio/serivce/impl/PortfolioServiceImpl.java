@@ -66,6 +66,27 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
     
     @Override
+    public List<PortfolioResponse> getPortfolioList(Boolean active, Long categoryId) {
+        List<PortfolioResponse> portfolioList = portfolioRepository.getPortfolioList(active, categoryId);
+        List<PortfolioQuestionCountResponse> byQuestionCount = portfolioRepository.findByQuestionCount();
+        // count 결과를 Map으로 변환
+        Map<Long, Long> questionCountMap =
+                byQuestionCount.stream().collect(Collectors.toMap(
+                        PortfolioQuestionCountResponse::getPortfolioId,
+                        PortfolioQuestionCountResponse::getCount));
+        portfolioList.forEach(portfolio -> {
+            Long count = questionCountMap.getOrDefault(
+                    portfolio.getId(),
+                    0L
+            );
+            portfolio.getCount().setQuestions(count);
+        });
+        
+        portfolioList.forEach(portfolio -> portfolio.getCount().setSubmissions(0L)); // 이건 나중에 구현해야함
+        return portfolioList;
+    }
+    
+    @Override
     public ApiResponse createPortfolio(PortfolioPostRequest request) {
         Integer order = request.getOrder();
         boolean result = portfolioRepository.existsByPortfolioOrder(order);

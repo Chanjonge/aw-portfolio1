@@ -13,6 +13,7 @@ import java.util.List;
 public interface PortfolioService {
     Page<PortfolioResponse> getPortfolioList(Pageable pageable);
     PortfolioGetDetailResponse getPortfolioDetail(Long id);
+    List<PortfolioResponse> getPortfolioList(Boolean active,Long categoryId);
     ApiResponse createPortfolio(PortfolioPostRequest request);
     ApiResponse modifyPortfolio(PortfolioPutRequest request);
     ApiResponse deletePortfolio(Long id);

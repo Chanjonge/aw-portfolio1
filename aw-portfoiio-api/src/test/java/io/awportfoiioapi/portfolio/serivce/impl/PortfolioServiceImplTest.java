@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -195,6 +196,14 @@ class PortfolioServiceImplTest extends RepositoryAndServiceTestSupport {
     void test13(){
         PortfolioGetDetailResponse portfolioDetail = portfolioService.getPortfolioDetail(6L);
         System.out.println("portfolioDetail = " + portfolioDetail);
+    }
+    
+    @DisplayName("포트폴리오 조회(유저화면에서)")
+    @Test
+    void test14(){
+        
+        List<PortfolioResponse> portfolioList = portfolioService.getPortfolioList(Boolean.TRUE,null);
+        System.out.println("portfolioList = " + portfolioList);
     }
     
     private PortfolioPutRequest.ThumbnailRequest  thumbnailKeep() {

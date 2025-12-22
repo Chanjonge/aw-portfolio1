@@ -14,6 +14,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequestMapping("/api")
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +27,13 @@ public class PortfolioController {
     public PageResponse<PortfolioResponse> getPortfolioList(@PageableDefault(size = 10) Pageable pageable) {
         Page<PortfolioResponse> portfolioList = portfolioService.getPortfolioList(pageable);
         return PageResponse.from(portfolioList);
+    }
+    
+    @GetMapping("/portfolios")
+    public List<PortfolioResponse> getPortfolios(@RequestParam(required = false) Boolean active,
+                                                 @RequestParam(required = false) Long categoryId
+                                                 ) {
+        return null;
     }
     
     @GetMapping("/portfolio/{id}")
