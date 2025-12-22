@@ -13,6 +13,8 @@ import { CategoriesService } from "@/services/categories.service";
 import { PortfolioService } from "@/services/portfolios.service";
 import { Portfolio, PortfolioContent, PortfolioForm } from "@/tpyes/portfolio";
 import { Category, CategoryContent, CategorySelect } from "@/tpyes/category";
+import { QuestionService } from "@/services/question.service";
+import { QuestionForm } from "@/tpyes/question";
 
 interface User {
   id: string;
@@ -84,7 +86,9 @@ export default function SuperAdminPage() {
 
   const [users, setUsers] = useState<User[]>([]);
 
+  //질문 목록
   const [questions, setQuestions] = useState<Question[]>([]);
+
   const [submissions, setSubmissions] = useState<Submission[]>([]);
 
   const [selectedPortfolio, setSelectedPortfolio] = useState<string>("");
@@ -119,7 +123,7 @@ export default function SuperAdminPage() {
   // Question form
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-  const [questionForm, setQuestionForm] = useState({
+  const [questionForm, setQuestionForm] = useState<QuestionForm>({
     portfolioId: "",
     step: 1,
     title: "",
@@ -132,6 +136,7 @@ export default function SuperAdminPage() {
     isRequired: true,
     questionType: "text",
     options: "",
+    thumbnailFile: null,
   });
 
   // Category form
@@ -181,15 +186,14 @@ export default function SuperAdminPage() {
   };
 
   const fetchQuestionsByPortfolio = async (portfolioId: string) => {
-    try {
-      const response = await fetch(`/api/questions?portfolioId=${portfolioId}`);
-      const data = await response.json();
-      if (response.ok) {
-        setQuestions(data.questions);
-      }
-    } catch (error) {
-      console.error("Failed to fetch questions:", error);
-    }
+    await request(
+      () => QuestionService.get(portfolioId),
+      (res) => {
+        console.log("질문 목록 조회", res);
+        setQuestions(res.data);
+      },
+      { ignoreErrorRedirect: true },
+    );
   };
 
   const fetchSubmissions = async () => {
@@ -351,6 +355,7 @@ export default function SuperAdminPage() {
     }
   };
 
+  //포토폴리오 추가, 수정
   const handleCreateOrUpdatePortfolio = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -421,6 +426,7 @@ export default function SuperAdminPage() {
     }
   };
 
+  //포토폴리오 삭제
   const handleDeletePortfolio = async (portfolioId: string) => {
     if (
       !confirm(
@@ -459,81 +465,100 @@ export default function SuperAdminPage() {
     setShowPortfolioForm(true);
   };
 
+  //질문 추가, 수정
   const handleCreateOrUpdateQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
 
     try {
-      const url = "/api/questions";
-      const method = editingQuestion ? "PUT" : "POST";
-      const body = editingQuestion
-        ? { ...questionForm, id: editingQuestion.id }
-        : questionForm;
+      const method = editingQuestion
+        ? QuestionService.put
+        : QuestionService.post;
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
+      const formData = new FormData();
 
-      if (response.ok) {
-        alert(
-          editingQuestion ? "질문이 수정되었습니다." : "질문이 생성되었습니다.",
-        );
-        setShowQuestionForm(false);
-        setEditingQuestion(null);
-        setQuestionForm({
-          portfolioId: selectedPortfolio,
-          step: 1,
-          title: "",
-          description: "",
-          thumbnail: "",
-          minLength: 10,
-          maxLength: 500,
-          requireMinLength: false,
-          order: 0,
-          isRequired: true,
-          questionType: "text",
-          options: "",
-        });
-        await fetchQuestionsByPortfolio(selectedPortfolio);
+      formData.append("portfolioId", selectedPortfolio);
+      formData.append("step", String(questionForm.step));
+      formData.append("order", String(questionForm.order));
+      formData.append("title", questionForm.title);
+      formData.append("description", questionForm.description || " ");
+      formData.append("type", questionForm.questionType.toUpperCase());
+      formData.append("minLength", String(questionForm.minLength));
+      formData.append("maxLength", String(questionForm.maxLength));
+      formData.append(
+        "requireMinLength",
+        String(questionForm.requireMinLength),
+      );
+      formData.append("isRequired", String(questionForm.isRequired));
+      formData.append("options", questionForm.options);
+
+      if (editingQuestion) {
+        formData.append("optionsId", editingQuestion.id);
+
+        //썸네일 조건
+        if (questionForm.thumbnailFile) {
+          // 썸네일 새파일이 있으면 교체
+          formData.append("thumbnail.remove", "true");
+          formData.append("thumbnail.file", questionForm.thumbnailFile);
+        } else if (!questionForm.thumbnail) {
+          // 썸네일 URL 없다면 삭제
+          formData.append("thumbnail.remove", "true");
+        } else {
+          // 유지
+          formData.append("thumbnail.remove", "false");
+        }
       } else {
-        const data = await response.json();
-        alert(data.error || "질문 저장에 실패했습니다.");
+        //신규 추가
+        if (questionForm.thumbnailFile) {
+          formData.append("thumbnail", questionForm.thumbnailFile);
+        }
       }
+
+      await request(
+        () => method(formData),
+        (res) => {
+          alert(
+            editingQuestion
+              ? "질문이 수정되었습니다."
+              : "질문이 생성되었습니다.",
+          );
+          setShowQuestionForm(false);
+          setEditingQuestion(null);
+          setQuestionForm({
+            portfolioId: selectedPortfolio,
+            step: 1,
+            title: "",
+            description: "",
+            thumbnail: "",
+            minLength: 10,
+            maxLength: 500,
+            requireMinLength: false,
+            order: 0,
+            isRequired: true,
+            questionType: "text",
+            options: "",
+            thumbnailFile: null,
+          });
+          fetchQuestionsByPortfolio(selectedPortfolio);
+        },
+        { ignoreErrorRedirect: true },
+      );
     } catch (error) {
       console.error("Save question error:", error);
-      alert("질문 저장 중 오류가 발생했습니다.");
     }
   };
 
+  //질문 삭제
   const handleDeleteQuestion = async (questionId: string) => {
     if (!confirm("정말 이 질문을 삭제하시겠습니까?")) return;
 
-    const token = localStorage.getItem("token");
-
-    try {
-      const response = await fetch(`/api/questions?id=${questionId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
+    await request(
+      () => QuestionService.delete(questionId),
+      (res) => {
         alert("질문이 삭제되었습니다.");
-        await fetchQuestionsByPortfolio(selectedPortfolio);
-      } else {
-        const data = await response.json();
-        alert(data.error || "질문 삭제에 실패했습니다.");
-      }
-    } catch (error) {
-      console.error("Delete question error:", error);
-      alert("질문 삭제 중 오류가 발생했습니다.");
-    }
+        fetchQuestionsByPortfolio(selectedPortfolio);
+      },
+      { ignoreErrorRedirect: true },
+    );
   };
 
   const handleEditQuestion = (question: Question) => {
@@ -551,6 +576,7 @@ export default function SuperAdminPage() {
       isRequired: question.isRequired,
       questionType: question.questionType || "text",
       options: question.options || "",
+      thumbnailFile: null,
     });
     setShowQuestionForm(true);
   };
@@ -626,11 +652,16 @@ export default function SuperAdminPage() {
         fetchSubmissions();
         break;
 
+      case "questions":
+        if (portfolios) setSelectedPortfolio(portfolios.content[0].id);
+        break;
+
       default:
         break;
     }
   }, [activeTab, page]);
 
+  //질문 목록에 상위 포토폴리오 교체시
   useEffect(() => {
     if (selectedPortfolio) {
       fetchQuestionsByPortfolio(selectedPortfolio);
@@ -875,6 +906,7 @@ export default function SuperAdminPage() {
                     isRequired: true,
                     questionType: "text",
                     options: "",
+                    thumbnailFile: null,
                   });
                   setShowQuestionForm(true);
                 }}
@@ -1345,7 +1377,6 @@ export default function SuperAdminPage() {
                   <option value="textarea">장문형 (여러 줄)</option>
                   <option value="file">파일 업로드</option>
                   <option value="checkbox">체크박스 (조건부 입력)</option>
-                  <option value="repeatable">반복 가능한 필드</option>
                 </select>
               </div>
               {questionForm.questionType === "agreement" && (
@@ -1671,41 +1702,10 @@ export default function SuperAdminPage() {
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const formData = new FormData();
-                      formData.append("file", file);
-                      const token = localStorage.getItem("token");
-                      try {
-                        const response = await fetch("/api/upload", {
-                          method: "POST",
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                          },
-                          body: formData,
-                        });
-
-                        const data = await response.json();
-                        console.log("Upload response:", data);
-
-                        if (response.ok && data.url) {
-                          setQuestionForm({
-                            ...questionForm,
-                            thumbnail: data.url,
-                          });
-                          alert(
-                            "✅ 이미지 업로드 성공!\n저장 버튼을 눌러주세요.",
-                          );
-                        } else {
-                          console.error("Upload failed:", data);
-                          alert(
-                            `❌ 이미지 업로드 실패: ${data.error || data.details || "알 수 없는 오류"}\n\n${data.details ? `상세: ${data.details}` : ""}`,
-                          );
-                        }
-                      } catch (error) {
-                        console.error("Upload error:", error);
-                        alert(
-                          "❌ 이미지 업로드 중 오류가 발생했습니다.\n콘솔을 확인하세요.",
-                        );
-                      }
+                      setQuestionForm((prev) => ({
+                        ...prev,
+                        thumbnailFile: file,
+                      }));
                     }
                   }}
                   className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-black file:text-white file:cursor-pointer hover:file:bg-gray-800"
