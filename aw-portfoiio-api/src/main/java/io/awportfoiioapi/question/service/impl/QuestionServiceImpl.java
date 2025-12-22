@@ -11,7 +11,7 @@ import io.awportfoiioapi.portfolio.entity.Portfolio;
 import io.awportfoiioapi.portfolio.repository.PortfolioRepository;
 import io.awportfoiioapi.question.dto.request.QuestionPostRequest;
 import io.awportfoiioapi.question.dto.request.QuestionPutRequest;
-import io.awportfoiioapi.question.dto.response.QuestionGerResponse;
+import io.awportfoiioapi.question.dto.response.QuestionGetResponse;
 import io.awportfoiioapi.question.dto.response.QuestionGetDetailResponse;
 import io.awportfoiioapi.question.entity.Question;
 import io.awportfoiioapi.question.respotiroy.QuestionRepository;
@@ -39,8 +39,8 @@ public class QuestionServiceImpl implements QuestionService {
     private final S3FileUtils s3FileUtils;
     
     @Override
-    public QuestionGerResponse getQuestion(Long id) {
-        return null;
+    public List<QuestionGetResponse> getQuestion(Long portfolioId) {
+       return questionRepository.findByQuestions(portfolioId);
     }
     
     @Override

@@ -5,6 +5,7 @@ import io.awportfoiioapi.advice.exception.CustomException;
 import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.question.dto.request.QuestionPostRequest;
 import io.awportfoiioapi.question.dto.request.QuestionPutRequest;
+import io.awportfoiioapi.question.dto.response.QuestionGetResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
@@ -108,7 +109,7 @@ class QuestionServiceImplTest extends RepositoryAndServiceTestSupport {
                 "portfolio", file1.getName(), "image/jpeg", fis1
         );
         QuestionPostRequest request = new QuestionPostRequest(
-                4L,
+                7L,
                 1,
                 2,
                 "질문 타이틀",
@@ -198,5 +199,13 @@ class QuestionServiceImplTest extends RepositoryAndServiceTestSupport {
         
         // then
         System.out.println(response);
+    }
+    
+    @DisplayName("질문 조회")
+    @Test
+    void test7(){
+        
+        List<QuestionGetResponse> question = questionService.getQuestion(7L);
+        System.out.println("question = " + question);
     }
 }
