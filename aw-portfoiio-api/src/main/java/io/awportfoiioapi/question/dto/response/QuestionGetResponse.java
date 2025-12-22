@@ -22,17 +22,10 @@ public class QuestionGetResponse {
     private Integer minLength;
     private Boolean requireMinLength;
     private Boolean isRequired;
-    private List<Notifications> notifications;
-    
-    public List<Notifications> getNotifications() {
-        if (this.notifications == null) {
-            this.notifications = new ArrayList<>();
-        }
-        return this.notifications;
-    }
+    private String options;
     
     @QueryProjection
-    public QuestionGetResponse(Long id, Long questionId, Integer step, Integer order, String title, String description, String type, String thumbnail, Integer maxLength, Integer minLength, Boolean minLengthIsActive, Boolean optionsIsActive) {
+    public QuestionGetResponse(Long id, Long questionId, Integer step, Integer order, String title, String description, String type, String thumbnail, Integer maxLength, Integer minLength, Boolean minLengthIsActive, Boolean optionsIsActive,String options) {
         this.id = id;
         this.questionId = questionId;
         this.step = step;
@@ -45,6 +38,7 @@ public class QuestionGetResponse {
         this.minLength = minLength;
         this.requireMinLength = minLengthIsActive;
         this.isRequired = optionsIsActive;
+        this.options = options;
     }
     
      @Data

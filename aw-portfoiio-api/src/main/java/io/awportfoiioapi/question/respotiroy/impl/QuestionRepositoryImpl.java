@@ -54,32 +54,33 @@ public class QuestionRepositoryImpl implements QuestionQueryRepository {
     
     @Override
     public List<QuestionGetResponse> findByQuestions(Long portfolioId) {
-      
-        Map<Long, QuestionGetResponse> result =
-              queryFactory
-                  .from(options)
-                  .join(options.question, question)
-                  .where(question.portfolio.id.eq(portfolioId))
-                  .transform(
-                      GroupBy.groupBy(options.id).as(
-                          Projections.constructor(
-                              QuestionGetResponse.class,
-                              options.id,
-                              question.id,
-                              question.step,
-                              options.orders,
-                              options.title,
-                              options.description,
-                              options.type.stringValue().toLowerCase(),
-                              options.thumbnail,
-                              options.maxLength,
-                              options.minLength,
-                              options.minLengthIsActive,
-                              options.optionsIsActive
-                          )
-                      )
-                  );
         
-          return new ArrayList<>(result.values());
+        Map<Long, QuestionGetResponse> result =
+                queryFactory
+                        .from(options)
+                        .join(options.question, question)
+                        .where(question.portfolio.id.eq(portfolioId))
+                        .transform(
+                                GroupBy.groupBy(options.id).as(
+                                        Projections.constructor(
+                                                QuestionGetResponse.class,
+                                                options.id,
+                                                question.id,
+                                                question.step,
+                                                options.orders,
+                                                options.title,
+                                                options.description,
+                                                options.type.stringValue().toLowerCase(),
+                                                options.thumbnail,
+                                                options.maxLength,
+                                                options.minLength,
+                                                options.minLengthIsActive,
+                                                options.optionsIsActive,
+                                                options.option
+                                        )
+                                )
+                        );
+        
+        return new ArrayList<>(result.values());
     }
 }
