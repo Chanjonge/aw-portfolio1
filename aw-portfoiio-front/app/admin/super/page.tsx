@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { userState } from "@/store/user";
 import { useRequest } from "@/hooks/useRequest";
 import { CategoriesService } from "@/services/categories.service";
 import Pagination from "@/components/Pagination";
+import { tokenStore } from "@/services/tokenStore";
+import axios from "axios";
+import api from "@/lib/axiosInstance";
 
 interface User {
   id: string;
@@ -106,6 +109,7 @@ export default function SuperAdminPage() {
 
   //유저정보
   const currentUser = useRecoilValue(userState);
+  const resetUser = useSetRecoilState(userState);
 
   //hooks
   const { request } = useRequest();
@@ -570,13 +574,21 @@ export default function SuperAdminPage() {
     setShowQuestionForm(true);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+  //로그아웃
+  const handleLogout = async () => {
+    await axios.delete("/api/refresh", {
+      baseURL: api.defaults.baseURL,
+      withCredentials: true,
+    });
+
+    tokenStore.clear();
+    resetUser(null);
+    localStorage.removeItem("login");
+
     router.push("/admin/login");
   };
 
-  // 페이지 이동
+  //페이지 이동
   const handlePageClick = (pageNum: number) => {
     setPage(pageNum);
   };
@@ -602,6 +614,7 @@ export default function SuperAdminPage() {
     }
   };
 
+  //유저 변경시 auth 체크
   useEffect(() => {
     checkAuth();
   }, [currentUser]);
