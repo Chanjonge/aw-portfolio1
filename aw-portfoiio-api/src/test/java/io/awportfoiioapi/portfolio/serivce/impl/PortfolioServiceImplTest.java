@@ -201,7 +201,6 @@ class PortfolioServiceImplTest extends RepositoryAndServiceTestSupport {
     @DisplayName("포트폴리오 조회(유저화면에서)")
     @Test
     void test14(){
-        
         List<PortfolioResponse> portfolioList = portfolioService.getPortfolioList(Boolean.TRUE,null);
         System.out.println("portfolioList = " + portfolioList);
     }
