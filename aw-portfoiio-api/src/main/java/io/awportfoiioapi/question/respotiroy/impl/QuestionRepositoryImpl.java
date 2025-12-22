@@ -4,10 +4,7 @@ import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.awportfoiioapi.notification.entity.Notification;
-import io.awportfoiioapi.notification.entity.QNotification;
-import io.awportfoiioapi.question.dto.response.QQuestionGetResponse;
 import io.awportfoiioapi.question.dto.response.QuestionGetResponse;
-import io.awportfoiioapi.question.entity.QQuestion;
 import io.awportfoiioapi.question.entity.Question;
 import io.awportfoiioapi.question.respotiroy.query.QuestionQueryRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.awportfoiioapi.notification.entity.QNotification.*;
+import static io.awportfoiioapi.notification.entity.QNotification.notification;
 import static io.awportfoiioapi.options.entity.QOptions.options;
 import static io.awportfoiioapi.question.entity.QQuestion.question;
 
@@ -75,7 +72,7 @@ public class QuestionRepositoryImpl implements QuestionQueryRepository {
                               options.orders,
                               options.title,
                               options.description,
-                              options.type.stringValue(),
+                              options.type.stringValue().toLowerCase(),
                               options.thumbnail,
                               options.maxLength,
                               options.minLength,
