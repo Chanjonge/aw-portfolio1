@@ -41,7 +41,7 @@ public class MemberDetailServiceImpl implements UserDetailsService {
         return null;
     }
     
-    public UserDetails loadUserByAdmin(String loginId,String password) {
+    public UserDetails loadUserByAdmin(String loginId, String password) {
         Member findAdmin = memberRepository.findByPortfolioAdminId(loginId);
         if (findAdmin == null) {
             throw new UsernameNotFoundException("존재하지않는 아이디 이거나 비밀번호가 맞지않습니다.");
@@ -55,7 +55,7 @@ public class MemberDetailServiceImpl implements UserDetailsService {
         return new MemberContext(findAdmin, authorityList);
     }
     
-    public UserDetails loadUserByUsername(String loginId,String password) {
+    public UserDetails loadUserByUsername(String loginId, String password) {
         Member findByMember = memberRepository
                 .findByPortfolioMemberId(loginId)
                 .orElseGet(() -> {
@@ -79,6 +79,9 @@ public class MemberDetailServiceImpl implements UserDetailsService {
                     
                     return saveMember;
                 });
+        if (!passwordEncoder.matches(password, findByMember.getPassword())) {
+            throw new BadCredentialsException("존재하지않는 아이디 이거나 비밀번호가 맞지않습니다.");
+        }
         Long id = findByMember.getId();
         List<String> roleName = memberDetailRepository.getRoleName(id);
         List<GrantedAuthority> authorityList = AuthorityUtils.createAuthorityList(roleName);

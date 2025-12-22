@@ -33,6 +33,6 @@ public class MemberRepositoryImpl implements MemberQueryRepository {
                 .selectFrom(member)
                 .where(member.loginId.eq(name))
                 .fetchFirst();
-        return Optional.of(result);
+        return Optional.ofNullable(result);
     }
 }
