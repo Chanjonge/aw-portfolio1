@@ -93,7 +93,7 @@ class QuestionServiceImplTest extends RepositoryAndServiceTestSupport {
                 500,
                 Boolean.TRUE,
                 Boolean.TRUE,
-                null
+                "sdsdsdsd"
         );
         ApiResponse question = questionService.createQuestion(request);
         System.out.println("question = " + question);
@@ -137,26 +137,19 @@ class QuestionServiceImplTest extends RepositoryAndServiceTestSupport {
                 "portfolio", file1.getName(), "image/jpeg", fis1
         );
         
-        List<QuestionPostRequest.Notifications> notifications = new ArrayList<>();
-        QuestionPostRequest.Notifications notifications1 = new QuestionPostRequest.Notifications("안내사항1");
-        QuestionPostRequest.Notifications notifications2 = new QuestionPostRequest.Notifications("안내사항2");
-        QuestionPostRequest.Notifications notifications3 = new QuestionPostRequest.Notifications("안내사항3");
-        notifications.add(notifications1);
-        notifications.add(notifications2);
-        notifications.add(notifications3);
         QuestionPostRequest request = new QuestionPostRequest(
                 7L,
                 0,
-                4,
+                10,
                 "질문 타이틀",
                 "질문 설명",
-                "SHORT_ANSWER",
+                "TEXT",
                 multipartFile1,
                 10,
                 500,
                 Boolean.TRUE,
                 Boolean.TRUE,
-                notifications
+                "{sdsdsdsd}"
         );
         ApiResponse question = questionService.createQuestion(request);
         System.out.println("question = " + question);
@@ -170,10 +163,10 @@ class QuestionServiceImplTest extends RepositoryAndServiceTestSupport {
         QuestionPutRequest request = new QuestionPutRequest();
         request.setOptionsId(7L);
         request.setStep(1);
-        request.setOrder(1);
+        request.setOrder(11);
         request.setTitle("수정된 질문 제목");
         request.setDescription("수정된 질문 설명");
-        request.setType("LONG_ANSWER");
+        request.setType("TEXT");
         request.setMinLength(20);
         request.setMaxLength(300);
         request.setRequireMinLength(Boolean.TRUE);
@@ -184,12 +177,6 @@ class QuestionServiceImplTest extends RepositoryAndServiceTestSupport {
         request.setThumbnail(thumbnailRequest);
         
         // 알림 수정 요청
-        List<QuestionPutRequest.Notifications> notifications = new ArrayList<>();
-        notifications.add(new QuestionPutRequest.Notifications(7L, "안내사항 수정23232323"));
-        notifications.add(new QuestionPutRequest.Notifications(9L, "안내사항 저장"));
-        notifications.add(new QuestionPutRequest.Notifications(10L, "안내사항 저장22"));
-        notifications.add(new QuestionPutRequest.Notifications(null, "안내사항 gg"));
-        request.setNotifications(notifications);
         
         // when
         ApiResponse response = questionService.modifyQuestion(request);
@@ -208,27 +195,22 @@ class QuestionServiceImplTest extends RepositoryAndServiceTestSupport {
                 "portfolio", file1.getName(), "image/jpeg", fis1
         );
         QuestionPutRequest request = new QuestionPutRequest();
-        request.setOptionsId(5L);
+        request.setOptionsId(6L);
         request.setStep(1);
         request.setOrder(3);
         request.setTitle("수정된 질문 제목");
         request.setDescription("수정된 질문 설명");
-        request.setType("LONG_ANSWER");
+        request.setType("TEXT");
         request.setMinLength(20);
         request.setMaxLength(300);
         request.setRequireMinLength(Boolean.TRUE);
         request.setIsRequired(Boolean.FALSE);
+        request.setOptions("{cxddcvcvxcv}");
         // 썸네일 요청 (삭제만 테스트하고 싶으면 이거)
         QuestionPutRequest.ThumbnailRequest thumbnailRequest = new QuestionPutRequest.ThumbnailRequest(multipartFile1, true);
         request.setThumbnail(thumbnailRequest);
         
         // 알림 수정 요청
-        List<QuestionPutRequest.Notifications> notifications = new ArrayList<>();
-        notifications.add(new QuestionPutRequest.Notifications(7L, "안내사항 수정23232323"));
-        notifications.add(new QuestionPutRequest.Notifications(9L, "안내사항 저장"));
-        notifications.add(new QuestionPutRequest.Notifications(10L, "안내사항 저장22"));
-        notifications.add(new QuestionPutRequest.Notifications(null, "안내사항 gg"));
-        request.setNotifications(notifications);
         
         // when
         ApiResponse response = questionService.modifyQuestion(request);
@@ -248,7 +230,7 @@ class QuestionServiceImplTest extends RepositoryAndServiceTestSupport {
                 "portfolio", file1.getName(), "png", fis1
         );
         QuestionPutRequest request = new QuestionPutRequest();
-        request.setOptionsId(5L);
+        request.setOptionsId(6L);
         request.setStep(1);
         request.setOrder(3);
         request.setTitle("수정된 질문 제목");
@@ -263,10 +245,6 @@ class QuestionServiceImplTest extends RepositoryAndServiceTestSupport {
         request.setThumbnail(thumbnailRequest);
         
         // 알림 수정 요청
-        List<QuestionPutRequest.Notifications> notifications = new ArrayList<>();
-        notifications.add(new QuestionPutRequest.Notifications(7L, "안내사항 수정23232323"));
-        notifications.add(new QuestionPutRequest.Notifications(9L, "안내사항 저장"));
-        request.setNotifications(notifications);
         
         // when
         ApiResponse response = questionService.modifyQuestion(request);

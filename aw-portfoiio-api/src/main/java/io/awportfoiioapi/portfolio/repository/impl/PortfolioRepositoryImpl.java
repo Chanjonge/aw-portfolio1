@@ -2,6 +2,7 @@ package io.awportfoiioapi.portfolio.repository.impl;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import io.awportfoiioapi.options.entity.QOptions;
 import io.awportfoiioapi.portfolio.dto.response.*;
 import io.awportfoiioapi.portfolio.repository.query.PortfolioQueryRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
 
-import static io.awportfoiioapi.options.entity.QOptions.options;
+import static io.awportfoiioapi.options.entity.QOptions.*;
 import static io.awportfoiioapi.portfolio.entity.QPortfolio.portfolio;
 import static io.awportfoiioapi.question.entity.QQuestion.question;
 

@@ -31,22 +31,7 @@ public class QuestionPutRequest {
     private Boolean requireMinLength;
     private Boolean isRequired;
     private ThumbnailRequest thumbnail;
-    private List<Notifications> notifications;
-    
-    public List<Notifications> getNotifications() {
-        if (this.notifications == null) {
-            this.notifications = new ArrayList<>();
-        }
-        return this.notifications;
-    }
-    
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class Notifications {
-        private Long id;
-        private String value;
-    }
+    private String options;
     
     @Data
     @AllArgsConstructor

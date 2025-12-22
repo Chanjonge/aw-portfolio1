@@ -3,7 +3,7 @@ package io.awportfoiioapi.question.respotiroy.impl;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import io.awportfoiioapi.notification.entity.Notification;
+import io.awportfoiioapi.options.entity.QOptions;
 import io.awportfoiioapi.question.dto.response.QuestionGetResponse;
 import io.awportfoiioapi.question.entity.Question;
 import io.awportfoiioapi.question.respotiroy.query.QuestionQueryRepository;
@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.awportfoiioapi.notification.entity.QNotification.notification;
-import static io.awportfoiioapi.options.entity.QOptions.options;
+import static io.awportfoiioapi.options.entity.QOptions.*;
 import static io.awportfoiioapi.question.entity.QQuestion.question;
 
 @RequiredArgsConstructor
@@ -60,7 +59,6 @@ public class QuestionRepositoryImpl implements QuestionQueryRepository {
               queryFactory
                   .from(options)
                   .join(options.question, question)
-                  .leftJoin(notification).on(notification.options.eq(options))
                   .where(question.portfolio.id.eq(portfolioId))
                   .transform(
                       GroupBy.groupBy(options.id).as(
@@ -81,24 +79,6 @@ public class QuestionRepositoryImpl implements QuestionQueryRepository {
                           )
                       )
                   );
-                
-        List<Notification> notificationEntities =
-             queryFactory
-                 .selectFrom(notification)
-                 .where(notification.options.id.in(result.keySet()))
-                 .fetch();
-        
-        for (Notification n : notificationEntities) {
-            QuestionGetResponse dto =
-                result.get(n.getOptions().getId());
-        
-            dto.getNotifications().add(
-                new QuestionGetResponse.Notifications(
-                    n.getId(),
-                    n.getDescription()
-                )
-            );
-        }
         
           return new ArrayList<>(result.values());
     }

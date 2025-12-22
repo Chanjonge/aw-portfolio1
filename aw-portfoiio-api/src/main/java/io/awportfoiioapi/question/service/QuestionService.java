@@ -11,7 +11,6 @@ import java.util.List;
 public interface QuestionService {
 
     List<QuestionGetResponse> getQuestion(Long portfolioId);
-    QuestionGetDetailResponse getQuestionDetail(Long id);
     ApiResponse createQuestion(QuestionPostRequest request);
     ApiResponse modifyQuestion(QuestionPutRequest request);
     ApiResponse deleteQuestion(Long ID);

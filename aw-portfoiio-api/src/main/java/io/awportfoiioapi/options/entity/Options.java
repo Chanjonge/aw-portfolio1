@@ -65,6 +65,9 @@ public class Options extends DateSuperClass {
     @Column(name = "OPTIONS_IS_ACTIVE")
     private Boolean optionsIsActive;
     
+    @Column(name = "OPTIONS_JSON")
+    private String option;
+    
     public void updateBasic(
             Integer orders,
             String title,
@@ -73,7 +76,8 @@ public class Options extends DateSuperClass {
             Integer minLength,
             Integer maxLength,
             Boolean minLengthIsActive,
-            Boolean isRequired
+            Boolean isRequired,
+            String options
     ) {
         this.orders = orders;
         this.title = title;
@@ -83,6 +87,7 @@ public class Options extends DateSuperClass {
         this.maxLength = maxLength;
         this.minLengthIsActive = minLengthIsActive;
         this.optionsIsActive = isRequired;
+        this.option = options;
     }
     
     public void changeThumbnail(String thumbnail) {

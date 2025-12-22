@@ -5,8 +5,6 @@ import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.file.entity.CommonFile;
 import io.awportfoiioapi.file.enums.CommonFileType;
 import io.awportfoiioapi.file.repository.CommonFileRepository;
-import io.awportfoiioapi.notification.entity.Notification;
-import io.awportfoiioapi.notification.respotiroy.NotificationRepository;
 import io.awportfoiioapi.options.entity.Options;
 import io.awportfoiioapi.options.enums.OptionsType;
 import io.awportfoiioapi.options.respotiroy.OptionsRepository;
@@ -15,7 +13,6 @@ import io.awportfoiioapi.portfolio.repository.PortfolioRepository;
 import io.awportfoiioapi.question.dto.request.QuestionPostRequest;
 import io.awportfoiioapi.question.dto.request.QuestionPutRequest;
 import io.awportfoiioapi.question.dto.response.QuestionGetResponse;
-import io.awportfoiioapi.question.dto.response.QuestionGetDetailResponse;
 import io.awportfoiioapi.question.entity.Question;
 import io.awportfoiioapi.question.respotiroy.QuestionRepository;
 import io.awportfoiioapi.question.service.QuestionService;
@@ -27,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -38,7 +33,6 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionRepository questionRepository;
     private final OptionsRepository optionsRepository;
     private final PortfolioRepository portfolioRepository;
-    private final NotificationRepository notificationRepository;
     private final CommonFileRepository commonFileRepository;
     private final S3FileUtils s3FileUtils;
     
@@ -47,10 +41,6 @@ public class QuestionServiceImpl implements QuestionService {
         return questionRepository.findByQuestions(portfolioId);
     }
     
-    @Override
-    public QuestionGetDetailResponse getQuestionDetail(Long id) {
-        return null;
-    }
     
     @Override
     public ApiResponse createQuestion(QuestionPostRequest request) {
@@ -104,6 +94,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .maxLength(request.getMaxLength())
                 .minLengthIsActive(request.getRequireMinLength())
                 .optionsIsActive(request.getIsRequired())
+                .option(request.getOptions())
                 .build();
         
         Options savedOptions = optionsRepository.save(options);
@@ -119,19 +110,6 @@ public class QuestionServiceImpl implements QuestionService {
                     .build();
             
             commonFileRepository.save(commonFile);
-        }
-        
-        // 7. Notification 저장
-        List<QuestionPostRequest.Notifications> notifications = request.getNotifications();
-        if (notifications != null && !notifications.isEmpty()) {
-            for (QuestionPostRequest.Notifications n : notifications) {
-                notificationRepository.save(
-                        Notification.builder()
-                                .options(savedOptions)
-                                .description(n.getValue())
-                                .build()
-                );
-            }
         }
         
         return new ApiResponse(200, true, "질문이 생성되었습니다.");
@@ -179,7 +157,8 @@ public class QuestionServiceImpl implements QuestionService {
                 request.getMinLength(),
                 request.getMaxLength(),
                 request.getRequireMinLength(),
-                request.getIsRequired()
+                request.getIsRequired(),
+                request.getOptions()
         );
         
         // ======================
@@ -239,32 +218,6 @@ public class QuestionServiceImpl implements QuestionService {
             }
         }
         
-        // Notification diff 처리
-        List<Notification> existing = notificationRepository.findByOptionsId(optionsId);
-        
-        Map<Long, Notification> map = existing.stream()
-                .collect(Collectors.toMap(Notification::getId, n -> n));
-        
-        for (QuestionPutRequest.Notifications reqNoti : request.getNotifications()) {
-            
-            if (reqNoti.getId() == null) {
-                notificationRepository.save(
-                        Notification.builder()
-                                .options(options)
-                                .description(reqNoti.getValue())
-                                .build()
-                );
-            } else {
-                Notification notification = map.remove(reqNoti.getId());
-                if (notification != null) {
-                    notification.changeDescription(reqNoti.getValue());
-                }
-            }
-        }
-        
-        // 남은 알림 삭제
-        notificationRepository.deleteAll(map.values());
-        
         return new ApiResponse(200, true, "질문이 수정되었습니다.");
     }
     
@@ -278,9 +231,6 @@ public class QuestionServiceImpl implements QuestionService {
     
         Question question = options.getQuestion();
         Long questionId = question.getId();
-    
-        // 2. Notification 삭제
-        notificationRepository.deleteByOptionsId(optionsId);
     
         // 3. 썸네일 파일 삭제 (S3)
         if (options.getThumbnail() != null) {
