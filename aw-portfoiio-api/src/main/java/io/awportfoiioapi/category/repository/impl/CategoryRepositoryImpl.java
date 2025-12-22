@@ -33,6 +33,7 @@ public class CategoryRepositoryImpl implements CategoryQueryRepository {
                                 category.id,
                                 category.categoryName,
                                 category.categoryOrders,
+                                category.categorySlug,
                                 category.registDate,
                                 category.modifyDate
                         )
