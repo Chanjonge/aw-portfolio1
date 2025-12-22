@@ -147,7 +147,7 @@ class QuestionServiceImplTest extends RepositoryAndServiceTestSupport {
         QuestionPostRequest request = new QuestionPostRequest(
                 7L,
                 0,
-                1,
+                4,
                 "질문 타이틀",
                 "질문 설명",
                 "SHORT_ANSWER",
@@ -166,16 +166,11 @@ class QuestionServiceImplTest extends RepositoryAndServiceTestSupport {
     @Test
     void test6() throws IOException {
         
-        File file1 = new File("src/test/java/io/awportfoiioapi/image/이건 모자가 아니잖아.jpg");
-        FileInputStream fis1 = new FileInputStream(file1);
-        
-        MockMultipartFile multipartFile1 = new MockMultipartFile(
-                "portfolio", file1.getName(), "image/jpeg", fis1
-        );
+
         QuestionPutRequest request = new QuestionPutRequest();
-        request.setOptionsId(5L);
+        request.setOptionsId(7L);
         request.setStep(1);
-        request.setOrder(3);
+        request.setOrder(1);
         request.setTitle("수정된 질문 제목");
         request.setDescription("수정된 질문 설명");
         request.setType("LONG_ANSWER");
@@ -208,5 +203,16 @@ class QuestionServiceImplTest extends RepositoryAndServiceTestSupport {
     void test7(){
         List<QuestionGetResponse> question = questionService.getQuestion(7L);
         System.out.println("question = " + question);
+    }
+    
+    @DisplayName("")
+    @Test
+    void test8(){
+        //given
+        
+        //when
+        
+        //then
+    
     }
 }

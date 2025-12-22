@@ -10,4 +10,6 @@ public interface CommonFileQueryRepository {
     
     CommonFile findByFileTargetIdAndFileType(Long fileTargetId, CommonFileType fileType);
     
+    Long deleteByTargetIdAndType(Long id, CommonFileType commonFileType);
+    
 }

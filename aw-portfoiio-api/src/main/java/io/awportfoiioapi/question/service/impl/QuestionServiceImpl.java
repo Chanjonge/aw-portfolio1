@@ -2,6 +2,9 @@ package io.awportfoiioapi.question.service.impl;
 
 import io.awportfoiioapi.advice.exception.CategoryAndPortfolioException;
 import io.awportfoiioapi.apiresponse.ApiResponse;
+import io.awportfoiioapi.file.entity.CommonFile;
+import io.awportfoiioapi.file.enums.CommonFileType;
+import io.awportfoiioapi.file.repository.CommonFileRepository;
 import io.awportfoiioapi.notification.entity.Notification;
 import io.awportfoiioapi.notification.respotiroy.NotificationRepository;
 import io.awportfoiioapi.options.entity.Options;
@@ -36,11 +39,12 @@ public class QuestionServiceImpl implements QuestionService {
     private final OptionsRepository optionsRepository;
     private final PortfolioRepository portfolioRepository;
     private final NotificationRepository notificationRepository;
+    private final CommonFileRepository commonFileRepository;
     private final S3FileUtils s3FileUtils;
     
     @Override
     public List<QuestionGetResponse> getQuestion(Long portfolioId) {
-       return questionRepository.findByQuestions(portfolioId);
+        return questionRepository.findByQuestions(portfolioId);
     }
     
     @Override
@@ -54,35 +58,42 @@ public class QuestionServiceImpl implements QuestionService {
         Integer step = request.getStep();
         Integer order = request.getOrder();
         
-        //같은 포트폴리오 같은 단계에 같은 순서가 있는지 확인
-        Boolean orderResult = questionRepository.existsOrders(portfolioId, step, order);
-        if (orderResult) {
-            throw new CategoryAndPortfolioException("이미 존재 하는 포트폴리오 질문단계 순서 입니다.", "order");
+        // 1. 같은 포트폴리오 + 같은 step + 같은 order 검증
+        if (questionRepository.existsOrders(portfolioId, step, order)) {
+            throw new CategoryAndPortfolioException(
+                    "이미 존재 하는 포트폴리오 질문단계 순서 입니다.", "order"
+            );
         }
-        // step 이 없으면 만들어주고 ,있으면 값을 찾기
+        
+        // 2. Question 조회 또는 생성
         Question question = questionRepository.findByPortfolioStep(portfolioId, step);
         if (question == null) {
-            Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> new RuntimeException("존재 하지않는 포트폴리오 입니다."));// 없을리 없음
-            Question saveQuestion = Question
-                    .builder()
-                    .portfolio(portfolio)
-                    .step(step)
-                    .build();
-            question = questionRepository.save(saveQuestion);
+            Portfolio portfolio = portfolioRepository.findById(portfolioId)
+                    .orElseThrow(() -> new RuntimeException("존재 하지않는 포트폴리오 입니다."));
+            
+            question = questionRepository.save(
+                    Question.builder()
+                            .portfolio(portfolio)
+                            .step(step)
+                            .build()
+            );
         }
+        
+        // 3. OptionsType
         OptionsType optionsType = OptionsType.valueOf(request.getType());
         
+        // 4. 썸네일 업로드 (있을 경우)
         String thumbnailUrl = null;
-        
         MultipartFile thumbnail = request.getThumbnail();
+        UploadResult uploadResult = null;
+        
         if (thumbnail != null && !thumbnail.isEmpty()) {
-            UploadResult file = s3FileUtils.storeFile(thumbnail, "question");
-            thumbnailUrl = file.url();
+            uploadResult = s3FileUtils.storeFile(thumbnail, "options");
+            thumbnailUrl = uploadResult.url();
         }
         
-        // options 만들어주기
-        Options options = Options
-                .builder()
+        // 5. Options 생성
+        Options options = Options.builder()
                 .question(question)
                 .orders(order)
                 .title(request.getTitle())
@@ -95,68 +106,71 @@ public class QuestionServiceImpl implements QuestionService {
                 .optionsIsActive(request.getIsRequired())
                 .build();
         
-        Options saveOptions = optionsRepository.save(options);
-        //안내사항 있는지 확인
+        Options savedOptions = optionsRepository.save(options);
+        
+        // 6. CommonFile 저장 (썸네일이 있을 때만)
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            CommonFile commonFile = CommonFile.builder()
+                    .fileName(thumbnail.getOriginalFilename())
+                    .fileUrl(thumbnailUrl)
+                    .fileTargetId(savedOptions.getId())
+                    .fileType(CommonFileType.OPTIONS)
+                    .fileUuidName(uploadResult.uuid())
+                    .build();
+            
+            commonFileRepository.save(commonFile);
+        }
+        
+        // 7. Notification 저장
         List<QuestionPostRequest.Notifications> notifications = request.getNotifications();
         if (notifications != null && !notifications.isEmpty()) {
-            
-            for (QuestionPostRequest.Notifications notification : notifications) {
-                Notification SaveNotifications = Notification
-                        .builder()
-                        .options(saveOptions)
-                        .description(notification.getValue())
-                        .build();
-                notificationRepository.save(SaveNotifications);
+            for (QuestionPostRequest.Notifications n : notifications) {
+                notificationRepository.save(
+                        Notification.builder()
+                                .options(savedOptions)
+                                .description(n.getValue())
+                                .build()
+                );
             }
         }
+        
         return new ApiResponse(200, true, "질문이 생성되었습니다.");
     }
     
     @Override
     public ApiResponse modifyQuestion(QuestionPutRequest request) {
         Long optionsId = request.getOptionsId();
-    
-        // 1. Options 조회
+        
         Options options = optionsRepository.findById(optionsId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 질문 옵션입니다."));
-    
+        
         Question question = options.getQuestion();
         Long portfolioId = question.getPortfolio().getId();
-    
+        
         Integer newStep = request.getStep();
         Integer newOrder = request.getOrder();
-    
-        // 2. step / order 변경 시 중복 검증
+        
+        // 순서 변경 시 중복 검증
         if (!question.getStep().equals(newStep) || !options.getOrders().equals(newOrder)) {
-            Boolean exists = questionRepository.existsOrders(
-                    portfolioId,
-                    newStep,
-                    newOrder
-            );
-            if (exists) {
-                throw new CategoryAndPortfolioException(
-                        "이미 존재하는 질문 단계 순서입니다.", "order"
-                );
-            }
+            if (questionRepository.existsOrders(portfolioId, newStep, newOrder)) {
+                throw new CategoryAndPortfolioException("이미 존재하는 질문 단계 순서입니다.", "order");}
         }
-    
-        // 3. step 변경 시 Question 재매핑
+        
+        // step 변경
         if (!question.getStep().equals(newStep)) {
-            Question targetQuestion =
-                    questionRepository.findByPortfolioStep(portfolioId, newStep);
-    
-            if (targetQuestion == null) {
-                targetQuestion = questionRepository.save(
+            Question target = questionRepository.findByPortfolioStep(portfolioId, newStep);
+            if (target == null) {
+                target = questionRepository.save(
                         Question.builder()
                                 .portfolio(question.getPortfolio())
                                 .step(newStep)
                                 .build()
                 );
             }
-            options.changeQuestion(targetQuestion); // 연관관계 변경
+            options.changeQuestion(target);
         }
-    
-        // 4. Options 기본 필드 수정
+        
+        // 기본 필드 수정
         options.updateBasic(
                 newOrder,
                 request.getTitle(),
@@ -167,40 +181,71 @@ public class QuestionServiceImpl implements QuestionService {
                 request.getRequireMinLength(),
                 request.getIsRequired()
         );
-    
-        // 5. 썸네일 처리
+        
+        // ======================
+        // 썸네일 처리 (핵심)
+        // ======================
         QuestionPutRequest.ThumbnailRequest thumbnailReq = request.getThumbnail();
-    
+        
         if (thumbnailReq != null) {
-            // 삭제
+        
+            // 삭제 요청
             if (Boolean.TRUE.equals(thumbnailReq.getRemove())) {
+        
+                // 1. S3 파일 삭제 (URL 있을 때만)
                 if (options.getThumbnail() != null) {
                     s3FileUtils.deleteFile(options.getThumbnail());
-                    options.changeThumbnail(null);
                 }
+        
+                // 2. CommonFile 메타데이터 삭제 (무조건 시도)
+                commonFileRepository.deleteByTargetIdAndType(
+                        options.getId(), CommonFileType.OPTIONS
+                );
+        
+                // 3. 옵션 썸네일 null 처리
+                options.changeThumbnail(null);
             }
-    
-            // 교체
+        
+            // 교체 요청
             MultipartFile newFile = thumbnailReq.getFile();
             if (newFile != null && !newFile.isEmpty()) {
+        
+                // 1. 기존 S3 파일 삭제
                 if (options.getThumbnail() != null) {
                     s3FileUtils.deleteFile(options.getThumbnail());
                 }
+        
+                // 2. 기존 CommonFile 삭제 (항상)
+                commonFileRepository.deleteByTargetIdAndType(
+                        options.getId(), CommonFileType.QUESTION
+                );
+        
+                // 3. 새 파일 업로드
                 UploadResult upload = s3FileUtils.storeFile(newFile, "question");
+        
+                // 4. 옵션 업데이트
                 options.changeThumbnail(upload.url());
+        
+                // 5. CommonFile 저장
+                commonFileRepository.save(
+                        CommonFile.builder()
+                                .fileTargetId(options.getId())
+                                .fileType(CommonFileType.QUESTION)
+                                .fileUrl(upload.url())
+                                .build()
+                );
             }
         }
-    
-        // 6.Notification 처리
-        List<Notification> existingNotifications = notificationRepository.findByOptionsId(options.getId());
-    
-        Map<Long, Notification> notificationMap = existingNotifications.stream()
+        
+        // Notification diff 처리
+        List<Notification> existing = notificationRepository.findByOptionsId(optionsId);
+        
+        Map<Long, Notification> map = existing.stream()
                 .collect(Collectors.toMap(Notification::getId, n -> n));
-    
+        
         for (QuestionPutRequest.Notifications reqNoti : request.getNotifications()) {
-    
+            
             if (reqNoti.getId() == null) {
-                // 신규 추가
                 notificationRepository.save(
                         Notification.builder()
                                 .options(options)
@@ -208,22 +253,52 @@ public class QuestionServiceImpl implements QuestionService {
                                 .build()
                 );
             } else {
-                // 수정
-                Notification notification = notificationMap.remove(reqNoti.getId());
+                Notification notification = map.remove(reqNoti.getId());
                 if (notification != null) {
                     notification.changeDescription(reqNoti.getValue());
                 }
             }
         }
-    
-        // 남은 기존 알림 → 삭제
-        notificationRepository.deleteAll(notificationMap.values());
-    
+        
+        // 남은 알림 삭제
+        notificationRepository.deleteAll(map.values());
+        
         return new ApiResponse(200, true, "질문이 수정되었습니다.");
     }
     
     @Override
-    public ApiResponse deleteQuestion(Long ID) {
-        return null;
+    public ApiResponse deleteQuestion(Long optionsId) {
+        
+        
+        // 1. Options 조회
+        Options options = optionsRepository.findById(optionsId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 옵션입니다."));
+    
+        Question question = options.getQuestion();
+        Long questionId = question.getId();
+    
+        // 2. Notification 삭제
+        notificationRepository.deleteByOptionsId(optionsId);
+    
+        // 3. 썸네일 파일 삭제 (S3)
+        if (options.getThumbnail() != null) {
+            s3FileUtils.deleteFile(options.getThumbnail());
+        }
+    
+        // 4. CommonFile 삭제 (옵션 썸네일)
+        commonFileRepository.deleteByTargetIdAndType(optionsId, CommonFileType.OPTIONS);
+    
+        // 5. Options 삭제
+        optionsRepository.delete(options);
+    
+        // 6. 남은 Options 개수 확인
+        Long remainCount = optionsRepository.countByQuestionId(questionId);
+    
+        // 7. Options 없으면 Question 삭제
+        if (remainCount == 0) {
+            questionRepository.delete(question);
+        }
+    
+        return new ApiResponse(200, true, "질문이 삭제되었습니다.");
     }
 }

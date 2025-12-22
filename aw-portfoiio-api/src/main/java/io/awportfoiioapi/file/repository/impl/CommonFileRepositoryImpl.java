@@ -4,6 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.awportfoiioapi.file.entity.CommonFile;
 import io.awportfoiioapi.file.enums.CommonFileType;
 import io.awportfoiioapi.file.repository.query.CommonFileQueryRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 import static io.awportfoiioapi.file.entity.QCommonFile.commonFile;
@@ -12,6 +13,7 @@ import static io.awportfoiioapi.file.entity.QCommonFile.commonFile;
 public class CommonFileRepositoryImpl implements CommonFileQueryRepository {
 
     private final JPAQueryFactory queryFactory;
+    private final EntityManager em;
     
     @Override
     public CommonFile findByPortfolioFile(Long id, CommonFileType commonFileType) {
@@ -31,5 +33,19 @@ public class CommonFileRepositoryImpl implements CommonFileQueryRepository {
                         commonFile.fileType.eq(fileType)
                 )
                 .fetchFirst();
+    }
+    
+    @Override
+    public Long deleteByTargetIdAndType(Long id, CommonFileType commonFileType) {
+        em.flush();
+        long execute = queryFactory
+                .delete(commonFile)
+                .where(
+                        commonFile.fileTargetId.eq(id),
+                        commonFile.fileType.eq(commonFileType)
+                )
+                .execute();
+        em.clear();
+        return execute;
     }
 }

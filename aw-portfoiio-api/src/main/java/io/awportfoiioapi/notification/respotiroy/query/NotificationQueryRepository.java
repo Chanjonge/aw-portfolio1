@@ -7,4 +7,6 @@ import java.util.List;
 public interface NotificationQueryRepository {
 
     List<Notification> findByOptionsId(Long id);
+    
+    Long deleteByOptionsId(Long id);
 }
