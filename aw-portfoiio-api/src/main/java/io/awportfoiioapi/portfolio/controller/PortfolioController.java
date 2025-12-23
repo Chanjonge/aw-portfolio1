@@ -32,13 +32,18 @@ public class PortfolioController {
     @GetMapping("/portfolios")
     public List<PortfolioResponse> getPortfolios(@RequestParam(required = false) Boolean active,
                                                  @RequestParam(required = false) Long categoryId
-                                                 ) {
-        return portfolioService.getPortfolioList(active,categoryId);
+    ) {
+        return portfolioService.getPortfolioList(active, categoryId);
     }
     
     @GetMapping("/portfolio/{id}")
     public PortfolioGetDetailResponse getPortfolioDetail(@PathVariable Long id) {
         return portfolioService.getPortfolioDetail(id);
+    }
+    
+    @GetMapping("/portfolios/{id}")
+    public List<PortfolioResponse> getPortfoliosDetail(@PathVariable Long id) {
+        return null;
     }
     
     @PostMapping("/portfolio")

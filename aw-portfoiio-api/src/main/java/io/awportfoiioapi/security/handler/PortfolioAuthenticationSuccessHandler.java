@@ -45,6 +45,7 @@ public class PortfolioAuthenticationSuccessHandler implements AuthenticationSucc
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         PortfolioAuthenticationToken token = (PortfolioAuthenticationToken) authentication;
         Member member = (Member) token.getPrincipal();
+        Boolean isNewMember = token.getIsNewMember();
         List<GrantedAuthority> authorities = (List<GrantedAuthority>) token.getAuthorities();
         
         LocalDateTime expiresAt = LocalDateTime.now().plusDays(1);
@@ -57,7 +58,8 @@ public class PortfolioAuthenticationSuccessHandler implements AuthenticationSucc
             // Access Token은 응답 JSON에 포함
             Map<String, Object> result = Map.of(
                     "user", memberResponseDto,
-                    "token", tokenPair.accessToken()
+                    "token", tokenPair.accessToken(),
+                    "isNewMember",isNewMember == null ? false : isNewMember
             );
             
             // Refresh Token은 HttpOnly 쿠키로 설정

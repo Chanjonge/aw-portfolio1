@@ -21,7 +21,7 @@ public class LoginUserTest extends ControllerTestSupport {
     @DisplayName("유저 로그인")
     @Test
     void test1() throws Exception {
-        PortfolioAuthenticationRequest request = new PortfolioAuthenticationRequest("test", "1234");
+        PortfolioAuthenticationRequest request = new PortfolioAuthenticationRequest("test1", "1234");
           
           String json = objectMapper.writeValueAsString(request);
           mockMvc.perform(post("/api/user-login")

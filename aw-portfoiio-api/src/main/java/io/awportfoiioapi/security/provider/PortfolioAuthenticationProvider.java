@@ -45,9 +45,10 @@ public class PortfolioAuthenticationProvider implements AuthenticationProvider {
         }
         MemberContext memberContext = (MemberContext) memberDetailService.loadUserByUsername(loginId,password,ip);
           return new PortfolioAuthenticationToken(
+                  memberContext.getAuthorities(),
                   memberContext.getMember(),
                   null,
-                  memberContext.getAuthorities()
+                  memberContext.getIsNewMember()
           );
     }
     

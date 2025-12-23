@@ -10,11 +10,22 @@ import java.util.Collection;
 import java.util.List;
 
 @Getter
-@RequiredArgsConstructor
 public class MemberContext implements UserDetails {
     
-    private final Member member;
-    private final List<GrantedAuthority> authorities;
+    private Member member;
+    private List<GrantedAuthority> authorities;
+    private Boolean isNewMember;
+    
+    public MemberContext(Member member, List<GrantedAuthority> authorities) {
+        this.member = member;
+        this.authorities = authorities;
+    }
+    
+    public MemberContext(Member member, List<GrantedAuthority> authorities, Boolean isNewMember) {
+        this.member = member;
+        this.authorities = authorities;
+        this.isNewMember = isNewMember;
+    }
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -29,5 +40,9 @@ public class MemberContext implements UserDetails {
     @Override
     public String getUsername() {
         return member.getLoginId();
+    }
+    
+    public Boolean getNewMember() {
+        return isNewMember;
     }
 }

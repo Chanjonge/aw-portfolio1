@@ -17,6 +17,7 @@ public class PortfolioAuthenticationToken extends AbstractAuthenticationToken {
     private String url;
     
     private String ip;
+    private Boolean isNewMember;
     
     public PortfolioAuthenticationToken(String principal,String credentials,String url,String ip) {
         super(null);
@@ -31,6 +32,14 @@ public class PortfolioAuthenticationToken extends AbstractAuthenticationToken {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
+        setAuthenticated(true);
+    }
+    
+    public PortfolioAuthenticationToken(Collection<? extends GrantedAuthority> authorities, Object principal, Object credentials, Boolean isNewMember) {
+        super(authorities);
+        this.principal = principal;
+        this.credentials = credentials;
+        this.isNewMember = isNewMember;
         setAuthenticated(true);
     }
     

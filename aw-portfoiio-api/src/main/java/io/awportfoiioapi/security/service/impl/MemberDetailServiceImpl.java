@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @Service
@@ -56,38 +57,48 @@ public class MemberDetailServiceImpl implements UserDetailsService {
     }
     
     public UserDetails loadUserByUsername(String loginId, String password,String ip) {
-        Member findByMember = memberRepository
-                .findByPortfolioMemberId(loginId)
-                .orElseGet(() -> {
-                    
-                    Member agitMember = Member.builder()
-                            .loginId(loginId)
-                            .password(passwordEncoder.encode(password))
-                            .ip(ip)
-                            .build();
-                    
-                    Member saveMember = memberRepository.save(agitMember);
-                    
-                    Role findbyBgmAgitRole =
-                            memberDetailRepository.findByRoleName("USER");
-                    
-                    MemberRole memberRole = MemberRole.builder()
-                            .member(saveMember)
-                            .role(findbyBgmAgitRole)
-                            .build();
-                    
-                    memberRoleRepository.save(memberRole);
-                    
-                    return saveMember;
-                });
-        if (!passwordEncoder.matches(password, findByMember.getPassword())) {
-            throw new BadCredentialsException("존재하지않는 아이디 이거나 비밀번호가 맞지않습니다.");
-        }
-        findByMember.modifyIp(ip);
-        Long id = findByMember.getId();
-        List<String> roleName = memberDetailRepository.getRoleName(id);
-        List<GrantedAuthority> authorityList = AuthorityUtils.createAuthorityList(roleName);
-        return new MemberContext(findByMember, authorityList);
+        // 신규 회원 여부 플래그
+         AtomicBoolean isNewMember = new AtomicBoolean(false);
+         
+         Member member = memberRepository
+                 .findByPortfolioMemberId(loginId)
+                 .orElseGet(() -> {
+                     isNewMember.set(true);
+     
+                     Member newMember = Member.builder()
+                             .loginId(loginId)
+                             .password(passwordEncoder.encode(password))
+                             .ip(ip)
+                             .build();
+     
+                     Member savedMember = memberRepository.save(newMember);
+                     
+                     Role userRole = memberDetailRepository.findByRoleName("USER");
+     
+                     MemberRole memberRole = MemberRole.builder()
+                             .member(savedMember)
+                             .role(userRole)
+                             .build();
+     
+                     memberRoleRepository.save(memberRole);
+     
+                     return savedMember;
+                 });
+         
+         if (!passwordEncoder.matches(password, member.getPassword())) {
+             throw new BadCredentialsException(
+                     "존재하지 않는 아이디이거나 비밀번호가 맞지 않습니다."
+             );
+         }
+         
+         member.modifyIp(ip);
+         Long memberId = member.getId();
+         List<String> roleNames = memberDetailRepository.getRoleName(memberId);
+     
+         List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(roleNames.toArray(new String[0]));
+     
+         
+         return new MemberContext(member, authorities, isNewMember.get());
     }
     
     
