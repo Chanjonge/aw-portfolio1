@@ -18,7 +18,7 @@ import static io.awportfoiioapi.question.entity.QQuestion.question;
 
 @RequiredArgsConstructor
 public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
-
+    
     private final JPAQueryFactory queryFactory;
     
     @Override
@@ -87,6 +87,34 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
                 .from(portfolio)
                 .where(whereIsAction(active), whereCategoryId(categoryId))
                 .orderBy(portfolio.orders.asc())
+                .fetch();
+    }
+    
+    @Override
+    public List<PortfoliosGetDetailResponse> getPortfolioDetailOptions(Long id) {
+        return queryFactory
+                .select(
+                        new QPortfoliosGetDetailResponse(
+                                options.id,
+                                portfolio.id,
+                                options.description,
+                                options.optionsIsActive,
+                                options.maxLength,
+                                options.minLength,
+                                options.option,
+                                options.orders,
+                                options.type.stringValue().toLowerCase(),
+                                options.minLengthIsActive,
+                                question.step,
+                                options.thumbnail,
+                                options.title
+                        )
+                )
+                .from(options)
+                .join(options.question, question)
+                .join(question.portfolio, portfolio)
+                .where(portfolio.id.eq(id))
+                .orderBy(question.step.asc() , options.orders.asc())
                 .fetch();
     }
     

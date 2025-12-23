@@ -12,6 +12,7 @@ import io.awportfoiioapi.portfolio.dto.request.PortfolioPutRequest;
 import io.awportfoiioapi.portfolio.dto.response.PortfolioGetDetailResponse;
 import io.awportfoiioapi.portfolio.dto.response.PortfolioQuestionCountResponse;
 import io.awportfoiioapi.portfolio.dto.response.PortfolioResponse;
+import io.awportfoiioapi.portfolio.dto.response.PortfoliosGetDetailResponse;
 import io.awportfoiioapi.portfolio.entity.Portfolio;
 import io.awportfoiioapi.portfolio.repository.PortfolioRepository;
 import io.awportfoiioapi.portfolio.serivce.PortfolioService;
@@ -84,6 +85,11 @@ public class PortfolioServiceImpl implements PortfolioService {
         
         portfolioList.forEach(portfolio -> portfolio.getCount().setSubmissions(0L)); // 이건 나중에 구현해야함
         return portfolioList;
+    }
+    
+    @Override
+    public List<PortfoliosGetDetailResponse> getPortfolioDetailOptions(Long id) {
+        return portfolioRepository.getPortfolioDetailOptions(id);
     }
     
     @Override

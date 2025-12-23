@@ -8,6 +8,7 @@ import io.awportfoiioapi.portfolio.dto.request.PortfolioPostRequest;
 import io.awportfoiioapi.portfolio.dto.request.PortfolioPutRequest;
 import io.awportfoiioapi.portfolio.dto.response.PortfolioGetDetailResponse;
 import io.awportfoiioapi.portfolio.dto.response.PortfolioResponse;
+import io.awportfoiioapi.portfolio.dto.response.PortfoliosGetDetailResponse;
 import io.awportfoiioapi.portfolio.entity.Portfolio;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -203,6 +204,14 @@ class PortfolioServiceImplTest extends RepositoryAndServiceTestSupport {
     void test14(){
         List<PortfolioResponse> portfolioList = portfolioService.getPortfolioList(Boolean.TRUE,null);
         System.out.println("portfolioList = " + portfolioList);
+    }
+    
+    @DisplayName("포트폴리오 상세조회(유저화면에서)")
+    @Test
+    void test15(){
+        List<PortfoliosGetDetailResponse> portfolioDetailOptions = portfolioService.getPortfolioDetailOptions(7L);
+        System.out.println("portfolioDetailOptions = " + portfolioDetailOptions);
+        
     }
     
     private PortfolioPutRequest.ThumbnailRequest  thumbnailKeep() {
