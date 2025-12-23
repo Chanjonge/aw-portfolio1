@@ -6,6 +6,7 @@ import io.awportfoiioapi.portfolio.dto.request.PortfolioPostRequest;
 import io.awportfoiioapi.portfolio.dto.request.PortfolioPutRequest;
 import io.awportfoiioapi.portfolio.dto.response.PortfolioGetDetailResponse;
 import io.awportfoiioapi.portfolio.dto.response.PortfolioResponse;
+import io.awportfoiioapi.portfolio.dto.response.PortfoliosGetDetailResponse;
 import io.awportfoiioapi.portfolio.serivce.PortfolioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,8 +43,8 @@ public class PortfolioController {
     }
     
     @GetMapping("/portfolios/{id}")
-    public List<PortfolioResponse> getPortfoliosDetail(@PathVariable Long id) {
-        return null;
+    public List<PortfoliosGetDetailResponse> getPortfoliosDetail(@PathVariable Long id) {
+        return portfolioService.getPortfolioDetailOptions(id);
     }
     
     @PostMapping("/portfolio")
