@@ -1,7 +1,9 @@
 package io.awportfoiioapi.submission.entity;
 
 import io.awportfoiioapi.mapperd.DateSuperClass;
+import io.awportfoiioapi.member.entrity.Member;
 import io.awportfoiioapi.portfolio.entity.Portfolio;
+import io.awportfoiioapi.submission.dto.request.SubmissionPostDraftRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +31,10 @@ public class Submission extends DateSuperClass {
     @ManyToOne(fetch = FetchType.LAZY)
     private Portfolio portfolio;
     
+    @JoinColumn(name = "MEMBER_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member member;
+    
     // 제출 회사 이름
     @Column(name = "SUBMISSION_COMPANY_NAME")
     private String companyName;
@@ -38,7 +44,7 @@ public class Submission extends DateSuperClass {
     private String password;
     
     // 제출 제이슨
-    @Column(name = "SUBMISSION_JSON",columnDefinition = "TEXT")
+    @Column(name = "SUBMISSION_JSON", columnDefinition = "TEXT")
     private String submissionJson;
     
     // 제출 여부 드래프트
@@ -48,5 +54,8 @@ public class Submission extends DateSuperClass {
     // 제출 완료 일시
     @Column(name = "SUBMISSION_COMPLETED_DATE")
     private LocalDateTime completedDate;
-
+    
+    public void modifyJson(SubmissionPostDraftRequest request) {
+        this.submissionJson = request.getResponse();
+    }
 }
