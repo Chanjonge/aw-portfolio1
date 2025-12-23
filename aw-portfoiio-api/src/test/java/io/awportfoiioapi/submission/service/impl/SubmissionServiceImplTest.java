@@ -20,25 +20,27 @@ class SubmissionServiceImplTest extends RepositoryAndServiceTestSupport {
     @DisplayName("작성폼 임시저장")
     @Test
     void test1() throws IOException {
-        File file = new File("src/test/java/io/awportfoiioapi/image/이건 모자가 아니잖아.jpg");
-    
-        FileInputStream fis = new FileInputStream(file);
-    
-        MockMultipartFile multipartFile = new MockMultipartFile(
-                "files",                 // 중요
-                file.getName(),
-                "image/jpeg",
-                fis
-        );
-    
-        List<MultipartFile> files = List.of(multipartFile);
+        //이건 모자가 아니잖아.jpg
+        //참새작.png
+//        File file = new File("src/test/java/io/awportfoiioapi/image/이건 모자가 아니잖아.jpg");
+//
+//        FileInputStream fis = new FileInputStream(file);
+//
+//        MockMultipartFile multipartFile = new MockMultipartFile(
+//                "files",                 // 중요
+//                file.getName(),
+//                "image/jpeg",
+//                fis
+//        );
+        
+        List<MultipartFile> files;
     
         SubmissionPostDraftRequest.OptionFileRequest optionFileRequest =
-                new SubmissionPostDraftRequest.OptionFileRequest(6L,1,3, files);
+                new SubmissionPostDraftRequest.OptionFileRequest(6L,1,3, null);
     
         SubmissionPostDraftRequest request =
                 new SubmissionPostDraftRequest(
-                        null,
+                        7L,
                         2L,
                         7L,
                         "{test}",

@@ -110,21 +110,26 @@ public class SubmissionServiceImpl implements SubmissionService {
         } else {
             submission.modifyJson(request);
         }
+        List<CommonFile> oldFiles = commonFileRepository.findByFileTargetIdAndFileTypeList(submission.getId(), CommonFileType.SUBMISSION_OPTION);
+        // 옵션 단위 전부 delete → insert
+        commonFileRepository.deleteSubmissionOptionFiles(
+                submission.getId(),
+                CommonFileType.SUBMISSION_OPTION
+        );
+        
+        for (CommonFile file : oldFiles) {
+            s3FileUtils.deleteFile(file.getFileUrl());
+        }
+        
         
         // 5.옵션별 파일 처리 (신규/기존 공통)
-        for (SubmissionPostDraftRequest.OptionFileRequest optionFile
-                : request.getOptionFiles()) {
+        for (SubmissionPostDraftRequest.OptionFileRequest optionFile : request.getOptionFiles()) {
             
             Long optionsId = optionFile.getOptionsId();
             List<MultipartFile> files = optionFile.getFiles();
             
             if (files.isEmpty()) continue;
             
-            // 5-1. 기존 옵션 파일 삭제 (덮어쓰기)
-            commonFileRepository.deleteByTargetIdAndType(
-                    optionsId,
-                    CommonFileType.SUBMISSION_OPTION
-            );
             
             // 5-2. 새 파일 업로드 & 저장
             for (MultipartFile file : files) {
@@ -136,7 +141,8 @@ public class SubmissionServiceImpl implements SubmissionService {
                         .optionsId(optionsId)
                         .questionStep(optionFile.getQuestionStep())
                         .questionOrder(optionFile.getQuestionOrder())
-                        .fileName(file.getOriginalFilename())
+                        .fileName(upload.originalFilename())
+                        .fileUuidName(upload.uuid())
                         .fileType(CommonFileType.SUBMISSION_OPTION)
                         .fileUrl(upload.url())
                         .build();
