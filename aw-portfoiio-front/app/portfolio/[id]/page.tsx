@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import DynamicFormField from "@/components/DynamicFormField";
+import { useRecoilValue } from "recoil";
+import { userState } from "@/store/user";
+import { PortfolioService } from "@/services/portfolios.service";
+import { useRequest } from "@/hooks/useRequest";
+import { QuestionService } from "@/services/question.service";
 
 interface Question {
   id: string;
@@ -33,7 +38,16 @@ interface FormData {
 export default function PortfolioForm() {
   const router = useRouter();
   const params = useParams();
+
+  //hooks
+  const { request } = useRequest();
+
+  //id 방식 교체
+  const id = params.id as string;
   const slug = params.slug as string;
+
+  //로그인 상태
+  const currentUser = useRecoilValue(userState);
 
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -78,33 +92,38 @@ export default function PortfolioForm() {
     }
   }, [questions, minStep, currentStep]);
 
+  // 1. 유저 정보 확인
   useEffect(() => {
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      try {
-        const userData = JSON.parse(userStr);
-        setUserRole(userData.role || "");
-      } catch (error) {
-        console.error("Failed to parse user data:", error);
+    const loginGb = localStorage.getItem("login");
+
+    //로그인 정보 확인
+    if (loginGb) {
+      if (currentUser) {
+        setUserRole(currentUser.role);
+        fetchPortfolioAndQuestions();
       }
+    } else {
+      router.push("/");
     }
 
-    const portfolioAuth = localStorage.getItem("portfolio_auth");
-    if (portfolioAuth) {
-      try {
-        const authData = JSON.parse(portfolioAuth);
-        setCompanyName(authData.companyName);
-        setPassword(authData.password);
-        setTimeout(() => {
-          checkExistingSubmission(authData.companyName, authData.password);
-        }, 1000);
-      } catch (error) {
-        console.error("Failed to parse portfolio auth:", error);
-      }
-    }
+    // const portfolioAuth = localStorage.getItem("portfolio_auth");
+    // if (portfolioAuth) {
+    //   try {
+    //     const authData = JSON.parse(portfolioAuth);
+    //     setCompanyName(authData.companyName);
+    //     setPassword(authData.password);
+    //   } catch (error) {
+    //     console.error("Failed to parse portfolio auth:", error);
+    //   }
+    // }
+    // 포트폴리오 + 질문 목록
+  }, [slug, currentUser]);
 
-    fetchPortfolioAndQuestions();
-  }, [slug]);
+  useEffect(() => {
+    if (companyName && password && portfolio?.id) {
+      checkExistingSubmission(companyName, password);
+    }
+  }, [companyName, password, portfolio?.id]);
 
   // Enter로 다음
   useEffect(() => {
@@ -185,26 +204,38 @@ export default function PortfolioForm() {
 
   const fetchPortfolioAndQuestions = async () => {
     try {
-      const portfoliosResponse = await fetch("/api/portfolios");
-      const portfoliosData = await portfoliosResponse.json();
-      const foundPortfolio = portfoliosData.portfolios.find(
-        (p: Portfolio) => p.slug === slug,
+      // const portfoliosResponse = await fetch("/api/portfolios");
+      // const portfoliosData = await portfoliosResponse.json();
+      // const foundPortfolio = portfoliosData.portfolios.find(
+      //   (p: Portfolio) => p.slug === slug,
+      // );
+
+      console.log("idddd", id);
+
+      await request(
+        () => PortfolioService.getOne(id),
+        (res) => {
+          console.log("포토폴리오 해당 아이디 목록 조회", res);
+
+          if (!res.data) {
+            router.push("/");
+            return;
+          }
+
+          setPortfolio(res.data);
+        },
+        { ignoreErrorRedirect: true },
       );
 
-      if (!foundPortfolio) {
-        router.push("/");
-        return;
-      }
+      await request(
+        () => QuestionService.getPortfolios(id),
+        (res) => {
+          console.log("포토폴리오 해당 질문목록 조회", res);
 
-      setPortfolio(foundPortfolio);
-      console.log("foundPortfolio", foundPortfolio);
-
-      const questionsResponse = await fetch(
-        `/api/questions?portfolioId=${foundPortfolio.id}`,
+          setQuestions(res.data);
+        },
+        { ignoreErrorRedirect: true },
       );
-      const questionsData = await questionsResponse.json();
-      console.log("questionsData", questionsData);
-      setQuestions(questionsData.questions);
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
@@ -495,9 +526,9 @@ export default function PortfolioForm() {
           responses: {
             ...formData,
             rooms,
-            specials, // ✅ 스페셜도 같이 저장
+            specials,
           },
-          isDraft: false,
+          isDraft: false, //true
         }),
       });
 

@@ -481,7 +481,7 @@ export default function Home() {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        router.push(`/portfolio/${portfolio.slug}`);
+                        router.push(`/portfolio/${portfolio.id}`);
                       }}
                       className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-all"
                     >

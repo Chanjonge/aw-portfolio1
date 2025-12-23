@@ -12,6 +12,8 @@ export const PortfolioService = {
     return api.get(url);
   },
 
+  getOne: (id: string) => api.get(`api/portfolios/${id}/one`),
+
   getCategorySelect: () => api.get("/api/categorys"),
 
   post: (body: FormData) => api.post("/api/portfolio", body),
