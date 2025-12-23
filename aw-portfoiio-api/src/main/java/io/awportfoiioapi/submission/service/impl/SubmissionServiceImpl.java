@@ -1,5 +1,7 @@
 package io.awportfoiioapi.submission.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.file.entity.CommonFile;
 import io.awportfoiioapi.file.enums.CommonFileType;
@@ -23,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -36,11 +40,6 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final MemberRepository memberRepository;
     private final CommonFileRepository commonFileRepository;
     private final S3FileUtils s3FileUtils;
-    
-    @Override
-    public List<SubmissionGetRequest> getSubmissions() {
-        return List.of();
-    }
     
     @Override
     public ApiResponse createSubmission(SubmissionPostRequest request) {
@@ -74,6 +73,53 @@ public class SubmissionServiceImpl implements SubmissionService {
         
         submission.modifySubmission(request);
         return new ApiResponse(200, true, "저장 되었습니다.", submission.getId());
+    }
+    
+    @Override
+    public SubmissionGetRequest getSubmissions(Long submissionId) {
+        
+        SubmissionGetRequest submission =
+                submissionRepository.getSubmission(submissionId);
+        
+        List<CommonFile> fileList =
+                commonFileRepository.findByFileTargetIdAndFileTypeList(
+                        submission.getSubmissionId(),
+                        CommonFileType.SUBMISSION_OPTION
+                );
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        
+        try {
+            Map<String, Object> responseMap =
+                    objectMapper.readValue(
+                            submission.getSubmissionJson(),
+                            new TypeReference<>() {}
+                    );
+            
+            for (CommonFile file : fileList) {
+                Map<String, Object> fileNode = new LinkedHashMap<>();
+                fileNode.put("type", "file");
+                fileNode.put("fileId", file.getId());
+                fileNode.put("url", file.getFileUrl());
+                fileNode.put("name", file.getFileName());
+                fileNode.put("step", file.getQuestionStep());
+                fileNode.put("order", file.getQuestionOrder());
+                
+                responseMap.put(
+                        String.valueOf(file.getOptionsId()),
+                        fileNode
+                );
+            }
+            
+            submission.setSubmissionJson(
+                    objectMapper.writeValueAsString(responseMap)
+            );
+            
+        } catch (Exception e) {
+            throw new RuntimeException("submission json merge error", e);
+        }
+        
+        return submission;
     }
     
     @Override

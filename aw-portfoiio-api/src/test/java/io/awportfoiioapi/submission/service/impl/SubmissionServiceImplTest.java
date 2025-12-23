@@ -3,6 +3,7 @@ package io.awportfoiioapi.submission.service.impl;
 import io.awportfoiioapi.RepositoryAndServiceTestSupport;
 import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.submission.dto.request.SubmissionPostDraftRequest;
+import io.awportfoiioapi.submission.dto.response.SubmissionGetRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
@@ -20,30 +21,49 @@ class SubmissionServiceImplTest extends RepositoryAndServiceTestSupport {
     @DisplayName("작성폼 임시저장")
     @Test
     void test1() throws IOException {
-        //이건 모자가 아니잖아.jpg
-        //참새작.png
-//        File file = new File("src/test/java/io/awportfoiioapi/image/이건 모자가 아니잖아.jpg");
-//
-//        FileInputStream fis = new FileInputStream(file);
-//
-//        MockMultipartFile multipartFile = new MockMultipartFile(
-//                "files",                 // 중요
-//                file.getName(),
-//                "image/jpeg",
-//                fis
-//        );
+    //    이건 모자가 아니잖아.jpg
+      //  참새작.png
+        File file = new File("src/test/java/io/awportfoiioapi/image/이건 모자가 아니잖아.jpg");
+
+        FileInputStream fis = new FileInputStream(file);
+
+        MockMultipartFile multipartFile = new MockMultipartFile(
+                "files",                 // 중요
+                file.getName(),
+                "image/jpeg",
+                fis
+        );
         
-        List<MultipartFile> files;
-    
+        List<MultipartFile> files = Arrays.asList(multipartFile);
+        
         SubmissionPostDraftRequest.OptionFileRequest optionFileRequest =
-                new SubmissionPostDraftRequest.OptionFileRequest(6L,1,3, null);
+                new SubmissionPostDraftRequest.OptionFileRequest(20L,1,1, files);
     
         SubmissionPostDraftRequest request =
                 new SubmissionPostDraftRequest(
-                        7L,
+                        null,
                         2L,
                         7L,
-                        "{test}",
+                        "  \"18\": \"111\",\n" +
+                                "  \"19\": \"1111\",\n" +
+                                "  \"21\": \"11111\",\n" +
+                                "  \"rooms\": [\n" +
+                                "    {\n" +
+                                "      \"id\": \"room-1\",\n" +
+                                "      \"name\": \"\",\n" +
+                                "      \"desc\": \"\",\n" +
+                                "      \"type\": \"\",\n" +
+                                "      \"price\": \"\"\n" +
+                                "    }\n" +
+                                "  ],\n" +
+                                "  \"specials\": [\n" +
+                                "    {\n" +
+                                "      \"id\": \"special-1\",\n" +
+                                "      \"name\": \"\",\n" +
+                                "      \"desc\": \"\"\n" +
+                                "    }\n" +
+                                "  ]\n" +
+                                "}",
                         List.of(optionFileRequest)
                 );
     
@@ -60,5 +80,12 @@ class SubmissionServiceImplTest extends RepositoryAndServiceTestSupport {
 //        ApiResponse apiResponse = submissionService.temporaryStorage(request);
 //        System.out.println("apiResponse = " + apiResponse);
         
+    }
+    
+    @DisplayName("")
+    @Test
+    void test3(){
+        SubmissionGetRequest submissions = submissionService.getSubmissions(8L);
+        System.out.println("submissions = " +  submissions);
     }
 }

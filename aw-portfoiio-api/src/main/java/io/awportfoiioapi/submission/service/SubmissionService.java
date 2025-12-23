@@ -9,9 +9,9 @@ import io.awportfoiioapi.submission.dto.response.SubmissionGetRequest;
 import java.util.List;
 
 public interface SubmissionService {
-
     
-    List<SubmissionGetRequest> getSubmissions();
+    
+    SubmissionGetRequest getSubmissions(Long submissionId);
     
     ApiResponse createSubmission(SubmissionPostRequest request);
     
