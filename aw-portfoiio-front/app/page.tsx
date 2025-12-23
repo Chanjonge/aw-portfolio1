@@ -44,7 +44,7 @@ export default function Home() {
   const { request } = useRequest();
 
   //초기 로그인 인증값
-  const loginGb = localStorage.getItem("login");
+  // const loginGb = localStorage.getItem("login");
 
   //유저정보
   const currentUser = useRecoilValue(userState);
@@ -307,7 +307,7 @@ export default function Home() {
         </div>
 
         {/* 사용자 인증 섹션 */}
-        {!loginGb && (
+        {!currentUser && (
           <form
             onSubmit={(e) => {
               e.preventDefault(); // 새로고침 방지
@@ -378,7 +378,7 @@ export default function Home() {
         )}
 
         {/* Category Filter */}
-        {loginGb && categories.length > 0 && (
+        {currentUser && categories.length > 0 && (
           <div className="mb-8">
             <div className="flex justify-start gap-3 flex-wrap">
               <button
@@ -402,7 +402,7 @@ export default function Home() {
         )}
 
         {/* 포트폴리오 목록 */}
-        {loginGb &&
+        {currentUser &&
           (loading ? (
             <div className="text-center py-12">
               <div className="text-xl text-gray-600">불러오는 중입니다</div>
@@ -418,7 +418,7 @@ export default function Home() {
               {portfolios.map((portfolio) => (
                 <Link
                   key={portfolio.id}
-                  href={`/portfolio/${portfolio.slug}`}
+                  href={`/portfolio/${portfolio.id}`}
                   className="border-black transition-all overflow-hidden group"
                 >
                   {portfolio.thumbnail && (
@@ -494,7 +494,7 @@ export default function Home() {
           ))}
 
         {/* Admin Login Link at Bottom */}
-        {!loginGb && (
+        {!currentUser && (
           <div className="text-center mt-16 pt-8 border-t border-gray-200">
             <Link
               href="/admin/login"
