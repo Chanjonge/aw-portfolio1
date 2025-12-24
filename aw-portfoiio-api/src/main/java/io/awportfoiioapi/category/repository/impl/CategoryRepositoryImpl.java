@@ -41,7 +41,7 @@ public class CategoryRepositoryImpl implements CategoryQueryRepository {
                 .from(category)
                 .limit(pageable.getPageSize())
                 .offset(pageable.getPageNumber())
-                .orderBy(category.id.desc())
+                .orderBy(category.categoryOrders.asc())
                 .fetch();
         
         JPAQuery<Long> countQuery = queryFactory
