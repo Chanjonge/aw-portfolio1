@@ -22,7 +22,6 @@ public class QuestionPutRequest {
     private Integer order;
     @NotBlank(message = "질문 제목은 필수입니다.")
     private String title;
-    @NotBlank(message = "질문 살명은 필수입니다.")
     private String description;
     @NotBlank(message = "질문 타입은 필수입니다.")
     private String type;
