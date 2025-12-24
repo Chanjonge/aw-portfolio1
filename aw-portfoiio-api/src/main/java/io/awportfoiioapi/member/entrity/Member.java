@@ -28,6 +28,9 @@ public class Member extends DateSuperClass {
     @Column(name = "MEMBER_IP")
     private String ip;
     
+    @Column(name = "MEMBER_NAME")
+    private String name;
+    
     public void modifyIp(String ip) {
         this.ip = ip;
     }

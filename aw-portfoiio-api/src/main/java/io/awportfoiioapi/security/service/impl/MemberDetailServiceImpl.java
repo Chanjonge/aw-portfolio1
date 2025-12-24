@@ -68,6 +68,7 @@ public class MemberDetailServiceImpl implements UserDetailsService {
                      Member newMember = Member.builder()
                              .loginId(loginId)
                              .password(passwordEncoder.encode(password))
+                             .name(loginId)
                              .ip(ip)
                              .build();
      

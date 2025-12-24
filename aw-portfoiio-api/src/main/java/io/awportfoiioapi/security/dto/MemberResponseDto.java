@@ -22,17 +22,10 @@ public class MemberResponseDto {
         MemberResponseDto memberResponseDto = new MemberResponseDto();
         memberResponseDto.setId(member.getId());
         memberResponseDto.setEmail(member.getLoginId());
-      
+        memberResponseDto.setName(member.getName());
         if (authorities != null && !authorities.isEmpty()) {
             for (GrantedAuthority auth : authorities) {
                 memberResponseDto.setRole(auth.getAuthority());
-                if("SUPER_ADMIN".equals(memberResponseDto.getRole())) {
-                    memberResponseDto.setName("최고 관리자");
-                }else if("ADMIN".equals(memberResponseDto.getRole())) {
-                    memberResponseDto.setName("관리자");
-                }else {
-                    memberResponseDto.setName("회원");
-                }
             }
         }
         return memberResponseDto;
