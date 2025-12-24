@@ -78,20 +78,30 @@ public class PortfolioServiceImpl implements PortfolioService {
     public List<PortfolioResponse> getPortfolioList(Boolean active, Long categoryId) {
         List<PortfolioResponse> portfolioList = portfolioRepository.getPortfolioList(active, categoryId);
         List<PortfolioQuestionCountResponse> byQuestionCount = portfolioRepository.findByQuestionCount();
-        // count 결과를 Map으로 변환
-        Map<Long, Long> questionCountMap =
-                byQuestionCount.stream().collect(Collectors.toMap(
-                        PortfolioQuestionCountResponse::getPortfolioId,
-                        PortfolioQuestionCountResponse::getCount));
-        portfolioList.forEach(portfolio -> {
-            Long count = questionCountMap.getOrDefault(
-                    portfolio.getId(),
-                    0L
-            );
-            portfolio.getCount().setQuestions(count);
-        });
-        
-        portfolioList.forEach(portfolio -> portfolio.getCount().setSubmissions(0L)); // 이건 나중에 구현해야함
+        List<PortfolioSubmissionCountResponse> bySubmissionCount = portfolioRepository.findBySubmissionCount();
+         // count 결과를 Map으로 변환
+         Map<Long, Long> questionCountMap =
+                 byQuestionCount.stream().collect(Collectors.toMap(
+                                 PortfolioQuestionCountResponse::getPortfolioId,
+                                 PortfolioQuestionCountResponse::getCount));
+         portfolioList.forEach(portfolio -> {
+             Long count = questionCountMap.getOrDefault(
+                     portfolio.getId(),
+                     0L
+             );
+             portfolio.getCount().setQuestions(count);
+         });
+         Map<Long, Long> submissionCountMap =
+                 bySubmissionCount.stream().collect(Collectors.toMap(
+                                 PortfolioSubmissionCountResponse::getPortfolioId,
+                                 PortfolioSubmissionCountResponse::getCount));
+              portfolioList.forEach(portfolio -> {
+                  Long count = submissionCountMap.getOrDefault(
+                          portfolio.getId(),
+                          0L
+                  );
+                  portfolio.getCount().setSubmissions(count);
+              });
         return portfolioList;
     }
     
@@ -106,22 +116,29 @@ public class PortfolioServiceImpl implements PortfolioService {
         
         PortfoliosOneGetResponse portfoliosOneGetResponse = new PortfoliosOneGetResponse(portfolio);
         List<PortfolioQuestionCountResponse> byQuestionCount = portfolioRepository.findByQuestionCount();
-        
+        List<PortfolioSubmissionCountResponse> bySubmissionCount = portfolioRepository.findBySubmissionCount();
         Map<Long, Long> questionCountMap =
                 byQuestionCount.stream()
                         .collect(Collectors.toMap(
                                 PortfolioQuestionCountResponse::getPortfolioId,
                                 PortfolioQuestionCountResponse::getCount
                         ));
+        
+        Map<Long, Long> submissionCountMap =
+                bySubmissionCount.stream()
+                             .collect(Collectors.toMap(
+                                     PortfolioSubmissionCountResponse::getPortfolioId,
+                                  PortfolioSubmissionCountResponse::getCount
+                             ));
+       
     
         // 3. 단일 portfolio에 질문 수 세팅
-        Long questionCount =
-                questionCountMap.getOrDefault(portfolioId, 0L);
+        Long questionCount = questionCountMap.getOrDefault(portfolioId, 0L);
+        Long submissionCount = submissionCountMap.getOrDefault(portfolioId, 0L);
     
         portfoliosOneGetResponse.getCount().setQuestions(questionCount);
+        portfoliosOneGetResponse.getCount().setSubmissions(submissionCount);
     
-        // 4. submissions 수 (지금은 0)
-        portfoliosOneGetResponse.getCount().setSubmissions(0L);
         return portfoliosOneGetResponse;
     }
     
