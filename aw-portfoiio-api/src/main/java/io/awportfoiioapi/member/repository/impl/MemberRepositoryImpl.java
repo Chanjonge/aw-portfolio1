@@ -1,10 +1,17 @@
 package io.awportfoiioapi.member.repository.impl;
 
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.awportfoiioapi.member.entrity.Member;
 import io.awportfoiioapi.member.repository.query.MemberQueryRepository;
+import io.awportfoiioapi.userlist.dto.response.QUserListGetResponse;
+import io.awportfoiioapi.userlist.dto.response.UserListGetResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static io.awportfoiioapi.member.entrity.QMember.member;
@@ -13,7 +20,7 @@ import static io.awportfoiioapi.role.entity.QRole.role;
 
 @RequiredArgsConstructor
 public class MemberRepositoryImpl implements MemberQueryRepository {
-
+    
     private final JPAQueryFactory queryFactory;
     
     @Override
@@ -28,11 +35,37 @@ public class MemberRepositoryImpl implements MemberQueryRepository {
     }
     
     @Override
-    public Optional<Member>  findByPortfolioMemberId(String name) {
+    public Optional<Member> findByPortfolioMemberId(String name) {
         Member result = queryFactory
                 .selectFrom(member)
                 .where(member.loginId.eq(name))
                 .fetchFirst();
         return Optional.ofNullable(result);
+    }
+    
+    @Override
+    public Page<UserListGetResponse> findByUserList(Pageable pageable) {
+        List<UserListGetResponse> result = queryFactory
+                .select(
+                        new QUserListGetResponse(
+                                member.id,
+                                member.loginId,
+                                member.name,
+                                role.roleName,
+                                member.registDate
+                        )
+                )
+                .from(memberRole)
+                .join(memberRole.member, member)
+                .join(memberRole.role, role)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+        
+        JPAQuery<Long> countQuery = queryFactory
+                .select(member.count())
+                .from(member);
+        
+         return PageableExecutionUtils.getPage(result,pageable,countQuery::fetchOne);
     }
 }
