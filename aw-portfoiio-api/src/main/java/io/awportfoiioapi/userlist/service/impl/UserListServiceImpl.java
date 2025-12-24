@@ -46,23 +46,6 @@ public class UserListServiceImpl implements UserListService {
     @Override
     public ApiResponse createUserList(UserListPostRequest request) {
         
-        ErrorMessageResponse error = new ErrorMessageResponse("400", null);
-        if (!StringUtils.hasText(request.getEmail())) {
-            error.addValidation("loginId", "아이디는 필수 입력입니다.");
-        }
-        
-        if (!StringUtils.hasText(request.getPassword())) {
-            error.addValidation("password", "비밀번호는 필수 입력입니다.");
-        }
-        
-        if (error.getValidation() != null && !error.getValidation().isEmpty()) {
-            throw new AuthenticationServiceException("400", new ValidationException(error));
-        }
-        Optional<Member> member = memberRepository.findByPortfolioMemberId(request.getEmail());
-        if (member.isPresent()) {
-            throw new AuthenticationServiceException("400", new ValidationException(new ErrorMessageResponse("400", "이미 존재하는 아이디 입니다.")));
-        }
-        
         String role = request.getRole();
         
         Member newMember = Member
