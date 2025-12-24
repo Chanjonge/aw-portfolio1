@@ -3,6 +3,7 @@ package io.awportfoiioapi.submission.service.impl;
 import io.awportfoiioapi.RepositoryAndServiceTestSupport;
 import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.submission.dto.request.SubmissionPostDraftRequest;
+import io.awportfoiioapi.submission.dto.request.SubmissionPostRequest;
 import io.awportfoiioapi.submission.dto.response.SubmissionGetRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -82,10 +83,63 @@ class SubmissionServiceImplTest extends RepositoryAndServiceTestSupport {
         
     }
     
-    @DisplayName("")
+    @DisplayName("작성폼 상세조회")
     @Test
     void test3(){
         SubmissionGetRequest submissions = submissionService.getSubmissions(8L);
         System.out.println("submissions = " +  submissions);
+    }
+    @DisplayName("작성폼 제출")
+    @Test
+    void test4() throws IOException {
+           //    이건 모자가 아니잖아.jpg
+            //  참새작.png
+              File file = new File("src/test/java/io/awportfoiioapi/image/참새작.png");
+      
+              FileInputStream fis = new FileInputStream(file);
+        
+              MockMultipartFile multipartFile = new MockMultipartFile(
+                      "files",                 // 중요
+                      file.getName(),
+                      "image/jpeg",
+                      fis
+              );
+              
+              List<MultipartFile> files = Arrays.asList(multipartFile);
+              
+              SubmissionPostRequest.OptionFileRequest optionFileRequest = new SubmissionPostRequest.OptionFileRequest(20L,1,1, files);
+        
+              
+              
+        SubmissionPostRequest request =
+                new SubmissionPostRequest(
+                        9L,
+                        2L,
+                        7L,
+                                "\"21\": \"11111\",\n" +
+                                "\"rooms\": [\n" +
+                                "  {\n" +
+                                "    \"id\": \"room-1\",\n" +
+                                "    \"name\": \"\",\n" +
+                                "    \"desc\": \"\",\n" +
+                                "    \"type\": \"\",\n" +
+                                "    \"price\": \"\"\n" +
+                                "  }\n" +
+                                "],\n" +
+                                "\"specials\": [\n" +
+                                "  {\n" +
+                                "    \"id\": \"special-1\",\n" +
+                                "    \"name\": \"\",\n" +
+                                "    \"desc\": \"\"\n" +
+                                "  }\n" +
+                                "]\n" +
+                                "}",
+                        List.of(optionFileRequest)
+                );
+    
+        ApiResponse response = submissionService.createSubmission(request);
+    
+        System.out.println("response = " + response);
+    
     }
 }

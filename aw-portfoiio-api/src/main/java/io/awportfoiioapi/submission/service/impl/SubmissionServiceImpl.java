@@ -46,32 +46,72 @@ public class SubmissionServiceImpl implements SubmissionService {
         Long memberId = request.getMemberId();
         Long submissionId = request.getSubmissionId();
         Long portfolioId = request.getPortfolioId();
+        
+        // 1. 필수 엔티티 조회
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 포트폴리오입니다."));
         
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+        
+        // 2. submission 조회
         Submission submission = Optional.ofNullable(submissionId)
                 .flatMap(submissionRepository::findById)
                 .orElse(null);
         
+        // 3. 신규 생성 or 기존 수정
         if (submission == null) {
-            Submission newSubmission = Submission.builder()
-                    .portfolio(portfolio)
-                    .member(member)
-                    .submissionJson(request.getResponse())
-                    .companyName(member.getLoginId())
-                    .password(member.getPassword())
-                    .completedDate(LocalDateTime.now())
-                    .isDraft(false)
-                    .build();
-            
-            Submission saved = submissionRepository.save(newSubmission);
-            
-            return new ApiResponse(200, true, "저장 되었습니다.", saved.getId());
+            submission = submissionRepository.save(
+                    Submission.builder()
+                            .portfolio(portfolio)
+                            .member(member)
+                            .submissionJson(request.getResponse())
+                            .companyName(member.getLoginId())
+                            .password(member.getPassword())
+                            .isDraft(false)
+                            .completedDate(LocalDateTime.now())
+                            .build()
+            );
+        } else {
+            submission.modifySubmission(request);
         }
         
-        submission.modifySubmission(request);
+        // 4. 기존 옵션 파일 전부 삭제
+        List<CommonFile> oldFiles = commonFileRepository.findByFileTargetIdAndFileTypeList(submission.getId(), CommonFileType.SUBMISSION_OPTION);
+        
+        commonFileRepository.deleteSubmissionOptionFiles(submission.getId(), CommonFileType.SUBMISSION_OPTION);
+        
+        for (CommonFile file : oldFiles) {
+            s3FileUtils.deleteFile(file.getFileUrl());
+        }
+        
+        // 5. 옵션별 파일 재업로드
+        for (SubmissionPostRequest.OptionFileRequest optionFile : request.getOptionFiles()) {
+            
+            Long optionsId = optionFile.getOptionsId();
+            List<MultipartFile> files = optionFile.getFiles();
+            
+            if (files == null || files.isEmpty()) continue;
+            
+            for (MultipartFile file : files) {
+                
+                UploadResult upload = s3FileUtils.storeFile(file, "submission");
+                
+                CommonFile commonFile = CommonFile.builder()
+                        .fileTargetId(submission.getId())
+                        .optionsId(optionsId)
+                        .questionStep(optionFile.getQuestionStep())
+                        .questionOrder(optionFile.getQuestionOrder())
+                        .fileName(upload.originalFilename())
+                        .fileUuidName(upload.uuid())
+                        .fileType(CommonFileType.SUBMISSION_OPTION)
+                        .fileUrl(upload.url())
+                        .build();
+                
+                commonFileRepository.save(commonFile);
+            }
+        }
+        
         return new ApiResponse(200, true, "저장 되었습니다.", submission.getId());
     }
     
@@ -93,7 +133,8 @@ public class SubmissionServiceImpl implements SubmissionService {
             Map<String, Object> responseMap =
                     objectMapper.readValue(
                             submission.getSubmissionJson(),
-                            new TypeReference<>() {}
+                            new TypeReference<>() {
+                            }
                     );
             
             for (CommonFile file : fileList) {

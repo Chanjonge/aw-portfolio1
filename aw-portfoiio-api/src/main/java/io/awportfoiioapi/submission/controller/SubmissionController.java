@@ -3,6 +3,7 @@ package io.awportfoiioapi.submission.controller;
 
 import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.submission.dto.request.SubmissionPostDraftRequest;
+import io.awportfoiioapi.submission.dto.request.SubmissionPostRequest;
 import io.awportfoiioapi.submission.entity.Submission;
 import io.awportfoiioapi.submission.service.SubmissionService;
 import io.awportfoiioapi.utils.JwtParserUtil;
@@ -27,6 +28,12 @@ public class SubmissionController {
         Long memberId = JwtParserUtil.extractMemberId(jwt);
         request.setMemberId(memberId);
         return submissionService.temporaryStorage(request);
+    }
+    @PostMapping
+    public ApiResponse createSubmission(@AuthenticationPrincipal Jwt jwt , @RequestBody SubmissionPostRequest request) {
+        Long memberId = JwtParserUtil.extractMemberId(jwt);
+        request.setMemberId(memberId);
+        return submissionService.createSubmission(request);
     }
     
     
