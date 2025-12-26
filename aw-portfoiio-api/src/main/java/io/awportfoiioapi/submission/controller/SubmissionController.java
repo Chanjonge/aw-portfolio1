@@ -22,13 +22,13 @@ import java.util.List;
 public class SubmissionController {
 
     private final SubmissionService submissionService;
-    
-    
+
+
     @GetMapping("/submission/{id}")
     public SubmissionGetRequest getSubmission(@PathVariable Long id) {
         return submissionService.getSubmissions(id);
     }
-    
+
     //비밀번호 때문에 조회라도 post 로 요청
     @PostMapping("/submission/my-list")
     public List<SubmissionGetListRequest> getMySubmissions(@RequestParam(name = "companyName") String companyName, @RequestParam(name = "password") String password) {
@@ -36,7 +36,7 @@ public class SubmissionController {
     }
     //임시저장
     @PostMapping("/submission/temporaryStorage")
-    public ApiResponse temporaryStorage(@AuthenticationPrincipal Jwt jwt, @RequestBody SubmissionPostDraftRequest request) {
+    public ApiResponse temporaryStorage(@AuthenticationPrincipal Jwt jwt, @ModelAttribute SubmissionPostDraftRequest request) {
         Long memberId = JwtParserUtil.extractMemberId(jwt);
         request.setMemberId(memberId);
         return submissionService.temporaryStorage(request);
@@ -47,6 +47,6 @@ public class SubmissionController {
         request.setMemberId(memberId);
         return submissionService.createSubmission(request);
     }
-    
-    
+
+
 }

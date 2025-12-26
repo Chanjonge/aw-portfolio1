@@ -8,6 +8,7 @@ import { userState } from "@/store/user";
 import { PortfolioService } from "@/services/portfolios.service";
 import { useRequest } from "@/hooks/useRequest";
 import { QuestionService } from "@/services/question.service";
+import {SubmissionService} from "@/services/submission.service";
 
 interface Question {
   id: string;
@@ -516,44 +517,45 @@ export default function PortfolioForm() {
     }
   };
 
+  //임시저장
   const handleSaveDraft = async () => {
     if (!portfolio) return;
     setSubmitting(true);
     try {
-      const method = existingSubmissionId ? "PUT" : "POST";
-      const url = existingSubmissionId
-        ? `/api/submissions/${existingSubmissionId}`
-        : "/api/submissions";
+      const fd = new FormData();
 
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          portfolioId: portfolio.id,
-          companyName,
-          password,
-          responses: {
+      // 수정일 경우
+      if (existingSubmissionId) {
+        fd.append("submissionId", String(existingSubmissionId));
+      }
+
+      fd.append("portfolioId", String(portfolio.id));
+      fd.append("memberId", currentUser!.id);
+
+      fd.append(
+          "response",
+          JSON.stringify({
             ...formData,
             rooms,
             specials,
-          },
-          isDraft: false, //true
-        }),
-      });
+          })
+      );
 
-      if (response.ok) {
-        const data = await response.json();
-        if (!existingSubmissionId) {
-          setExistingSubmissionId(data.submission.id);
-        }
-        alert("임시저장되었습니다.");
-      } else {
-        const data = await response.json();
-        alert(data.error || "임시저장 중 오류가 발생했습니다.");
-      }
+      await request(
+          () => SubmissionService.temporaryPost(fd),
+          (res) => {
+            console.log("res 임시저장----", res)
+            if (!existingSubmissionId) {
+              setExistingSubmissionId(res.data.submissionId);
+            }
+            alert("임시저장되었습니다.");
+
+          },
+          { ignoreErrorRedirect: true },
+      );
+
     } catch (error) {
       console.error("Save draft error:", error);
-      alert("임시저장 중 오류가 발생했습니다.");
     } finally {
       setSubmitting(false);
     }
