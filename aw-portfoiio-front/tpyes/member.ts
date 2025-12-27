@@ -20,4 +20,5 @@ export interface Member {
     first: boolean;
     last: boolean;
     empty: boolean;
+    todaySignupCount:number;
 }

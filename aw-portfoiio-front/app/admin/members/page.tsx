@@ -220,7 +220,7 @@ export default function MembersPage() {
                             </div>
                             <div className="ml-4">
                                 <p className="text-sm font-medium text-gray-600">오늘 가입</p>
-                                <p className="text-2xl font-bold text-gray-900">{members?.content.filter((m) => new Date(m.createdAt).toDateString() === new Date().toDateString()).length}</p>
+                                <p className="text-2xl font-bold text-gray-900">{members?.todaySignupCount}</p>
                             </div>
                         </div>
                     </div>
