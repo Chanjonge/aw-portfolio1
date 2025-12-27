@@ -10,6 +10,9 @@ import {useRequest} from "@/hooks/useRequest";
 import {MemberService} from "@/services/member.service";
 import {Member, MemberContent} from "@/tpyes/member";
 import Pagination from "@/components/Pagination";
+import axios from "axios";
+import api from "@/lib/axiosInstance";
+import {tokenStore} from "@/services/tokenStore";
 
 
 interface User {
@@ -31,6 +34,11 @@ export default function MembersPage() {
 
     //페이지
     const [page, setPage] = useState(0);
+
+    //비밀번호 변경
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [passwordTargetMember, setPasswordTargetMember] = useState<MemberContent | null>(null);
+    const [newPassword, setNewPassword] = useState("");
 
     const [user, setUser] = useState<User | null>(null);
     const [members, setMembers] = useState<Member>();
@@ -68,33 +76,51 @@ export default function MembersPage() {
             return;
         }
 
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`/api/members/${memberId}`, {
-                method: 'DELETE',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
+        await request(
+            () => MemberService.delete(memberId),
+            (res) => {
                 alert('회원이 삭제되었습니다.');
                 fetchMembers(); // 목록 새로고침
-            } else {
-                alert(data.error || '회원 삭제에 실패했습니다.');
-            }
-        } catch (error) {
-            console.error('Failed to delete member:', error);
-            alert('회원 삭제 중 오류가 발생했습니다.');
-        }
+            },
+            { ignoreErrorRedirect: true },
+        );
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        router.push('/admin/login');
+    const handleSubmitPasswordChange = async () => {
+        if (!passwordTargetMember) return;
+
+        if (newPassword.length !== 4 || !/^\d{4}$/.test(newPassword)) {
+            alert("비밀번호 4자리를 입력해주세요.");
+            return;
+        }
+
+        await request(
+            () =>
+                MemberService.post({
+                    memberId: passwordTargetMember.id,
+                    password: newPassword,
+                }),
+            () => {
+                alert("비밀번호가 변경되었습니다.");
+                setShowPasswordModal(false);
+                setPasswordTargetMember(null);
+                setNewPassword("");
+            },
+            { ignoreErrorRedirect: true },
+        );
+    };
+
+    const handleLogout = async () => {
+        await axios.delete("/api/refresh", {
+            baseURL: api.defaults.baseURL,
+            withCredentials: true,
+        });
+
+        tokenStore.clear();
+        resetUser(null);
+        localStorage.removeItem("login");
+
+        router.push("/admin/login");
     };
 
     const formatDate = (dateString: string | null) => {
@@ -149,7 +175,7 @@ export default function MembersPage() {
                             <h1 className="text-xl font-semibold text-gray-800">회원 관리</h1>
                         </div>
                         <div className="flex items-center gap-4">
-                            <span className="text-gray-600">{user?.name}님 (최고 관리자)</span>
+                            <span className="text-gray-600">{currentUser?.email}님 (최고 관리자)</span>
                             <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                                 로그아웃
                             </button>
@@ -216,7 +242,6 @@ export default function MembersPage() {
                                 <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상호명</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">비밀번호</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">가입일</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">마지막
                                         로그인
@@ -234,9 +259,6 @@ export default function MembersPage() {
                                             <div
                                                 className="text-sm font-medium text-gray-900">{member.companyName}</div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">{member.password}</div>
-                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(member.createdAt)}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(member.lastLoginAt)}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{member.ipAddress || 'N/A'}</td>
@@ -246,8 +268,16 @@ export default function MembersPage() {
                                                 상세보기
                                             </button>
                                             <button onClick={() => handleDeleteMember(member.id)}
-                                                    className="text-red-600 hover:text-red-900">
+                                                    className="text-red-600 hover:text-red-900 mr-4">
                                                 삭제
+                                            </button>
+                                            <button  onClick={() => {
+                                                setPasswordTargetMember(member);
+                                                setNewPassword("");
+                                                setShowPasswordModal(true);
+                                            }}
+                                                    className="text-green-600 hover:text-green-900">
+                                                비밀번호 변경
                                             </button>
                                         </td>
                                     </tr>
@@ -257,7 +287,7 @@ export default function MembersPage() {
                         </div>
                     )}
                     <div className="my-6">
-                        <Pagination
+                    <Pagination
                             current={page}
                             totalPages={members?.totalPages ?? 0}
                             onChange={handlePageClick}
@@ -289,16 +319,52 @@ export default function MembersPage() {
                                     <label className="block text-sm font-medium text-gray-700">IP 주소</label>
                                     <p className="mt-1 text-sm text-gray-900">{selectedMember.ipAddress || 'N/A'}</p>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">비밀번호</label>
-                                    <p className="mt-1 text-sm text-gray-900">{selectedMember.password}</p>
-                                </div>
                             </div>
                             <div className="flex justify-end mt-6">
                                 <button onClick={() => setSelectedMember(null)} className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
                                     닫기
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showPasswordModal && passwordTargetMember && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">
+                            비밀번호 변경
+                        </h3>
+
+                        <p className="text-sm text-gray-600 mb-2">
+                            대상 회원: <strong>{passwordTargetMember.companyName}</strong>
+                        </p>
+
+                        <input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            placeholder="숫자 4자리"
+                            className="w-full px-4 py-2 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-black"
+                        />
+
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => {
+                                    setShowPasswordModal(false);
+                                    setPasswordTargetMember(null);
+                                }}
+                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                            >
+                                취소
+                            </button>
+                            <button
+                                onClick={handleSubmitPasswordChange}
+                                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+                            >
+                                저장
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -4,9 +4,9 @@ import api from "@/lib/axiosInstance";
 export const MemberService = {
     get: (params: Params) => api.get("/api/members", { params }),
 
-    // post: (body: BodyContent) => api.post("/api/category", body),
+    post: (data: { memberId: string; password: string }) => api.post(`/api/members` , data),
     //
     // put: (body: BodyContent) => api.put("/api/category", body),
     //
-    // delete: (id: string) => api.delete(`/api/category/${id}`),
+    delete: (id: string) => api.delete(`/api/members/${id}`),
 };
