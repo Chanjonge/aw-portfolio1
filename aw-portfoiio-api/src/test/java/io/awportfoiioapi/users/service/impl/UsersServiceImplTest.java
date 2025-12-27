@@ -2,6 +2,7 @@ package io.awportfoiioapi.users.service.impl;
 
 import io.awportfoiioapi.RepositoryAndServiceTestSupport;
 import io.awportfoiioapi.apiresponse.ApiResponse;
+import io.awportfoiioapi.member.page.PageResponse;
 import io.awportfoiioapi.users.dto.request.UsersPasswordPostRequest;
 import io.awportfoiioapi.users.dto.response.UsersGetResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +20,7 @@ class UsersServiceImplTest extends RepositoryAndServiceTestSupport {
     void test1(){
         PageRequest pageRequest = PageRequest.of(0, 10);
         
-        Page<UsersGetResponse> users = usersService.getUsers(pageRequest);
+        PageResponse<UsersGetResponse> users = usersService.getUsers(pageRequest);
         
         System.out.println("users = " + users);
     }

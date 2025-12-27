@@ -4,6 +4,7 @@ import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.file.entity.CommonFile;
 import io.awportfoiioapi.file.repository.CommonFileRepository;
 import io.awportfoiioapi.member.entrity.Member;
+import io.awportfoiioapi.member.page.PageResponse;
 import io.awportfoiioapi.member.repository.MemberRepository;
 import io.awportfoiioapi.memberrole.repository.MemberRoleRepository;
 import io.awportfoiioapi.refresh.repository.RefreshTokenRepository;
@@ -43,8 +44,22 @@ public class UsersServiceImpl implements UsersService {
     private final S3FileUtils s3FileUtils;
     
     @Override
-    public Page<UsersGetResponse> getUsers(Pageable pageable) {
-        return memberRepository.findUsers(pageable);
+    public PageResponse<UsersGetResponse> getUsers(Pageable pageable) {
+        Page<UsersGetResponse> users = memberRepository.findUsers(pageable);
+        
+        long todayCount = memberRepository.getTodaySignupCount();
+        
+        return new PageResponse<>(
+                users.getContent(),
+                users.getNumber(),
+                users.getSize(),
+                users.getTotalElements(),
+                users.getTotalPages(),
+                users.isFirst(),
+                users.isLast(),
+                users.isEmpty(),
+                todayCount
+        );
     }
     
     @Override

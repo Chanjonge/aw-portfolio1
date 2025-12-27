@@ -21,8 +21,7 @@ public class UsersController {
     
     @GetMapping("/members")
     public PageResponse<UsersGetResponse> getUsers(@PageableDefault(size = 10) Pageable pageable) {
-        Page<UsersGetResponse> users = usersService.getUsers(pageable);
-        return PageResponse.from(users);
+        return usersService.getUsers(pageable);
     }
     
     @PostMapping("/members")

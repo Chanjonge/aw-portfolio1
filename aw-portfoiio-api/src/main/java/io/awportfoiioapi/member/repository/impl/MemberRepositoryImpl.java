@@ -13,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,5 +95,16 @@ public class MemberRepositoryImpl implements MemberQueryRepository {
                 .select(member.count())
                 .from(member);
         return PageableExecutionUtils.getPage(result,pageable,countQuery::fetchOne);
+    }
+    
+    @Override
+    public long getTodaySignupCount() {
+        LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
+        
+        return queryFactory
+                .select(member.count())
+                .from(member)
+                .where(member.registDate.goe(startOfToday))
+                .fetchOne();
     }
 }

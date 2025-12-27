@@ -17,4 +17,5 @@ public interface MemberQueryRepository {
     Page<UserListGetResponse> findByUserList(Pageable pageable);
     
     Page<UsersGetResponse> findUsers(Pageable pageable);
+    long getTodaySignupCount();
 }
