@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import {SubmissionService} from "@/services/submission.service";
+import {useRequest} from "@/hooks/useRequest";
+import Link from "next/link";
 
 interface Submission {
     id: string;
@@ -13,80 +15,31 @@ interface Submission {
     updatedAt: string;
     responses: any;
     portfolio: {
+        id: string;
         title: string;
         slug: string;
     };
 }
 
-/* ---------- LS 유틸 (JSON 안전) ---------- */
-const LS = {
-    get<T>(key: string, fallback: T): T {
-        try {
-            const v = typeof window !== 'undefined' ? window.localStorage.getItem(key) : null;
-            return v == null ? fallback : (JSON.parse(v) as T);
-        } catch {
-            return fallback;
-        }
-    },
-    set(key: string, value: unknown) {
-        try {
-            if (typeof window !== 'undefined') {
-                window.localStorage.setItem(key, JSON.stringify(value));
-            }
-        } catch {}
-    },
-    remove(key: string) {
-        try {
-            if (typeof window !== 'undefined') localStorage.removeItem(key);
-        } catch {}
-    },
-};
-
-/* ---------- 키 네이밍 ---------- */
-const LAST_COMPANY_KEY = 'sc:lastCompanyName'; // 마지막 조회 회사명
-const keyOf = {
-    submissions: (company: string) => `sc:submissions:${company || 'anonymous'}`,
-    searched: (company: string) => `sc:searched:${company || 'anonymous'}`,
-};
 
 export default function MySubmissionsPage() {
     const router = useRouter();
 
-    // 초기 회사명: 마지막에 사용한 회사명 복원
-    const [companyName, setCompanyName] = useState<string>(() => {
-        if (typeof window === 'undefined') return '';
-        const auth = LS.get<any>('portfolio_auth', null);
-        return auth?.companyName ?? '';
-    });
+    //hooks
+    const { request } = useRequest();
+
+    const [companyName, setCompanyName] = useState<string>('');
 
     const [password, setPassword] = useState(''); // 보안상 저장하지 않음
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // 회사명별 LS 키
-    const submissionsKey = useMemo(() => keyOf.submissions(companyName.trim()), [companyName]);
-    const searchedKey = useMemo(() => keyOf.searched(companyName.trim()), [companyName]);
 
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [searched, setSearched] = useState(false);
 
-    /* ---------- 회사명 변경/초기 로드 시: 로컬 캐시 자동 복원 ---------- */
-    useEffect(() => {
-        const name = companyName.trim();
-        if (name) LS.set(LAST_COMPANY_KEY, name);
 
-        if (typeof window !== 'undefined') {
-            const cachedSubs = LS.get<Submission[]>(submissionsKey, []);
-            const cachedSearched = LS.get<boolean>(searchedKey, false);
 
-            setSubmissions(cachedSubs);
-            // 로컬에 데이터가 있으면 바로 목록 표시
-            setSearched((cachedSubs?.length ?? 0) > 0 || !!cachedSearched);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [companyName]);
-
-    /* ---------- 조회 핸들러 (결과를 LS+state 동시 반영) ---------- */
     const handleSearch = async () => {
         setError('');
 
@@ -100,43 +53,38 @@ export default function MySubmissionsPage() {
         }
 
         setLoading(true);
+
+        const params = {
+            companyName: companyName.trim(),
+            password,
+        };
+
         try {
-            const response = await fetch('/api/submissions/my-list', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ companyName: companyName.trim(), password }),
-            });
+            await request(
+                () => SubmissionService.getMyList(params),
+                (res) => {
+                    console.log("res 불러오기----", res)
 
-            if (response.ok) {
-                const data = await response.json();
-                const list: Submission[] = data.submissions || [];
+                    setSubmissions(res.data);
+                    setSearched(true);
 
-                // state 반영
-                setSubmissions(list);
-                setSearched(true);
 
-                // ✅ localStorage에도 저장
-                LS.set(submissionsKey, list);
-                LS.set(searchedKey, true);
+                    if (res.data.length === 0) {
+                        setError('제출 내역이 없습니다.');
+                    }
 
-                if (list.length === 0) {
-                    setError('제출 내역이 없습니다.');
-                }
-            } else {
-                const data = await response.json();
-                setError(data.error || '조회 중 오류가 발생했습니다.');
-                // 실패 시에는 로컬에 있는 과거 데이터만 유지 (searched는 로컬 기준으로 이미 설정됨)
-            }
+                },
+                { ignoreErrorRedirect: true },
+            );
         } catch (error) {
             console.error('Search error:', error);
-            setError('조회 중 오류가 발생했습니다.');
         } finally {
             setLoading(false);
         }
     };
 
     const handleContinue = (submission: Submission) => {
-        router.push(`/portfolio/${submission.portfolio.slug}`);
+        router.push(`/portfolio/${submission.portfolio.id}`);
     };
 
     return (
@@ -149,7 +97,8 @@ export default function MySubmissionsPage() {
                             포트폴리오 시스템
                         </Link>
                         <div className="flex items-center gap-2">
-                            <Link href="/" className="px-4 py-2 border-2 border-black rounded-lg font-semibold hover:bg-black hover:text-white transition-all">
+                            <Link href="/"
+                                  className="px-4 py-2 border-2 border-black rounded-lg font-semibold hover:bg-black hover:text-white transition-all">
                                 홈으로
                             </Link>
                         </div>
@@ -203,7 +152,8 @@ export default function MySubmissionsPage() {
                             </div>
                         )}
 
-                        <button onClick={handleSearch} disabled={loading} className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        <button onClick={handleSearch} disabled={loading}
+                                className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed">
                             {loading ? '조회 중...' : '제출 내역 조회'}
                         </button>
                     </div>
@@ -225,7 +175,10 @@ export default function MySubmissionsPage() {
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3 mb-2">
                                                 <h3 className="text-lg font-bold text-black">{submission.portfolio.title}</h3>
-                                                {submission.isDraft ? <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">임시저장</span> : <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">제출완료</span>}
+                                                {submission.isDraft ? <span
+                                                        className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">임시저장</span> :
+                                                    <span
+                                                        className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">제출완료</span>}
                                             </div>
 
                                             <div className="space-y-1 text-sm text-gray-600">
@@ -255,11 +208,13 @@ export default function MySubmissionsPage() {
 
                                         <div className="flex gap-2">
                                             {submission.isDraft ? (
-                                                <button onClick={() => handleContinue(submission)} className="px-4 py-2 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-all">
+                                                <button onClick={() => handleContinue(submission)}
+                                                        className="px-4 py-2 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-all">
                                                     이어서 작성
                                                 </button>
                                             ) : (
-                                                <span className="px-4 py-2 text-gray-500 border-2 border-gray-300 rounded-lg font-semibold">수정 불가</span>
+                                                <span
+                                                    className="px-4 py-2 text-gray-500 border-2 border-gray-300 rounded-lg font-semibold">수정 불가</span>
                                             )}
                                         </div>
                                     </div>

@@ -530,7 +530,6 @@ export default function PortfolioForm() {
       }
 
       fd.append("portfolioId", String(portfolio.id));
-      fd.append("memberId", currentUser!.id);
 
       fd.append(
           "response",
