@@ -74,7 +74,7 @@ export default function SuperAdminPage() {
   const [selectCategory, setSelectCategory] = useState<CategorySelect[]>();
 
   //제출 목록
-  const [submissions, setSubmissions] = useState<Submission>();
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
 
 
 
@@ -1996,7 +1996,7 @@ export default function SuperAdminPage() {
                 </div>
               </div>
 
-              {submissions?.content.length === 0 ? (
+              {submissions?.length === 0 ? (
                   <div className="bg-white border-2 border-gray-200 rounded-lg p-12 text-center">
                     <span className="text-6xl mb-4 block">📝</span>
                     <h3 className="text-xl font-bold text-gray-800 mb-2">
@@ -2009,8 +2009,8 @@ export default function SuperAdminPage() {
               ) : (
                   <div className="space-y-6">
                     {/* 포트폴리오별로 그룹화 */}
-                    {submissions?.content && submissions.content.length > 0 && Object.entries(
-                        submissions?.content?.reduce((groups: any, submission) => {
+                    {submissions && submissions.length > 0 && Object.entries(
+                        submissions.reduce((groups: any, submission) => {
                           const portfolioId = submission.portfolioId;
                           const portfolioTitle =
                               submission.portfolio?.title || "알 수 없음";
@@ -2164,34 +2164,26 @@ export default function SuperAdminPage() {
                         </div>
                     ))}
 
-                    <div className="my-6">
-                      <Pagination
-                          current={page}
-                          totalPages={submissions?.totalPages ?? 0}
-                          onChange={handlePageClick}
-                      />
-                    </div>
-
                     {/* 전체 요약 */}
                     <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
                       <h3 className="text-lg font-bold text-black mb-3">전체 요약</h3>
                       <div className="flex gap-6 text-sm text-gray-600">
                   <span>
                     전체:{" "}
-                    <strong className="text-black">{submissions?.content.length}</strong>
+                    <strong className="text-black">{submissions?.length}</strong>
                     건
                   </span>
                         <span>
                     제출완료:{" "}
                           <strong className="text-green-600">
-                      {submissions?.content.filter((s) => !s.isDraft).length}
+                      {submissions?.filter((s) => !s.isDraft).length}
                     </strong>
                     건
                   </span>
                         <span>
                     임시저장:{" "}
                           <strong className="text-yellow-600">
-                      {submissions?.content.filter((s) => s.isDraft).length}
+                      {submissions?.filter((s) => s.isDraft).length}
                     </strong>
                     건
                   </span>

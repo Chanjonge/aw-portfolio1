@@ -3,17 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import {useRecoilValue, useSetRecoilState} from "recoil";
+import {userState} from "@/store/user";
+import {PortfolioService} from "@/services/portfolios.service";
+import {useRequest} from "@/hooks/useRequest";
+import {MemberService} from "@/services/member.service";
+import {Member, MemberContent} from "@/tpyes/member";
+import Pagination from "@/components/Pagination";
 
-interface Member {
-    id: string;
-    companyName: string;
-    password: string; // 평문 비밀번호 (식별번호)
-    lastLoginAt: string | null; // null일 수 있음
-    createdAt: string;
-    updatedAt: string;
-    ipAddress?: string;
-    loginCount: number;
-}
 
 interface User {
     id: string;
@@ -24,55 +21,43 @@ interface User {
 
 export default function MembersPage() {
     const router = useRouter();
+
+    //hooks
+    const { request } = useRequest();
+
+    //유저정보
+    const currentUser = useRecoilValue(userState);
+    const resetUser = useSetRecoilState(userState);
+
+    //페이지
+    const [page, setPage] = useState(0);
+
     const [user, setUser] = useState<User | null>(null);
-    const [members, setMembers] = useState<Member[]>([]);
+    const [members, setMembers] = useState<Member>();
     const [loading, setLoading] = useState(true);
-    const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+    const [selectedMember, setSelectedMember] = useState<MemberContent | null>(null);
 
-    useEffect(() => {
-        // Check authentication
-        const userStr = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
+    //페이지 이동 함수
+    const handlePageClick = (pageNum: number) => {
+        setPage(pageNum);
+    };
 
-        if (!userStr || !token) {
-            router.push('/admin/login');
-            return;
-        }
-
-        try {
-            const userData = JSON.parse(userStr);
-            if (userData.role !== 'SUPER_ADMIN') {
-                alert('최고 관리자만 접근할 수 있습니다.');
-                router.push('/admin/dashboard');
-                return;
-            }
-            setUser(userData);
-            fetchMembers();
-        } catch (error) {
-            console.error('Failed to parse user data:', error);
-            router.push('/admin/login');
-        }
-    }, [router]);
 
     const fetchMembers = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('/api/members', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
+            setLoading(true);
+
+            await request(
+                () => MemberService.get({ page: page, size: 5 }),
+                (res) => {
+                    console.log("멤버 목록 조회", res);
+                    setMembers(res.data);
+                    //카테고리 select 목록
                 },
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                setMembers(data.members);
-            } else {
-                alert(data.error || '회원 목록을 가져오는데 실패했습니다.');
-            }
+                { ignoreErrorRedirect: true },
+            );
         } catch (error) {
             console.error('Failed to fetch members:', error);
-            alert('회원 목록을 가져오는 중 오류가 발생했습니다.');
         } finally {
             setLoading(false);
         }
@@ -117,6 +102,31 @@ export default function MembersPage() {
         return new Date(dateString).toLocaleString('ko-KR');
     };
 
+    //로그인
+    useEffect(() => {
+        const login = localStorage.getItem("login");
+
+        if (!login) {
+            router.push("/admin/login");
+            return;
+        }
+
+        if (currentUser) {
+            if (currentUser?.role !== "SUPER_ADMIN") {
+                alert('최고 관리자만 접근할 수 있습니다.');
+                router.push("/admin/dashboard");
+                return;
+            }
+        }
+
+    }, [router, currentUser]);
+
+    //페이지 이동시 조회
+    useEffect(() => {
+        fetchMembers();
+    }, [page]);
+
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -155,7 +165,7 @@ export default function MembersPage() {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div className="bg-white rounded-lg shadow p-6">
                         <div className="flex items-center">
                             <div className="p-2 rounded-lg">
@@ -170,7 +180,7 @@ export default function MembersPage() {
                             </div>
                             <div className="ml-4">
                                 <p className="text-sm font-medium text-gray-600">총 회원 수</p>
-                                <p className="text-2xl font-bold text-gray-900">{members.length}</p>
+                                <p className="text-2xl font-bold text-gray-900">{members?.totalElements}</p>
                             </div>
                         </div>
                     </div>
@@ -184,21 +194,7 @@ export default function MembersPage() {
                             </div>
                             <div className="ml-4">
                                 <p className="text-sm font-medium text-gray-600">오늘 가입</p>
-                                <p className="text-2xl font-bold text-gray-900">{members.filter((m) => new Date(m.createdAt).toDateString() === new Date().toDateString()).length}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-lg shadow p-6">
-                        <div className="flex items-center">
-                            <div className="p-2 rounded-lg">
-                                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                </svg>
-                            </div>
-                            <div className="ml-4">
-                                <p className="text-sm font-medium text-gray-600">총 로그인 횟수</p>
-                                <p className="text-2xl font-bold text-gray-900">{members.reduce((sum, m) => sum + m.loginCount, 0)}</p>
+                                <p className="text-2xl font-bold text-gray-900">{members?.content.filter((m) => new Date(m.createdAt).toDateString() === new Date().toDateString()).length}</p>
                             </div>
                         </div>
                     </div>
@@ -210,7 +206,7 @@ export default function MembersPage() {
                         <h3 className="text-lg font-medium text-gray-900">회원 목록</h3>
                     </div>
 
-                    {members.length === 0 ? (
+                    {members?.content.length === 0 ? (
                         <div className="px-6 py-12 text-center">
                             <p className="text-gray-500">등록된 회원이 없습니다.</p>
                         </div>
@@ -218,45 +214,55 @@ export default function MembersPage() {
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상호명</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">비밀번호</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">가입일</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">마지막 로그인</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">로그인 횟수</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP 주소</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
-                                    </tr>
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상호명</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">비밀번호</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">가입일</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">마지막
+                                        로그인
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP
+                                        주소
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
+                                </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {members.map((member) => (
-                                        <tr key={member.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-medium text-gray-900">{member.companyName}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-medium text-gray-900">{member.password}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(member.createdAt)}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(member.lastLoginAt)}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{member.loginCount}회</span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{member.ipAddress || 'N/A'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <button onClick={() => setSelectedMember(member)} className="text-blue-600 hover:text-blue-900 mr-4">
-                                                    상세보기
-                                                </button>
-                                                <button onClick={() => handleDeleteMember(member.id)} className="text-red-600 hover:text-red-900">
-                                                    삭제
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                {members?.content.map((member) => (
+                                    <tr key={member.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div
+                                                className="text-sm font-medium text-gray-900">{member.companyName}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm font-medium text-gray-900">{member.password}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(member.createdAt)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(member.lastLoginAt)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{member.ipAddress || 'N/A'}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button onClick={() => setSelectedMember(member)}
+                                                    className="text-blue-600 hover:text-blue-900 mr-4">
+                                                상세보기
+                                            </button>
+                                            <button onClick={() => handleDeleteMember(member.id)}
+                                                    className="text-red-600 hover:text-red-900">
+                                                삭제
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
                                 </tbody>
                             </table>
                         </div>
                     )}
+                    <div className="my-6">
+                        <Pagination
+                            current={page}
+                            totalPages={members?.totalPages ?? 0}
+                            onChange={handlePageClick}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -278,10 +284,6 @@ export default function MembersPage() {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">마지막 로그인</label>
                                     <p className="mt-1 text-sm text-gray-900">{formatDate(selectedMember.lastLoginAt)}</p>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">로그인 횟수</label>
-                                    <p className="mt-1 text-sm text-gray-900">{selectedMember.loginCount}회</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">IP 주소</label>

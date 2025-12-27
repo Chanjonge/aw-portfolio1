@@ -1,4 +1,4 @@
-export interface SubmissionContent {
+export interface Submission {
     id: string;
     portfolioId: string;
     companyName: string;
@@ -13,13 +13,4 @@ export interface SubmissionContent {
     };
 }
 
-export interface Submission {
-    content: SubmissionContent[];
-    totalPages: number;
-    totalElements: number;
-    number: number;
-    size: number;
-    first: boolean;
-    last: boolean;
-    empty: boolean;
-}
+
