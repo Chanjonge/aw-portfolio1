@@ -197,11 +197,6 @@ export default function PortfolioForm() {
 
   const fetchPortfolioAndQuestions = async () => {
     try {
-      // const portfoliosResponse = await fetch("/api/portfolios");
-      // const portfoliosData = await portfoliosResponse.json();
-      // const foundPortfolio = portfoliosData.portfolios.find(
-      //   (p: Portfolio) => p.slug === slug,
-      // );
 
       console.log("idddd", id);
 
@@ -347,16 +342,12 @@ export default function PortfolioForm() {
     let isValid = true;
     const missingSteps: number[] = [];
 
-    if (!companyName.trim()) {
-      alert("상호명(회사명)을 입력해주세요.");
-      return false;
-    }
-    if (!password.trim()) {
-      alert("비밀번호를 입력해주세요.");
-      return false;
-    }
-
     questions.forEach((question) => {
+      //객실, 스페셜 제외
+      if (["parlor", "special"].includes(question.questionType)) {
+        return;
+      }
+
       const value = formData[question.id];
       if (question.isRequired) {
         let hasError = false;
@@ -449,6 +440,8 @@ export default function PortfolioForm() {
 
     if (!isValid && missingSteps.length > 0) {
       const sortedSteps = missingSteps.sort((a, b) => a - b);
+
+      console.log("sortedSteps", missingSteps)
       alert(
         `${sortedSteps.join(", ")}단계에 미완성된 필수 항목이 있습니다.\n해당 단계로 이동하여 모든 필수 항목을 완성해주세요.`,
       );
@@ -556,41 +549,37 @@ export default function PortfolioForm() {
     if (!validateAllSteps() || !portfolio) return;
     setSubmitting(true);
     try {
-      const method = existingSubmissionId ? "PUT" : "POST";
-      const url = existingSubmissionId
-        ? `/api/submissions/${existingSubmissionId}`
-        : "/api/submissions";
 
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          portfolioId: portfolio.id,
-          companyName,
-          password,
-          responses: {
+      const fd = new FormData();
+
+      // 수정일 경우
+      if (existingSubmissionId) {
+        fd.append("submissionId", String(existingSubmissionId));
+      }
+
+      fd.append("portfolioId", String(portfolio.id));
+
+      fd.append(
+          "response",
+          JSON.stringify({
             ...formData,
             rooms,
-            specials, // ✅ 제출에도 포함
-          },
-          isDraft: false,
-        }),
-      });
+            specials,
+          })
+      );
 
-      if (response.ok) {
-        alert("제출이 완료되었습니다!\n데이터가 안전하게 저장되었습니다.");
-        router.push("/thank-you");
-      } else {
-        const errorData = await response.json();
-        console.error("제출 실패:", errorData);
-        alert(
-          errorData.error ||
-            "제출 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.",
-        );
-      }
+      await request(
+          () => SubmissionService.post(fd),
+          (res) => {
+            console.log("res 임시저장----", res)
+            alert("제출이 완료되었습니다!\n데이터가 안전하게 저장되었습니다.");
+            router.push("/thank-you");
+
+          },
+          { ignoreErrorRedirect: true },
+      );
     } catch (error) {
       console.error("Submit error:", error);
-      alert("제출 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.");
     } finally {
       setSubmitting(false);
     }

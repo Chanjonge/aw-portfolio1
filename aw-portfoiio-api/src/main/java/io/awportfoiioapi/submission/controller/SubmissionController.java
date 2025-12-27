@@ -42,7 +42,7 @@ public class SubmissionController {
         return submissionService.temporaryStorage(request);
     }
     @PostMapping("/submission")
-    public ApiResponse createSubmission(@AuthenticationPrincipal Jwt jwt , @RequestBody SubmissionPostRequest request) {
+    public ApiResponse createSubmission(@AuthenticationPrincipal Jwt jwt , @ModelAttribute SubmissionPostRequest request) {
         Long memberId = JwtParserUtil.extractMemberId(jwt);
         request.setMemberId(memberId);
         return submissionService.createSubmission(request);
