@@ -2,6 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import {useRecoilValue, useSetRecoilState} from "recoil";
+import {userState} from "@/store/user";
+import {PortfolioService} from "@/services/portfolios.service";
+import {useRequest} from "@/hooks/useRequest";
+
+import {PortfolioContent} from "@/tpyes/portfolio";
+import {SubmissionService} from "@/services/submission.service";
+import {Submission} from "@/tpyes/submission";
+import axios from "axios";
+import api from "@/lib/axiosInstance";
+import {tokenStore} from "@/services/tokenStore";
 
 interface User {
     id: string;
@@ -10,23 +21,6 @@ interface User {
     role: string;
 }
 
-interface Portfolio {
-    id: string;
-    title: string;
-    slug: string;
-}
-
-interface Submission {
-    id: string;
-    submittedBy?: string;
-    responses: Record<string, string>;
-    completedAt: string;
-    ipAddress?: string;
-    portfolio: {
-        title: string;
-        slug: string;
-    };
-}
 
 interface Question {
     id: string;
@@ -36,8 +30,15 @@ interface Question {
 
 export default function AdminDashboard() {
     const router = useRouter();
-    const [user, setUser] = useState<User | null>(null);
-    const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
+
+    //hooks
+    const { request } = useRequest();
+
+    //유저정보
+    const currentUser = useRecoilValue(userState);
+    const resetUser = useSetRecoilState(userState);
+
+    const [portfolios, setPortfolios] = useState<PortfolioContent[]>([]);
     const [selectedPortfolio, setSelectedPortfolio] = useState<string>('all');
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [questions, setQuestions] = useState<Question[]>([]);
@@ -46,82 +47,83 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         checkAuth();
-    }, []);
+    }, [currentUser]);
 
     useEffect(() => {
-        if (user) {
+        if (currentUser) {
             fetchSubmissions();
         }
-    }, [selectedPortfolio, user]);
+    }, [selectedPortfolio, currentUser]);
 
     const checkAuth = async () => {
-        const token = localStorage.getItem('token');
-        const userStr = localStorage.getItem('user');
+        const login = localStorage.getItem("login");
 
-        if (!token || !userStr) {
-            router.push('/admin/login');
+        if (!login) {
+            router.push("/admin/login");
             return;
         }
 
-        const userData = JSON.parse(userStr);
-        setUser(userData);
 
-        await Promise.all([fetchPortfolios(), fetchQuestions()]);
+        await fetchPortfolios()
         setLoading(false);
     };
 
     const fetchPortfolios = async () => {
-        try {
-            const response = await fetch('/api/portfolios');
-            const data = await response.json();
-            if (response.ok) {
-                setPortfolios(data.portfolios);
-            }
-        } catch (error) {
-            console.error('Failed to fetch portfolios:', error);
-        }
+        await request(
+            () => PortfolioService.getUser(true, null),
+            (res) => {
+                console.log("포토폴리오 조회", res);
+                setPortfolios(res.data);
+            },
+            { ignoreErrorRedirect: true },
+        );
     };
 
     const fetchSubmissions = async () => {
-        const token = localStorage.getItem('token');
-        try {
-            const url = selectedPortfolio === 'all' ? '/api/submissions' : `/api/submissions?portfolioId=${selectedPortfolio}`;
-            const response = await fetch(url, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            const data = await response.json();
-            if (response.ok) {
-                setSubmissions(data.submissions);
-            }
-        } catch (error) {
-            console.error('Failed to fetch submissions:', error);
-        }
+
+        await request(
+            () => SubmissionService.adminGet(),
+            (res) => {
+                console.log("제출목록 조회", res);
+                setSubmissions(res.data || []);
+            },
+            { ignoreErrorRedirect: true },
+        );
     };
 
-    const fetchQuestions = async () => {
-        try {
-            const response = await fetch('/api/questions');
-            const data = await response.json();
-            if (response.ok) {
-                setQuestions(data.questions);
-            }
-        } catch (error) {
-            console.error('Failed to fetch questions:', error);
-        }
-    };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        router.push('/admin/login');
+    const handleLogout = async () => {
+        await axios.delete("/api/refresh", {
+            baseURL: api.defaults.baseURL,
+            withCredentials: true,
+        });
+
+        tokenStore.clear();
+        resetUser(null);
+        localStorage.removeItem("login");
+
+        router.push("/admin/login");
     };
 
     const getQuestionTitle = (questionId: string) => {
         const question = questions.find((q) => q.id === questionId);
         return question ? question.title : questionId;
     };
+
+    //포토폴리오 필터
+    const filteredSubmissions = submissions
+        .filter((s) => !s.isDraft)
+        .filter((s) =>
+            selectedPortfolio === 'all'
+                ? true
+                : String(s.portfolioId) === String(selectedPortfolio)
+        );
+
+    //전체 질문 갯수
+    const totalQuestions = portfolios.reduce(
+        (sum, p) => sum + (p.count?.questions ?? 0),
+        0
+    );
 
     if (loading) {
         return (
@@ -140,12 +142,12 @@ export default function AdminDashboard() {
                         <h1 className="text-2xl font-bold text-black">관리자 대시보드</h1>
                         <div className="flex items-center gap-4">
                             <span className="text-gray-600">
-                                {user?.name} ({user?.role === 'SUPER_ADMIN' ? '최고 관리자' : '관리자'})
+                                {currentUser?.email} ({currentUser?.role === 'SUPER_ADMIN' ? '최고 관리자' : '관리자'})
                             </span>
                             <button onClick={() => router.push('/')} className="px-4 py-2 bg-white text-black border-2 border-black rounded-lg font-semibold hover:bg-black hover:text-white transition-all">
                                 메인 페이지
                             </button>
-                            {user?.role === 'SUPER_ADMIN' && (
+                            {currentUser?.role === 'SUPER_ADMIN' && (
                                 <button onClick={() => router.push('/admin/super')} className="px-4 py-2 bg-white text-black border-2 border-black rounded-lg font-semibold hover:bg-black hover:text-white transition-all">
                                     최고 관리자 페이지
                                 </button>
@@ -175,11 +177,11 @@ export default function AdminDashboard() {
                 {/* Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-white border-2 border-black rounded-lg p-6">
-                        <div className="text-3xl font-bold text-black mb-2">{submissions.length}</div>
+                        <div className="text-3xl font-bold text-black mb-2">  {filteredSubmissions.length}</div>
                         <div className="text-gray-600">제출 내역</div>
                     </div>
                     <div className="bg-white border-2 border-black rounded-lg p-6">
-                        <div className="text-3xl font-bold text-black mb-2">{questions.length}</div>
+                        <div className="text-3xl font-bold text-black mb-2">{totalQuestions}</div>
                         <div className="text-gray-600">전체 질문</div>
                     </div>
                     <div className="bg-white border-2 border-black rounded-lg p-6">
@@ -192,17 +194,17 @@ export default function AdminDashboard() {
                 <div className="bg-white border-2 border-black rounded-lg p-6">
                     <h2 className="text-2xl font-bold text-black mb-6">제출 내역</h2>
 
-                    {submissions.length === 0 ? (
+                    {filteredSubmissions.length === 0 ? (
                         <div className="text-center py-12 text-gray-500">아직 제출된 양식이 없습니다.</div>
                     ) : (
                         <div className="space-y-4">
-                            {submissions.map((submission) => (
+                            {filteredSubmissions.map((submission) => (
                                 <div key={submission.id} className="border-2 border-gray-300 rounded-lg p-4 hover:border-black transition-all cursor-pointer" onClick={() => setSelectedSubmission(submission)}>
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <div className="font-semibold text-black">{submission.portfolio.title}</div>
                                             <div className="text-sm text-gray-600 mt-1">제출일: {new Date(submission.completedAt).toLocaleString('ko-KR')}</div>
-                                            {submission.ipAddress && <div className="text-sm text-gray-500">IP: {submission.ipAddress}</div>}
+                                            {/*{submission.ipAddress && <div className="text-sm text-gray-500">IP: {submission.ipAddress}</div>}*/}
                                         </div>
                                         <button className="text-sm text-black border-2 border-black px-3 py-1 rounded hover:bg-black hover:text-white transition-all">자세히 보기</button>
                                     </div>
@@ -237,12 +239,12 @@ export default function AdminDashboard() {
                                 <div className="text-sm text-gray-600">제출일시</div>
                                 <div>{new Date(selectedSubmission.completedAt).toLocaleString('ko-KR')}</div>
                             </div>
-                            {selectedSubmission.ipAddress && (
-                                <div>
-                                    <div className="text-sm text-gray-600">IP 주소</div>
-                                    <div>{selectedSubmission.ipAddress}</div>
-                                </div>
-                            )}
+                            {/*{selectedSubmission.ipAddress && (*/}
+                            {/*    <div>*/}
+                            {/*        <div className="text-sm text-gray-600">IP 주소</div>*/}
+                            {/*        <div>{selectedSubmission.ipAddress}</div>*/}
+                            {/*    </div>*/}
+                            {/*)}*/}
 
                             <div className="border-t-2 border-gray-200 pt-6">
                                 <h4 className="font-bold text-lg mb-4">답변 내용</h4>

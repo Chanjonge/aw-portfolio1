@@ -1,5 +1,4 @@
 import api from "@/lib/axiosInstance";
-import {Params} from "@/components/Pagination";
 
 interface MyParams {
     companyName: string;
@@ -9,7 +8,7 @@ interface MyParams {
 export const SubmissionService = {
     get: (id: string) => api.get(`/api/submission/${id}`),
 
-    adminGet: (params: Params) => api.get(`/api/admin-submissions`, { params }),
+    adminGet: () => api.get(`/api/admin-submissions`),
 
     temporaryPost: (body: FormData) => api.post("/api/submission/temporaryStorage", body),
 

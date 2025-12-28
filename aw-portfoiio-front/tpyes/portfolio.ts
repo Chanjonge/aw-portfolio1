@@ -14,7 +14,7 @@ export interface PortfolioContent {
     name: string;
     slug: string;
   };
-  _count?: {
+  count?: {
     questions: number;
     submissions: number;
   };

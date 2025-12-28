@@ -43,9 +43,6 @@ export default function Home() {
   //hooks
   const { request } = useRequest();
 
-  //초기 로그인 인증값
-  // const loginGb = localStorage.getItem("login");
-
   //유저정보
   const currentUser = useRecoilValue(userState);
   const setUser = useSetRecoilState(userState);

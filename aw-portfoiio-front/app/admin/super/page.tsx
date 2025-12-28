@@ -191,7 +191,7 @@ export default function SuperAdminPage() {
     try {
 
       await request(
-          () => SubmissionService.adminGet({ page: page, size: 5 }),
+          () => SubmissionService.adminGet(),
           (res) => {
             console.log("제출목록 조회", res);
             setSubmissions(res.data || []);
@@ -856,10 +856,10 @@ export default function SuperAdminPage() {
                           <div className="text-sm text-gray-500 mb-4">
                             <div>슬러그: {portfolio.slug}</div>
                             <div>순서: {portfolio.order}</div>
-                            {portfolio._count && (
+                            {portfolio.count && (
                                 <>
-                                  <div>질문: {portfolio._count.questions}개</div>
-                                  <div>제출: {portfolio._count.submissions}개</div>
+                                  <div>질문: {portfolio.count.questions}개</div>
+                                  <div>제출: {portfolio.count.submissions}개</div>
                                 </>
                             )}
                           </div>
