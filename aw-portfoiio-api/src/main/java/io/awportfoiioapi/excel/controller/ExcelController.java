@@ -1,8 +1,10 @@
 package io.awportfoiioapi.excel.controller;
 
+import io.awportfoiioapi.excel.dto.request.ExcelRequest;
 import io.awportfoiioapi.excel.service.ExcelService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,8 +16,9 @@ public class ExcelController {
     private final ExcelService excelService;
     
     
-    @GetMapping("/excel")
-    public String getExcel() {
+    @PostMapping("/excel")
+    public String getExcel(@RequestBody ExcelRequest request) {
+        
         return null;
     }
 }
