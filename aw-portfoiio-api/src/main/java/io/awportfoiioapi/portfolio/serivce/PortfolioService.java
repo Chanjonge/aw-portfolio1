@@ -14,6 +14,7 @@ import java.util.List;
 
 public interface PortfolioService {
     Page<PortfolioResponse> getPortfolioList(Pageable pageable,String name);
+    List<PortfolioResponse> getPortfolioList();
     PortfolioGetDetailResponse getPortfolioDetail(Long id);
     List<PortfolioResponse> getPortfolioList(Boolean active,Long categoryId);
     List<PortfoliosGetDetailResponse>  getPortfolioDetailOptions(Long id);

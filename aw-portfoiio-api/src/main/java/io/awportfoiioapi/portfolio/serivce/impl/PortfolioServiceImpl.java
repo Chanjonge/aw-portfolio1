@@ -70,6 +70,37 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
     
     @Override
+    public List<PortfolioResponse> getPortfolioList() {
+        List<PortfolioResponse> portfolioList = portfolioRepository.getPortfolioList();
+        List<PortfolioQuestionCountResponse> byQuestionCount = portfolioRepository.findByQuestionCount();
+        List<PortfolioSubmissionCountResponse> bySubmissionCount = portfolioRepository.findBySubmissionCount();
+        // count 결과를 Map으로 변환
+        Map<Long, Long> questionCountMap =
+                byQuestionCount.stream().collect(Collectors.toMap(
+                        PortfolioQuestionCountResponse::getPortfolioId,
+                        PortfolioQuestionCountResponse::getCount));
+        portfolioList.forEach(portfolio -> {
+            Long count = questionCountMap.getOrDefault(
+                    portfolio.getId(),
+                    0L
+            );
+            portfolio.getCount().setQuestions(count);
+        });
+        Map<Long, Long> submissionCountMap =
+                bySubmissionCount.stream().collect(Collectors.toMap(
+                        PortfolioSubmissionCountResponse::getPortfolioId,
+                        PortfolioSubmissionCountResponse::getCount));
+        portfolioList.forEach(portfolio -> {
+            Long count = submissionCountMap.getOrDefault(
+                    portfolio.getId(),
+                    0L
+            );
+            portfolio.getCount().setSubmissions(count);
+        });
+        return portfolioList;
+    }
+    
+    @Override
     public PortfolioGetDetailResponse getPortfolioDetail(Long id) {
         return portfolioRepository.findByPortfolioDetail(id);
     }

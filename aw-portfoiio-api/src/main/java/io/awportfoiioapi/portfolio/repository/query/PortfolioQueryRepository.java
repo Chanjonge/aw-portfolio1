@@ -14,6 +14,7 @@ public interface PortfolioQueryRepository {
     boolean existsByPortfolioOrder(Integer order, Long excludeId);
     
     Page<PortfolioResponse> getPortfolioList(Pageable pageable,String name);
+    List<PortfolioResponse> getPortfolioList();
     List<PortfolioResponse> getPortfolioList(Boolean active,Long categoryId);
     
     List<PortfoliosGetDetailResponse>  getPortfolioDetailOptions(Long id);

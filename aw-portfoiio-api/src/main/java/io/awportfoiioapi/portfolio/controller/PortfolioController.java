@@ -30,6 +30,10 @@ public class PortfolioController {
         Page<PortfolioResponse> portfolioList = portfolioService.getPortfolioList(pageable,name);
         return PageResponse.from(portfolioList);
     }
+    @GetMapping("/portfolios/all")
+    public List<PortfolioResponse> getPortfolioLists() {
+        return portfolioService.getPortfolioList();
+    }
     
     @GetMapping("/portfolio/{id}")
     public PortfolioGetDetailResponse getPortfolioDetail(@PathVariable Long id) {

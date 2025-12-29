@@ -222,6 +222,14 @@ class PortfolioServiceImplTest extends RepositoryAndServiceTestSupport {
         System.out.println("portfolioOneDetail = " + portfolioOneDetail);
     }
     
+    @DisplayName("")
+    @Test
+    void test17(){
+        List<PortfolioResponse> portfolioList = portfolioService.getPortfolioList();
+        System.out.println("portfolioList = " + portfolioList);
+        
+    }
+    
     private PortfolioPutRequest.ThumbnailRequest  thumbnailKeep() {
         // 썸네일 유지: thumbnail 객체 자체를 null로 보내도 되고,
         // 객체를 보내되 (file=null, remove=false)로 보내도 됨.

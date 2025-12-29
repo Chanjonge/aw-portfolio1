@@ -45,7 +45,7 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
     }
     
     @Override
-    public Page<PortfolioResponse> getPortfolioList(Pageable pageable,String name) {
+    public Page<PortfolioResponse> getPortfolioList(Pageable pageable, String name) {
         List<PortfolioResponse> result = queryFactory
                 .select(
                         new QPortfolioResponse(
@@ -72,6 +72,27 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
                 .from(portfolio)
                 .where(whereName(name));
         return PageableExecutionUtils.getPage(result, pageable, countQuery::fetchOne);
+    }
+    
+    @Override
+    public List<PortfolioResponse> getPortfolioList() {
+        return queryFactory
+                .select(
+                        new QPortfolioResponse(
+                                portfolio.id,
+                                portfolio.category.id,
+                                portfolio.title,
+                                portfolio.description,
+                                portfolio.domain,
+                                portfolio.orders,
+                                portfolio.slug,
+                                portfolio.thumbnail,
+                                portfolio.isActive
+                        )
+                )
+                .from(portfolio)
+                .orderBy(portfolio.orders.asc())
+                .fetch();
     }
     
     @Override
@@ -120,7 +141,7 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
                 .join(options.question, question)
                 .join(question.portfolio, portfolio)
                 .where(portfolio.id.eq(id))
-                .orderBy(question.step.asc() , options.orders.asc())
+                .orderBy(question.step.asc(), options.orders.asc())
                 .fetch();
     }
     
@@ -146,7 +167,7 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
         return queryFactory
                 .select(new QPortfolioSubmissionCountResponse(
                         portfolio.id,
-                      submission.count()
+                        submission.count()
                 ))
                 .from(submission)
                 .leftJoin(submission.portfolio, portfolio)
@@ -179,7 +200,7 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
         return queryFactory
                 .select(portfolio)
                 .from(portfolio)
-                .join(portfolio.category , category).fetchJoin()
+                .join(portfolio.category, category).fetchJoin()
                 .where(portfolio.id.eq(id))
                 .fetchFirst();
     }
@@ -197,10 +218,11 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
         }
         return portfolio.category.id.eq(categoryId);
     }
+    
     private BooleanExpression whereName(String name) {
-        if(!StringUtils.hasText(name)) {
+        if (!StringUtils.hasText(name)) {
             return null;
         }
-        return portfolio.title.like("%"+name+"%");
+        return portfolio.title.like("%" + name + "%");
     }
 }
