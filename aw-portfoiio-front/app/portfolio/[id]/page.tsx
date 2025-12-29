@@ -1,14 +1,14 @@
 "use client";
 
-import {useState, useEffect, useRef} from "react";
-import {useRouter, useParams, useSearchParams} from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import DynamicFormField from "@/components/DynamicFormField";
 import { useRecoilValue } from "recoil";
 import { userState } from "@/store/user";
 import { PortfolioService } from "@/services/portfolios.service";
 import { useRequest } from "@/hooks/useRequest";
 import { QuestionService } from "@/services/question.service";
-import {SubmissionService} from "@/services/submission.service";
+import { SubmissionService } from "@/services/submission.service";
 
 interface Question {
   id: string;
@@ -46,7 +46,7 @@ export default function PortfolioForm() {
 
   //id 방식 교체
   const id = params.id as string;
-  const submissionId = searchParams.get('submissionId')
+  const submissionId = searchParams.get("submissionId");
 
   //로그인 상태
   const currentUser = useRecoilValue(userState);
@@ -57,7 +57,7 @@ export default function PortfolioForm() {
   const [formData, setFormData] = useState<FormData>({});
   const [errors, setErrors] = useState<FormData>({});
 
-  // ✅ 객실
+  // 객실
   const [rooms, setRooms] = useState<
     Array<{
       id: string;
@@ -88,7 +88,6 @@ export default function PortfolioForm() {
   const minStep =
     questions.length > 0 ? Math.min(...questions.map((q) => q.step)) : 0;
 
-
   const fileMapRef = useRef<Record<string, File>>({});
 
   //파일 전송시 수정
@@ -97,7 +96,9 @@ export default function PortfolioForm() {
     const cleanedFormData: any = {};
 
     Object.entries(fileMapRef.current).forEach(([questionId, file]) => {
-      const question = questions.find(q => String(q.id) === String(questionId));
+      const question = questions.find(
+        (q) => String(q.id) === String(questionId),
+      );
       if (!question) return;
 
       optionFiles.push({
@@ -144,7 +145,6 @@ export default function PortfolioForm() {
     } else {
       router.push("/");
     }
-
   }, [id, currentUser]);
 
   useEffect(() => {
@@ -175,60 +175,57 @@ export default function PortfolioForm() {
     if (!submissionId) return;
     try {
       await request(
-          () => SubmissionService.get(submissionId),
-          (res) => {
-            console.log("res 작성내역 불러오기----", res)
+        () => SubmissionService.get(submissionId),
+        (res) => {
+          console.log("res 작성내역 불러오기----", res);
 
-            const data = res.data;
+          const data = res.data;
 
-            if (data) {
-              const parsedResponses = JSON.parse(data.submissionJson);
+          if (data) {
+            const parsedResponses = JSON.parse(data.submissionJson);
 
-              console.log('parsedResponses', parsedResponses)
+            console.log("parsedResponses", parsedResponses);
 
-              setExistingSubmissionId(data.submissionId);
-              setFormData(parsedResponses);
+            setExistingSubmissionId(data.submissionId);
+            setFormData(parsedResponses);
 
-              // rooms 복원
-              const savedRooms = parsedResponses?.rooms;
-              if (Array.isArray(savedRooms) && savedRooms.length > 0) {
-                setRooms(
-                    savedRooms.map((r: any, idx: number) => ({
-                      id: r.id ? String(r.id) : `room-${idx + 1}`,
-                      name: r.name || "",
-                      desc: r.desc || "",
-                      type: r.type || "",
-                      price: r.price || "",
-                    })),
-                );
-              } else {
-                setRooms([
-                  { id: "room-1", name: "", desc: "", type: "", price: "" },
-                ]);
-              }
-
-              // specials 복원
-              const savedSpecials = parsedResponses?.specials;
-              if (Array.isArray(savedSpecials) && savedSpecials.length > 0) {
-                setSpecials(
-                    savedSpecials.map((s: any, idx: number) => ({
-                      id: s.id ? String(s.id) : `special-${idx + 1}`,
-                      name: s.name || "",
-                      desc: s.desc || "",
-                    })),
-                );
-              } else {
-                setSpecials([{ id: "special-1", name: "", desc: "" }]);
-              }
-
-              alert("기존 작성 내역을 불러왔습니다.");
+            // rooms 복원
+            const savedRooms = parsedResponses?.rooms;
+            if (Array.isArray(savedRooms) && savedRooms.length > 0) {
+              setRooms(
+                savedRooms.map((r: any, idx: number) => ({
+                  id: r.id ? String(r.id) : `room-${idx + 1}`,
+                  name: r.name || "",
+                  desc: r.desc || "",
+                  type: r.type || "",
+                  price: r.price || "",
+                })),
+              );
+            } else {
+              setRooms([
+                { id: "room-1", name: "", desc: "", type: "", price: "" },
+              ]);
             }
 
+            // specials 복원
+            const savedSpecials = parsedResponses?.specials;
+            if (Array.isArray(savedSpecials) && savedSpecials.length > 0) {
+              setSpecials(
+                savedSpecials.map((s: any, idx: number) => ({
+                  id: s.id ? String(s.id) : `special-${idx + 1}`,
+                  name: s.name || "",
+                  desc: s.desc || "",
+                })),
+              );
+            } else {
+              setSpecials([{ id: "special-1", name: "", desc: "" }]);
+            }
 
-          },
-          { ignoreErrorRedirect: true },
+            alert("기존 작성 내역을 불러왔습니다.");
+          }
+        },
+        { ignoreErrorRedirect: true },
       );
-
     } catch (error) {
       console.error("Failed to check existing submission:", error);
     }
@@ -236,7 +233,6 @@ export default function PortfolioForm() {
 
   const fetchPortfolioAndQuestions = async () => {
     try {
-
       console.log("idddd", id);
 
       await request(
@@ -280,7 +276,6 @@ export default function PortfolioForm() {
     let isValid = true;
 
     currentQuestions.forEach((question) => {
-
       //객실, 스페셜은 제외
       if (["parlor", "special"].includes(question.questionType)) {
         return;
@@ -476,7 +471,7 @@ export default function PortfolioForm() {
     if (!isValid && missingSteps.length > 0) {
       const sortedSteps = missingSteps.sort((a, b) => a - b);
 
-      console.log("sortedSteps", missingSteps)
+      console.log("sortedSteps", missingSteps);
       alert(
         `${sortedSteps.join(", ")}단계에 미완성된 필수 항목이 있습니다.\n해당 단계로 이동하여 모든 필수 항목을 완성해주세요.`,
       );
@@ -542,8 +537,6 @@ export default function PortfolioForm() {
     if (!portfolio) return;
     setSubmitting(true);
     try {
-
-
       const { response, optionFiles } = extractSubmitData();
       const fd = new FormData();
 
@@ -555,30 +548,31 @@ export default function PortfolioForm() {
       fd.append("portfolioId", String(portfolio.id));
       fd.append("response", JSON.stringify(response));
 
-      console.log("optionFiles", optionFiles)
+      console.log("optionFiles", optionFiles);
 
       optionFiles.forEach((opt, idx) => {
         fd.append(`optionFiles[${idx}].optionsId`, opt.optionsId);
         fd.append(`optionFiles[${idx}].questionStep`, String(opt.questionStep));
-        fd.append(`optionFiles[${idx}].questionOrder`, String(opt.questionOrder));
+        fd.append(
+          `optionFiles[${idx}].questionOrder`,
+          String(opt.questionOrder),
+        );
         opt.files.forEach((file: File) => {
           fd.append(`optionFiles[${idx}].files`, file);
         });
       });
 
       await request(
-          () => SubmissionService.temporaryPost(fd),
-          (res) => {
-            console.log("res 임시저장----", res)
-            if (!existingSubmissionId) {
-              setExistingSubmissionId(res.data.submissionId);
-            }
-            alert("임시저장되었습니다.");
-
-          },
-          { ignoreErrorRedirect: true },
+        () => SubmissionService.temporaryPost(fd),
+        (res) => {
+          console.log("res 임시저장----", res);
+          if (!existingSubmissionId) {
+            setExistingSubmissionId(res.data.submissionId);
+          }
+          alert("임시저장되었습니다.");
+        },
+        { ignoreErrorRedirect: true },
       );
-
     } catch (error) {
       console.error("Save draft error:", error);
     } finally {
@@ -590,7 +584,6 @@ export default function PortfolioForm() {
     if (!validateAllSteps() || !portfolio) return;
     setSubmitting(true);
     try {
-
       const fd = new FormData();
 
       // 수정일 경우
@@ -601,23 +594,22 @@ export default function PortfolioForm() {
       fd.append("portfolioId", String(portfolio.id));
 
       fd.append(
-          "response",
-          JSON.stringify({
-            ...formData,
-            rooms,
-            specials,
-          })
+        "response",
+        JSON.stringify({
+          ...formData,
+          rooms,
+          specials,
+        }),
       );
 
       await request(
-          () => SubmissionService.post(fd),
-          (res) => {
-            console.log("res 임시저장----", res)
-            alert("제출이 완료되었습니다!\n데이터가 안전하게 저장되었습니다.");
-            router.push("/thank-you");
-
-          },
-          { ignoreErrorRedirect: true },
+        () => SubmissionService.post(fd),
+        (res) => {
+          console.log("res 임시저장----", res);
+          alert("제출이 완료되었습니다!\n데이터가 안전하게 저장되었습니다.");
+          router.push("/thank-you");
+        },
+        { ignoreErrorRedirect: true },
       );
     } catch (error) {
       console.error("Submit error:", error);
@@ -627,7 +619,6 @@ export default function PortfolioForm() {
   };
 
   const handleChange = (questionId: string, value: any) => {
-
     if (value instanceof File) {
       fileMapRef.current[questionId] = value; // 즉시 저장
       return;
@@ -640,7 +631,6 @@ export default function PortfolioForm() {
       }
       return;
     }
-
 
     setFormData((prev) => ({
       ...prev,
@@ -672,8 +662,7 @@ export default function PortfolioForm() {
           </h2>
           <button
             onClick={() => {
-                router.push("/");
-
+              router.push("/");
             }}
             className="px-4 py-2 bg-black text-white rounded-lg"
           >
@@ -694,7 +683,7 @@ export default function PortfolioForm() {
           <p className="text-gray-600 mb-4">관리자에게 문의해주세요.</p>
           <button
             onClick={() => {
-                router.push("/");
+              router.push("/");
             }}
             className="px-4 py-2 bg-black text-white rounded-lg"
           >
@@ -1060,7 +1049,7 @@ export default function PortfolioForm() {
         <div className="text-center mt-6">
           <button
             onClick={() => {
-                router.push("/");
+              router.push("/");
             }}
             className="text-gray-600 hover:text-black transition-all"
           >
