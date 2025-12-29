@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 interface FieldOption {
   label: string;
@@ -80,7 +80,9 @@ export default function DynamicFormField({
 }: DynamicFormFieldProps) {
   const [uploading, setUploading] = useState(false);
 
-  console.log("disabled", disabled);
+  // 파일업로드 drag
+  const inputRef = useRef<HTMLInputElement>(null);
+
   // 기본값
   const questionType = (question.questionType ?? "text")
     .toString()
@@ -222,17 +224,48 @@ export default function DynamicFormField({
             </span>
           )}
         </label>
-        <input
-          type="file"
-          accept="image/*,.pdf"
-          disabled={disabled}
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            console.log("SELECTED FILE:", file);
-            if (file) onChange(file); // file 변경
+        <div
+          onClick={() => {
+            if (!disabled) inputRef.current?.click();
           }}
-          className="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-black file:text-white file:cursor-pointer hover:file:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-        />
+          onDragOver={(e) => {
+            e.preventDefault();
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            const file = e.dataTransfer.files?.[0];
+            if (file) onChange(file);
+          }}
+          className={`w-full px-4 py-8 border-2 rounded-lg text-center transition-all 
+          ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer border-gray-300 hover:border-black"}`}
+        >
+          <p className="text-sm text-gray-700 font-medium">
+            {value?.name ?? "클릭하거나 파일을 드래그하세요."}
+          </p>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*,.pdf"
+            disabled={disabled}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              console.log("file", value);
+              if (file) onChange(file);
+            }}
+            className="hidden"
+          />
+        </div>
+        {/*<input*/}
+        {/*  type="file"*/}
+        {/*  accept="image/*,.pdf"*/}
+        {/*  disabled={disabled}*/}
+        {/*  onChange={(e) => {*/}
+        {/*    const file = e.target.files?.[0];*/}
+        {/*    console.log("SELECTED FILE:", file);*/}
+        {/*    if (file) onChange(file); // file 변경*/}
+        {/*  }}*/}
+        {/*  className="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-black file:text-white file:cursor-pointer hover:file:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"*/}
+        {/*/>*/}
         {hasUploadedFile && (
           <div className="text-sm text-green-700">
             기존 파일:
@@ -246,7 +279,9 @@ export default function DynamicFormField({
             </a>
           </div>
         )}
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {error && !(value && value.url) && (
+          <p className="text-sm text-red-500">{error}</p>
+        )}
       </div>
     );
   }

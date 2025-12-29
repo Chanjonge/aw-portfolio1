@@ -629,6 +629,7 @@ export default function PortfolioForm() {
   const handleChange = (questionId: string, value: any) => {
     if (value instanceof File) {
       fileMapRef.current[questionId] = value; // 즉시 저장
+      setFormData((prev) => ({ ...prev, [questionId]: value }));
       return;
     }
 

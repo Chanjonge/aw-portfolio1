@@ -1302,15 +1302,15 @@ export default function SuperAdminPage() {
       {showQuestionForm && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          onClick={() => {
-            setShowQuestionForm(false);
-            setEditingQuestion(null);
+          onClick={(e) => {
+            //질문 등록시 모달 닫히는 방지(외부 영역 클릭시에만 닫히게)
+            if (e.target === e.currentTarget) {
+              setShowQuestionForm(false);
+              setEditingQuestion(null);
+            }
           }}
         >
-          <div
-            className="bg-white rounded-lg p-8 max-w-2xl w-full border-2 border-black max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="bg-white rounded-lg p-8 max-w-2xl w-full border-2 border-black max-h-[90vh] overflow-y-auto">
             <h3 className="text-2xl font-bold text-black mb-6">
               {editingQuestion ? "질문 수정" : "새 질문 추가"}
             </h3>
