@@ -3,23 +3,22 @@ package io.awportfoiioapi.portfolio.repository.impl;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import io.awportfoiioapi.category.entity.QCategory;
 import io.awportfoiioapi.portfolio.dto.response.*;
 import io.awportfoiioapi.portfolio.entity.Portfolio;
 import io.awportfoiioapi.portfolio.repository.query.PortfolioQueryRepository;
-import io.awportfoiioapi.submission.entity.QSubmission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
-import static io.awportfoiioapi.category.entity.QCategory.*;
-import static io.awportfoiioapi.options.entity.QOptions.*;
+import static io.awportfoiioapi.category.entity.QCategory.category;
+import static io.awportfoiioapi.options.entity.QOptions.options;
 import static io.awportfoiioapi.portfolio.entity.QPortfolio.portfolio;
 import static io.awportfoiioapi.question.entity.QQuestion.question;
-import static io.awportfoiioapi.submission.entity.QSubmission.*;
+import static io.awportfoiioapi.submission.entity.QSubmission.submission;
 
 @RequiredArgsConstructor
 public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
@@ -46,7 +45,7 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
     }
     
     @Override
-    public Page<PortfolioResponse> getPortfolioList(Pageable pageable) {
+    public Page<PortfolioResponse> getPortfolioList(Pageable pageable,String name) {
         List<PortfolioResponse> result = queryFactory
                 .select(
                         new QPortfolioResponse(
@@ -62,6 +61,7 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
                         )
                 )
                 .from(portfolio)
+                .where(whereName(name))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(portfolio.orders.asc())
@@ -69,7 +69,8 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
         
         JPAQuery<Long> countQuery = queryFactory
                 .select(portfolio.count())
-                .from(portfolio);
+                .from(portfolio)
+                .where(whereName(name));
         return PageableExecutionUtils.getPage(result, pageable, countQuery::fetchOne);
     }
     
@@ -195,5 +196,11 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
             return null;
         }
         return portfolio.category.id.eq(categoryId);
+    }
+    private BooleanExpression whereName(String name) {
+        if(!StringUtils.hasText(name)) {
+            return null;
+        }
+        return portfolio.title.like("%"+name+"%");
     }
 }

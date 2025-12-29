@@ -39,8 +39,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     private final S3FileUtils s3FileUtils;
     
     @Override
-    public Page<PortfolioResponse> getPortfolioList(Pageable pageable) {
-        Page<PortfolioResponse> portfolioList = portfolioRepository.getPortfolioList(pageable);
+    public Page<PortfolioResponse> getPortfolioList(Pageable pageable,String name) {
+        Page<PortfolioResponse> portfolioList = portfolioRepository.getPortfolioList(pageable,name);
         List<PortfolioQuestionCountResponse> byQuestionCount = portfolioRepository.findByQuestionCount();
         List<PortfolioSubmissionCountResponse> bySubmissionCount = portfolioRepository.findBySubmissionCount();
         // count 결과를 Map으로 변환

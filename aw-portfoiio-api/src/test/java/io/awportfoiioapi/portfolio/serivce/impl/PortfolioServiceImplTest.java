@@ -189,7 +189,7 @@ class PortfolioServiceImplTest extends RepositoryAndServiceTestSupport {
     @Test
     void test12(){
         PageRequest pageRequest = PageRequest.of(0, 10);
-        Page<PortfolioResponse> portfolioList = portfolioService.getPortfolioList(pageRequest);
+        Page<PortfolioResponse> portfolioList = portfolioService.getPortfolioList(pageRequest,"포토폴리오");
         System.out.println("portfolioList = " + portfolioList);
     }
     

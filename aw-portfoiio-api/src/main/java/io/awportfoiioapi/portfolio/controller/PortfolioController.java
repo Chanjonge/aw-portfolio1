@@ -26,8 +26,8 @@ public class PortfolioController {
     private final PortfolioService portfolioService;
     
     @GetMapping("/portfolio")
-    public PageResponse<PortfolioResponse> getPortfolioList(@PageableDefault(size = 10) Pageable pageable) {
-        Page<PortfolioResponse> portfolioList = portfolioService.getPortfolioList(pageable);
+    public PageResponse<PortfolioResponse> getPortfolioList(@PageableDefault(size = 10) Pageable pageable, @RequestParam(required = false) String name) {
+        Page<PortfolioResponse> portfolioList = portfolioService.getPortfolioList(pageable,name);
         return PageResponse.from(portfolioList);
     }
     
