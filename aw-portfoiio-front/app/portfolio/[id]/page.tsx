@@ -66,9 +66,21 @@ export default function PortfolioForm() {
       name: string;
       desc: string;
       type: string;
-      price: string;
+      priceLow: string; // 비수기
+      priceMid: string; // 준성수기
+      priceHigh: string; // 성수기
     }>
-  >([{ id: "room-1", name: "", desc: "", type: "", price: "" }]);
+  >([
+    {
+      id: "room-1",
+      name: "",
+      desc: "",
+      type: "",
+      priceLow: "",
+      priceMid: "",
+      priceHigh: "",
+    },
+  ]);
 
   // 스페셜 (6단계)
   const [specials, setSpecials] = useState<
@@ -200,12 +212,22 @@ export default function PortfolioForm() {
                   name: r.name || "",
                   desc: r.desc || "",
                   type: r.type || "",
-                  price: r.price || "",
+                  priceLow: r.priceLow || "",
+                  priceMid: r.priceMid || "",
+                  priceHigh: r.priceHigh || "",
                 })),
               );
             } else {
               setRooms([
-                { id: "room-1", name: "", desc: "", type: "", price: "" },
+                {
+                  id: "room-1",
+                  name: "",
+                  desc: "",
+                  type: "",
+                  priceLow: "",
+                  priceMid: "",
+                  priceHigh: "",
+                },
               ]);
             }
 
@@ -482,7 +504,7 @@ export default function PortfolioForm() {
     return isValid;
   };
 
-  // ✅ 객실 추가
+  // 객실 추가
   const handleAddRoom = () => {
     setRooms((prev) => [
       ...prev,
@@ -491,17 +513,19 @@ export default function PortfolioForm() {
         name: "",
         desc: "",
         type: "",
-        price: "",
+        priceLow: "",
+        priceMid: "",
+        priceHigh: "",
       },
     ]);
   };
 
-  // ✅ 객실 삭제
+  // 객실 삭제
   const handleRemoveRoom = (id: string) => {
     setRooms((prev) => prev.filter((room) => room.id !== id));
   };
 
-  // ✅ 스페셜 추가 (6단계)
+  // 스페셜 추가
   const handleAddSpecial = () => {
     setSpecials((prev) => [
       ...prev,
@@ -877,21 +901,68 @@ export default function PortfolioForm() {
                               <label className="block font-semibold mb-1">
                                 요금
                               </label>
-                              <input
-                                type="text"
-                                value={room.price}
-                                disabled={isDetailMode}
-                                onChange={(e) => {
-                                  const updated = rooms.map((r) =>
-                                    r.id === room.id
-                                      ? { ...r, price: e.target.value }
-                                      : r,
-                                  );
-                                  setRooms(updated);
-                                }}
-                                className="w-full border border-gray-300 rounded-lg p-2"
-                                placeholder="예: 비수기(주중/주말) : 100,000 / 200,000"
-                              />
+                              <div className="flex items-center gap-4 mb-4">
+                                <label className="w-16 font-semibold text-sm text-gray-700">
+                                  비수기
+                                </label>
+                                <input
+                                  type="text"
+                                  value={room.priceLow}
+                                  disabled={isDetailMode}
+                                  onChange={(e) => {
+                                    const updated = rooms.map((r) =>
+                                      r.id === room.id
+                                        ? { ...r, priceLow: e.target.value }
+                                        : r,
+                                    );
+                                    setRooms(updated);
+                                  }}
+                                  className="w-full border border-gray-300 rounded-lg p-2"
+                                  placeholder="예: 주중/주말 100,000 / 200,000"
+                                />
+                              </div>
+
+                              <div className="flex items-center gap-4 mb-4">
+                                <label className="w-16 font-semibold text-sm text-gray-700">
+                                  준성수기
+                                </label>
+                                <input
+                                  type="text"
+                                  value={room.priceMid}
+                                  disabled={isDetailMode}
+                                  onChange={(e) => {
+                                    const updated = rooms.map((r) =>
+                                      r.id === room.id
+                                        ? { ...r, priceMid: e.target.value }
+                                        : r,
+                                    );
+                                    setRooms(updated);
+                                  }}
+                                  className="w-full border border-gray-300 rounded-lg p-2"
+                                  placeholder="예: 주중/주말 120,000 / 220,000"
+                                />
+                              </div>
+
+                              <div className="flex items-center gap-4">
+                                <label className="w-16 font-semibold text-sm text-gray-700">
+                                  성수기
+                                </label>
+                                <input
+                                  type="text"
+                                  value={room.priceHigh}
+                                  disabled={isDetailMode}
+                                  onChange={(e) => {
+                                    const updated = rooms.map((r) =>
+                                      r.id === room.id
+                                        ? { ...r, priceHigh: e.target.value }
+                                        : r,
+                                    );
+                                    setRooms(updated);
+                                  }}
+                                  className="w-full border border-gray-300 rounded-lg p-2"
+                                  placeholder="예: 주중/주말 150,000 / 250,000"
+                                />
+                              </div>
                             </div>
                           </div>
                         ))}
