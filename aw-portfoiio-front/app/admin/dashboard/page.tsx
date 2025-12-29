@@ -40,10 +40,8 @@ export default function AdminDashboard() {
   const [portfolios, setPortfolios] = useState<PortfolioContent[]>([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState<string>("all");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [questions, setQuestions] = useState<Question[]>([]);
+
   const [loading, setLoading] = useState(true);
-  const [selectedSubmission, setSelectedSubmission] =
-    useState<Submission | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -102,11 +100,6 @@ export default function AdminDashboard() {
     router.push("/admin/login");
   };
 
-  const getQuestionTitle = (questionId: string) => {
-    const question = questions.find((q) => q.id === questionId);
-    return question ? question.title : questionId;
-  };
-
   //포토폴리오 필터
   const filteredSubmissions = submissions
     .filter((s) => !s.isDraft)
@@ -121,6 +114,13 @@ export default function AdminDashboard() {
     (sum, p) => sum + (p.count?.questions ?? 0),
     0,
   );
+
+  // 자세히보기
+  const handleDetailSubmission = (submission: Submission) => {
+    router.push(
+      `/portfolio/${submission.portfolioId}?submissionId=${submission.id}&detail=true`,
+    );
+  };
 
   if (loading) {
     return (
@@ -225,7 +225,6 @@ export default function AdminDashboard() {
                 <div
                   key={submission.id}
                   className="border-2 border-gray-300 rounded-lg p-4 hover:border-black transition-all cursor-pointer"
-                  onClick={() => setSelectedSubmission(submission)}
                 >
                   <div className="flex justify-between items-start">
                     <div>
@@ -240,7 +239,10 @@ export default function AdminDashboard() {
                       </div>
                       {/*{submission.ipAddress && <div className="text-sm text-gray-500">IP: {submission.ipAddress}</div>}*/}
                     </div>
-                    <button className="text-sm text-black border-2 border-black px-3 py-1 rounded hover:bg-black hover:text-white transition-all">
+                    <button
+                      className="text-sm text-black border-2 border-black px-3 py-1 rounded hover:bg-black hover:text-white transition-all"
+                      onClick={() => handleDetailSubmission(submission)}
+                    >
                       자세히 보기
                     </button>
                   </div>
