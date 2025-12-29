@@ -4,6 +4,8 @@ import { Params } from "@/components/Pagination";
 export const PortfolioService = {
   get: (params: Params) => api.get("/api/portfolio", { params }),
 
+  getAll: () => api.get("/api/portfolio/all"),
+
   getUser: (active: boolean, categoryId: string | null) => {
     let url = `/api/portfolios?active=${active}`;
     if (categoryId) {

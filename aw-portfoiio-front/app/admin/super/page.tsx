@@ -60,10 +60,12 @@ export default function SuperAdminPage() {
   //카테고리 목록
   const [categories, setCategories] = useState<Category>();
 
-  //포토폴리오 목록
+  //포토폴리오 list
   const [portfolios, setPortfolios] = useState<Portfolio>();
   //포토폴리오 카테고리 목록
   const [selectCategory, setSelectCategory] = useState<CategorySelect[]>();
+  //전체 포토폴리오
+  const [allPortfolios, setAllPortfolios] = useState<PortfolioContent[]>();
 
   //제출 목록
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -149,6 +151,7 @@ export default function SuperAdminPage() {
     );
   };
 
+  //포트폴리오 탭
   const fetchPortfolios = async () => {
     await request(
       () => PortfolioService.get({ page: page, size: 5 }),
@@ -164,6 +167,18 @@ export default function SuperAdminPage() {
           },
           { ignoreErrorRedirect: true },
         );
+      },
+      { ignoreErrorRedirect: true },
+    );
+  };
+
+  //전체 포트폴리오
+  const fetchAllPortfolios = async () => {
+    await request(
+      () => PortfolioService.getAll(),
+      (res) => {
+        console.log("포토폴리오 전체 목록 조회", res);
+        setAllPortfolios(res.data);
       },
       { ignoreErrorRedirect: true },
     );
@@ -583,6 +598,7 @@ export default function SuperAdminPage() {
 
       console.log("접속 유저", currentUser);
       await fetchPortfolios();
+      await fetchAllPortfolios();
       setLoading(false);
     }
   };
