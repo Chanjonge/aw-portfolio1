@@ -31,8 +31,9 @@ public class SubmissionController {
 
     //비밀번호 때문에 조회라도 post 로 요청
     @PostMapping("/submission/my-list")
-    public List<SubmissionGetListRequest> getMySubmissions(@RequestParam(name = "companyName") String companyName, @RequestParam(name = "password") String password) {
-        return submissionService.getSubmissionsList(companyName,password);
+    public List<SubmissionGetListRequest> getMySubmissions(@AuthenticationPrincipal Jwt jwt) {
+        Long memberId = JwtParserUtil.extractMemberId(jwt);
+        return submissionService.getSubmissionsList(memberId);
     }
     //임시저장
     @PostMapping("/submission/temporaryStorage")

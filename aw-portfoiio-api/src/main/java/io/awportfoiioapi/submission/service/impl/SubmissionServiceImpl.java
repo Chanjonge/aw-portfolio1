@@ -42,17 +42,13 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final CommonFileRepository commonFileRepository;
     private final S3FileUtils s3FileUtils;
     private final ObjectMapper objectMapper;
-    private final PasswordEncoder passwordEncoder;
     
     
     @Override
-    public List<SubmissionGetListRequest> getSubmissionsList(String companyName, String password) {
+    public List<SubmissionGetListRequest> getSubmissionsList(Long memberId) {
         //회원 테이블에서 조회 먼저
-        Member findMember = memberRepository.findByPortfolioMemberId(companyName).orElseThrow(() -> new BadCredentialsException("존재하지 않는 아이디이거나 비밀번호가 맞지습니다."));// 로그인 아이디랑 같음
         
-        if (!passwordEncoder.matches(password, findMember.getPassword())) { // 비밀번호 확인
-            throw new BadCredentialsException("존재하지 않는 아이디이거나 비밀번호가 맞지 않습니다.");
-        }
+        Member findMember = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
         
         List<Submission> submissions = submissionRepository.findBySubmissions(findMember.getId());
         

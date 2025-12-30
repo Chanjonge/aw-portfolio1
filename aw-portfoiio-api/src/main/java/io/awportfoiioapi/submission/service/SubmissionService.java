@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface SubmissionService {
     
-    List<SubmissionGetListRequest> getSubmissionsList(String companyName,String password);
+    List<SubmissionGetListRequest> getSubmissionsList(Long memberId);
     
     SubmissionGetRequest getSubmissions(Long submissionId);
     
