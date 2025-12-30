@@ -10,7 +10,9 @@ export const SubmissionService = {
 
   adminGet: () => api.get(`/api/admin-submissions`),
 
-  adminExcelGet: (body: ExcelParams) => api.post(`/api/excel`, body),
+  adminExcelGet(body: ExcelParams) {
+    return api.post(`/api/excel`, body, { responseType: "blob" });
+  },
 
   temporaryPost: (body: FormData) =>
     api.post("/api/submission/temporaryStorage", body),
