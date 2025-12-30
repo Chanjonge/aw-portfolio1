@@ -21,5 +21,7 @@ export const SubmissionService = {
 
   getMyList: () => api.post("/api/submission/my-list"),
 
+  submissionOffPost: (body: ExcelParams) => api.post("/api/submitOff", body),
+
   delete: (id: string) => api.delete(`/api/admin-submissions/${id}`),
 };
