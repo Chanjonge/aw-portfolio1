@@ -355,19 +355,94 @@ export default function PortfolioForm() {
     let isValid = true;
 
     currentQuestions.forEach((question) => {
-      //객실, 스페셜은 제외
-      if (["parlor", "special"].includes(question.questionType)) {
-        return;
-      }
 
       const value = formData[question.id];
       if (question.isRequired) {
+
+        //객실
+        if (question.questionType === "parlor") {
+          if (!rooms || rooms.length === 0) {
+            newErrors[question.id] = "객실을 최소 1개 이상 입력해주세요.";
+            isValid = false;
+            return;
+          }
+
+          const hasInvalidRoom = rooms.some((room) =>
+              !room.name?.trim() ||
+              !room.desc?.trim() ||
+              !room.type?.trim() ||
+              !room.priceLow?.trim() ||
+              !room.priceMid?.trim() ||
+              !room.priceHigh?.trim()
+          );
+
+          if (hasInvalidRoom) {
+            newErrors[question.id] = "객실의 모든 항목을 입력해주세요.";
+            isValid = false;
+            return;
+          }
+
+          return;
+        }
+
+        //스페셜
+        if (question.questionType === "special") {
+          const hasInvalidSpecial = specials.some((sp) => {
+            if (!sp.name?.trim()) return true;
+            if (!sp.desc?.trim()) return true;
+            if (sp.desc.trim().length < 20) return true;
+            return false;
+          });
+
+          if (hasInvalidSpecial) {
+            newErrors[question.id] = "스페셜명과 스페셜 설명을 입력하고, 설명은 최소 20자 이상이어야 합니다.";
+            isValid = false;
+            return;
+          }
+
+          return;
+        }
+
+        //환불 검증
+        if (question.questionType === "refund") {
+          if (!refunds || refunds.length === 0) {
+            newErrors[question.id] = "환불 정책을 최소 1개 이상 입력해주세요.";
+            isValid = false;
+            return;
+          }
+
+          const invalid = refunds.some((r, idx) => {
+            // percent 필수
+            if (!r.percent) return true;
+
+            // day도 필수
+            if (idx > 0 && !r.day) return true;
+
+            return false;
+          });
+
+          if (invalid) {
+            newErrors[question.id] =
+                "환불 비율과 방문일 기준을 모두 입력해주세요.";
+            isValid = false;
+            return;
+          }
+
+          return;
+        }
+
         if (question.questionType === "file") {
-          if (!(value instanceof File)) {
+          const hasNewFile = !!fileMapRef.current[question.id];
+          const hasSavedFile = !!value; // 기존 임시저장 값
+
+          if (!hasNewFile && !hasSavedFile) {
             newErrors[question.id] = "파일을 업로드해주세요.";
             isValid = false;
           }
-        } else if (question.questionType === "checkbox") {
+          return;
+        }
+
+        if (question.questionType === "checkbox") {
           if (!value || typeof value !== "object") {
             newErrors[question.id] = "최소 하나 이상 선택해주세요.";
             isValid = false;
@@ -404,13 +479,17 @@ export default function PortfolioForm() {
               return;
             }
           }
-        } else if (question.questionType === "repeatable") {
+        }
+
+        if (question.questionType === "repeatable") {
           if (!value || !Array.isArray(value) || value.length === 0) {
             newErrors[question.id] = "최소 하나 이상 입력해주세요.";
             isValid = false;
             return;
           }
-        } else if (question.questionType === "agreement") {
+        }
+
+        if (question.questionType === "agreement") {
           if (!value || !value.agreed) {
             newErrors[question.id] = "안내사항에 동의해주세요.";
             isValid = false;
@@ -452,107 +531,152 @@ export default function PortfolioForm() {
     const missingSteps: number[] = [];
 
     questions.forEach((question) => {
-      //객실, 스페셜 제외
-      if (["parlor", "special"].includes(question.questionType)) {
+      const value = formData[question.id];
+
+      if (!question.isRequired) return;
+
+      const fail = (message: string) => {
+        newErrors[question.id] = message;
+        isValid = false;
+        if (!missingSteps.includes(question.step)) {
+          missingSteps.push(question.step);
+        }
+      };
+
+      //객실
+      if (question.questionType === "parlor") {
+        if (!rooms || rooms.length === 0) {
+          fail("객실을 최소 1개 이상 입력해주세요.");
+          return;
+        }
+
+        const hasInvalidRoom = rooms.some(
+            (room) =>
+                !room.name?.trim() ||
+                !room.desc?.trim() ||
+                !room.type?.trim() ||
+                !room.priceLow?.trim() ||
+                !room.priceMid?.trim() ||
+                !room.priceHigh?.trim(),
+        );
+
+        if (hasInvalidRoom) {
+          fail("객실의 모든 항목을 입력해주세요.");
+        }
         return;
       }
 
-      const value = formData[question.id];
-      if (question.isRequired) {
-        let hasError = false;
+      //스페셜
+      if (question.questionType === "special") {
+        const hasInvalidSpecial = specials.some(
+            (sp) =>
+                !sp.name?.trim() ||
+                !sp.desc?.trim() ||
+                sp.desc.trim().length < 20,
+        );
 
-        if (question.questionType === "file") {
-          if (
-            !value ||
-            (typeof value === "string" && value.trim().length === 0)
-          ) {
-            newErrors[question.id] = "파일을 업로드해주세요.";
-            hasError = true;
-          }
-        } else if (question.questionType === "checkbox") {
-          if (!value || typeof value !== "object") {
-            newErrors[question.id] = "최소 하나 이상 선택해주세요.";
-            hasError = true;
+        if (hasInvalidSpecial) {
+          fail(
+              "스페셜명과 스페셜 설명을 입력하고, 설명은 최소 20자 이상이어야 합니다.",
+          );
+        }
+        return;
+      }
+
+      //환불
+      if (question.questionType === "refund") {
+        if (!refunds || refunds.length === 0) {
+          fail("환불 정책을 최소 1개 이상 입력해주세요.");
+          return;
+        }
+
+        const invalid = refunds.some((r, idx) => {
+          if (!r.percent) return true;
+          if (idx > 0 && !r.day) return true;
+          return false;
+        });
+
+        if (invalid) {
+          fail("환불 비율과 방문일 기준을 모두 입력해주세요.");
+        }
+        return;
+      }
+
+      //파일
+      if (question.questionType === "file") {
+        const hasNewFile = !!fileMapRef.current[question.id];
+        const hasSavedFile = !!value;
+
+        if (!hasNewFile && !hasSavedFile) {
+          fail("파일을 업로드해주세요.");
+        }
+        return;
+      }
+
+      //체크박스
+      if (question.questionType === "checkbox") {
+        if (!value || typeof value !== "object") {
+          fail("최소 하나 이상 선택해주세요.");
+          return;
+        }
+
+        try {
+          const options = JSON.parse(question.options || "{}");
+          const isMultiple = options.multiple !== false;
+
+          if (isMultiple) {
+            if (!value.checked || value.checked.length === 0) {
+              fail("최소 하나 이상 선택해주세요.");
+            }
           } else {
-            try {
-              const options = JSON.parse(question.options || "{}");
-              const isMultiple = options.multiple !== false;
-              if (isMultiple) {
-                if (
-                  !("checked" in value) ||
-                  !(value as any).checked ||
-                  (value as any).checked.length === 0
-                ) {
-                  newErrors[question.id] = "최소 하나 이상 선택해주세요.";
-                  hasError = true;
-                }
-              } else {
-                if (!("selected" in value) || !(value as any).selected) {
-                  newErrors[question.id] = "하나를 선택해주세요.";
-                  hasError = true;
-                }
-              }
-            } catch {
-              if (
-                !("checked" in value) ||
-                !(value as any).checked ||
-                (value as any).checked.length === 0
-              ) {
-                newErrors[question.id] = "최소 하나 이상 선택해주세요.";
-                hasError = true;
-              }
+            if (!value.selected) {
+              fail("하나를 선택해주세요.");
             }
           }
-        } else if (question.questionType === "repeatable") {
-          if (!value || !Array.isArray(value) || value.length === 0) {
-            newErrors[question.id] = "최소 하나 이상 입력해주세요.";
-            hasError = true;
-          }
-        } else if (question.questionType === "agreement") {
-          if (!value || !value.agreed) {
-            newErrors[question.id] = "안내사항에 동의해주세요.";
-            hasError = true;
-          }
-        } else {
-          if (
-            !value ||
-            (typeof value === "string" && value.trim().length === 0)
-          ) {
-            newErrors[question.id] = "이 항목은 필수입니다.";
-            hasError = true;
+        } catch {
+          if (!value.checked || value.checked.length === 0) {
+            fail("최소 하나 이상 선택해주세요.");
           }
         }
+        return;
+      }
 
-        if (hasError && !missingSteps.includes(question.step)) {
-          missingSteps.push(question.step);
-          isValid = false;
+      //repeatable
+      if (question.questionType === "repeatable") {
+        if (!Array.isArray(value) || value.length === 0) {
+          fail("최소 하나 이상 입력해주세요.");
         }
+        return;
+      }
+
+      //agreement
+      if (question.questionType === "agreement") {
+        if (!value || !value.agreed) {
+          fail("안내사항에 동의해주세요.");
+        }
+        return;
+      }
+
+      //text
+      if (!value || (typeof value === "string" && !value.trim())) {
+        fail("이 항목은 필수입니다.");
+        return;
       }
 
       if (
-        question.requireMinLength &&
-        (question.questionType === "text" ||
-          question.questionType === "textarea") &&
-        typeof value === "string" &&
-        value.trim().length > 0 &&
-        value.trim().length < question.minLength
+          question.requireMinLength &&
+          typeof value === "string" &&
+          value.trim().length < question.minLength
       ) {
-        newErrors[question.id] =
-          `최소 ${question.minLength}자 이상 입력해주세요.`;
-        if (!missingSteps.includes(question.step))
-          missingSteps.push(question.step);
-        isValid = false;
+        fail(`최소 ${question.minLength}자 이상 입력해주세요.`);
       }
     });
 
     setErrors(newErrors);
 
     if (!isValid && missingSteps.length > 0) {
-      const sortedSteps = missingSteps.sort((a, b) => a - b);
-
-      console.log("sortedSteps", missingSteps);
       alert(
-        `${sortedSteps.join(", ")}단계에 미완성된 필수 항목이 있습니다.\n해당 단계로 이동하여 모든 필수 항목을 완성해주세요.`,
+          `${missingSteps.sort((a, b) => a - b).join(", ")}단계에 미완성된 필수 항목이 있습니다.\n해당 단계로 이동하여 모든 필수 항목을 완성해주세요.`,
       );
     }
 
@@ -597,18 +721,23 @@ export default function PortfolioForm() {
     setSpecials((prev) => prev.filter((sp) => sp.id !== id));
   };
 
-  const handleNext = async () => {
-    //디테일 모드 일 경우는 검증 제외
-    if (!isDetailMode && validateStep()) {
+  const handleNext = () => {
+    // 디테일 모드면 검증 없이 이동
+    if (isDetailMode) {
       if (currentStep < maxStep) {
         setCurrentStep(currentStep + 1);
         window.scrollTo(0, 0);
       }
-    } else {
-      if (currentStep < maxStep) {
-        setCurrentStep(currentStep + 1);
-        window.scrollTo(0, 0);
-      }
+      return;
+    }
+
+    // 작성 모드 검증 실패 시 여기서 멈춤
+    const isValid = validateStep();
+    if (!isValid) return;
+
+    if (currentStep < maxStep) {
+      setCurrentStep(currentStep + 1);
+      window.scrollTo(0, 0);
     }
   };
 
@@ -654,13 +783,14 @@ export default function PortfolioForm() {
         () => SubmissionService.temporaryPost(fd),
         (res) => {
           console.log("res 임시저장----", res);
-          if (!existingSubmissionId) {
-            setExistingSubmissionId(res.data.submissionId);
-          }
+
           alert("임시저장되었습니다.");
+
+          if (!existingSubmissionId) {
+            window.location.href = `/portfolio/${portfolio.id}?submissionId=${res.data.submissionId}`;
+          }
           startAutoSave();
 
-          window.location.href = `/portfolio/${portfolio.id}?submissionId=${res.data.submissionId}`;
         },
         { ignoreErrorRedirect: true },
       );
@@ -850,6 +980,7 @@ export default function PortfolioForm() {
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-semibold text-black">
                             객실 정보 입력
+                            {question.isRequired && <span className="text-red-500 ml-1">*</span>}
                           </h3>
                           {!isDetailMode && (
                             <button
@@ -1025,6 +1156,11 @@ export default function PortfolioForm() {
                             </div>
                           </div>
                         ))}
+                        {errors[question.id] && (
+                            <p className="text-sm text-red-500 mt-2">
+                              {errors[question.id]}
+                            </p>
+                        )}
                       </div>
                     );
                   }
@@ -1035,6 +1171,7 @@ export default function PortfolioForm() {
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-semibold text-black">
                             스페셜 정보 입력
+                            {question.isRequired && <span className="text-red-500 ml-1">*</span>}
                           </h3>
                           {!isDetailMode && (
                             <button
@@ -1104,23 +1241,35 @@ export default function PortfolioForm() {
                                 스페셜 설명
                               </label>
                               <textarea
-                                value={sp.desc}
-                                disabled={isDetailMode}
-                                onChange={(e) => {
-                                  const updated = specials.map((s) =>
-                                    s.id === sp.id
-                                      ? { ...s, desc: e.target.value }
-                                      : s,
-                                  );
-                                  setSpecials(updated);
-                                }}
-                                className="w-full border border-gray-300 rounded-lg p-2"
-                                rows={3}
-                                placeholder="제공 조건, 인원수, 유의사항 등을 적어주세요."
+                                  value={sp.desc}
+                                  disabled={isDetailMode}
+                                  onChange={(e) => {
+                                    const updated = specials.map((s) =>
+                                        s.id === sp.id
+                                            ? {...s, desc: e.target.value}
+                                            : s,
+                                    );
+                                    setSpecials(updated);
+                                  }}
+                                  className="w-full border border-gray-300 rounded-lg p-2"
+                                  rows={3}
+                                  placeholder="제공 조건, 인원수, 유의사항 등을 적어주세요."
                               />
+                              <p
+                                  className={`text-xs mt-1 text-right ${
+                                      sp.desc.length < 20 ? "text-red-500" : "text-gray-500"
+                                  }`}
+                              >
+                                {sp.desc.length} / 최소 20자
+                              </p>
                             </div>
                           </div>
                         ))}
+                        {errors[question.id] && (
+                            <p className="text-sm text-red-500 mt-2">
+                              {errors[question.id]}
+                            </p>
+                        )}
                       </div>
                     );
                   }
@@ -1131,6 +1280,7 @@ export default function PortfolioForm() {
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-semibold text-black">
                             취소/환불정책
+                            {question.isRequired && <span className="text-red-500 ml-1">*</span>}
                           </h3>
                           {!isDetailMode && (
                             <button
@@ -1223,6 +1373,11 @@ export default function PortfolioForm() {
                             </div>
                           ))}
                         </div>
+                        {errors[question.id] && (
+                            <p className="text-sm text-red-500 mt-2">
+                              {errors[question.id]}
+                            </p>
+                        )}
                       </div>
                     );
                   }
