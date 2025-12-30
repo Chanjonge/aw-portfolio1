@@ -1127,7 +1127,7 @@ export default function PortfolioForm() {
 
                   if (question.questionType === "refund") {
                     return (
-                      <div key={question.id} className="mt-6 space-y-8">
+                      <div key={question.id} className="mt-6 space-y-4">
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-semibold text-black">
                             취소/환불정책
@@ -1143,38 +1143,19 @@ export default function PortfolioForm() {
                           )}
                         </div>
 
-                        {refunds.length === 0 && (
-                          <p className="text-gray-500 text-sm">
-                            아직 등록된 환불 기준이 없습니다. “환불 기준 추가”를
-                            눌러주세요.
-                          </p>
-                        )}
+                        <div className="p-4 border rounded-lg bg-gray-50 space-y-3">
+                          {refunds.length === 0 && (
+                            <p className="text-gray-500 text-sm">
+                              아직 등록된 환불 기준이 없습니다. “환불 기준
+                              추가”를 눌러주세요.
+                            </p>
+                          )}
 
-                        {refunds.map((refund, index) => (
-                          <div
-                            key={refund.id}
-                            className="p-4 border rounded-lg space-y-4 relative bg-gray-50"
-                          >
-                            {refunds.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveRefund(refund.id)}
-                                className="absolute top-3 right-3 text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                              >
-                                삭제
-                              </button>
-                            )}
-
-                            <div className="flex items-center gap-2">
-                              <span className="inline-flex w-7 h-7 items-center justify-center rounded-full bg-black text-white text-xs">
-                                {index + 1}
-                              </span>
-                              <p className="text-sm text-gray-700">
-                                환불기준 {index + 1}
-                              </p>
-                            </div>
-
-                            <div className="flex flex-wrap items-center gap-2">
+                          {refunds.map((refund, index) => (
+                            <div
+                              key={refund.id}
+                              className="flex flex-wrap items-center gap-2 bg-white p-3 rounded border border-gray-200"
+                            >
                               {index === 0 ? (
                                 <>
                                   <span>방문당일 총 금액의</span>
@@ -1229,9 +1210,19 @@ export default function PortfolioForm() {
                                   <span>% 환불</span>
                                 </>
                               )}
+
+                              {!isDetailMode && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveRefund(refund.id)}
+                                  className="ml-auto text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                                >
+                                  삭제
+                                </button>
+                              )}
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     );
                   }
