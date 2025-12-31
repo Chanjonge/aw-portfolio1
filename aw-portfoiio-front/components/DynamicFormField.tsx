@@ -229,6 +229,73 @@ export default function DynamicFormField({
     );
   }
 
+  // 멀티텍스트
+  if (questionType === "multi_text") {
+    const placeholders = {
+      placeholder1:
+        (parsedOptions as any)?.placeholder1 ||
+        `${question.title} 을(를) 입력하세요`,
+      placeholder2:
+        (parsedOptions as any)?.placeholder2 ||
+        `${question.title} 을(를) 입력하세요`,
+    };
+
+    const values: [string, string] =
+      Array.isArray(value) && value.length === 2
+        ? [value[0] ?? "", value[1] ?? ""]
+        : ["", ""];
+
+    return (
+      <div className="space-y-3">
+        <label className="block">
+          <div className="flex items-center gap-1 text-lg font-semibold text-black">
+            <span>{question.title}</span>
+            {question.isRequired && <span className="text-red-500">*</span>}
+          </div>
+          {question.description && (
+            <span className="block text-sm text-gray-600 mt-1">
+              {question.description}
+            </span>
+          )}
+        </label>
+
+        {/* 첫 번째 입력 */}
+        <input
+          type="text"
+          value={values[0]}
+          onChange={(e) => {
+            const newValue: [string, string] = [e.target.value, values[1]];
+            onChange(newValue);
+          }}
+          className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-all ${
+            error ? "border-red-500 focus:ring-red-500" : "border-gray-300"
+          }`}
+          placeholder={placeholders.placeholder1}
+          maxLength={question.maxLength}
+          disabled={disabled}
+        />
+
+        {/* 두 번째 입력 */}
+        <input
+          type="text"
+          value={values[1]}
+          onChange={(e) => {
+            const newValue: [string, string] = [values[0], e.target.value];
+            onChange(newValue);
+          }}
+          className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-all ${
+            error ? "border-red-500 focus:ring-red-500" : "border-gray-300"
+          }`}
+          placeholder={placeholders.placeholder2}
+          maxLength={question.maxLength}
+          disabled={disabled}
+        />
+
+        {error && <p className="text-sm text-red-500">{error}</p>}
+      </div>
+    );
+  }
+
   // 파일 업로드
   if (questionType === "file") {
     const hasUploadedFile = value && value.url;

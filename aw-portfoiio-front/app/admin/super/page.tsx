@@ -1475,6 +1475,7 @@ export default function SuperAdminPage() {
                   </option>
                   <option value="text">단답형 (텍스트)</option>
                   <option value="textarea">장문형 (여러 줄)</option>
+                  <option value="multi_text">멀티 텍스트</option>
                   <option value="file">파일 업로드</option>
                   <option value="checkbox">체크박스 (조건부 입력)</option>
                   <option value="parlor">객실</option>
@@ -1871,8 +1872,76 @@ export default function SuperAdminPage() {
                 </div>
               )}
 
+              {questionForm.questionType === "multi_text" && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">
+                      플레이스홀더 1
+                    </label>
+                    <input
+                      type="text"
+                      value={(() => {
+                        try {
+                          const parsed = JSON.parse(
+                            questionForm.options || "{}",
+                          );
+                          return parsed.placeholder1 || "";
+                        } catch {
+                          return "";
+                        }
+                      })()}
+                      onChange={(e) => {
+                        let parsed: any = {};
+                        try {
+                          parsed = JSON.parse(questionForm.options || "{}");
+                        } catch {}
+                        parsed.placeholder1 = e.target.value;
+                        setQuestionForm({
+                          ...questionForm,
+                          options: JSON.stringify(parsed),
+                        });
+                      }}
+                      placeholder="첫 번째 항목의 플레이스홀더"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">
+                      플레이스홀더 2
+                    </label>
+                    <input
+                      type="text"
+                      value={(() => {
+                        try {
+                          const parsed = JSON.parse(
+                            questionForm.options || "{}",
+                          );
+                          return parsed.placeholder2 || "";
+                        } catch {
+                          return "";
+                        }
+                      })()}
+                      onChange={(e) => {
+                        let parsed: any = {};
+                        try {
+                          parsed = JSON.parse(questionForm.options || "{}");
+                        } catch {}
+                        parsed.placeholder2 = e.target.value;
+                        setQuestionForm({
+                          ...questionForm,
+                          options: JSON.stringify(parsed),
+                        });
+                      }}
+                      placeholder="두 번째 항목의 플레이스홀더"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+                </div>
+              )}
+
               {(questionForm.questionType === "text" ||
-                questionForm.questionType === "textarea") && (
+                questionForm.questionType === "textarea" ||
+                questionForm.questionType === "multi_text") && (
                 <>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
