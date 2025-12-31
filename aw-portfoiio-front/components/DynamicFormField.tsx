@@ -161,7 +161,10 @@ export default function DynamicFormField({
           value={value ?? ""}
           onChange={(e) => onChange(e.target.value)}
           className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-all ${error ? "border-red-500 focus:ring-red-500" : "border-gray-300"}`}
-          placeholder={`${question.title}을(를) 입력하세요`}
+          placeholder={
+            (parsedOptions as any)?.placeholder ||
+            `${question.title}을(를) 입력하세요`
+          }
           maxLength={question.maxLength}
           disabled={disabled}
         />
@@ -214,7 +217,10 @@ export default function DynamicFormField({
           onChange={(e) => onChange(e.target.value)}
           rows={6}
           className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-all ${error ? "border-red-500 focus:ring-red-500" : "border-gray-300"}`}
-          placeholder={question.title}
+          placeholder={
+            (parsedOptions as any)?.placeholder ||
+            `${question.title}을(를) 입력하세요`
+          }
           maxLength={question.maxLength}
           disabled={disabled}
         />
@@ -475,7 +481,10 @@ export default function DynamicFormField({
                         },
                       });
                     }}
-                    placeholder={`${option.label} 주소나 계정을 입력하세요`}
+                    placeholder={
+                      (option as any)?.placeholder ||
+                      `${option.label} 주소나 계정을 입력하세요`
+                    }
                     className="mt-3 w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                   />
                 )}

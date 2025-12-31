@@ -215,8 +215,7 @@ export default function SuperAdminPage() {
 
   // 엑셀 다운로드 함수
   const submissionOff = async (submission: Submission) => {
-
-    if (!confirm('임시저장으로 되돌리시겠습니까?')) {
+    if (!confirm("임시저장으로 되돌리시겠습니까?")) {
       return;
     }
 
@@ -226,46 +225,43 @@ export default function SuperAdminPage() {
     };
 
     await request(
-        () => SubmissionService.submissionOffPost(params),
-        (res) => {
-          alert('임시저장으로 변경하였습니다.');
-          fetchSubmissions();
-        },
-        { ignoreErrorRedirect: true },
+      () => SubmissionService.submissionOffPost(params),
+      (res) => {
+        alert("임시저장으로 변경하였습니다.");
+        fetchSubmissions();
+      },
+      { ignoreErrorRedirect: true },
     );
-
   };
 
   // 엑셀 다운로드 함수
   const downloadExcel = async (submission: Submission) => {
+    const params = {
+      portfolioId: submission.portfolioId,
+      submissionId: submission.id,
+    };
 
-      const params = {
-        portfolioId: submission.portfolioId,
-        submissionId: submission.id,
-      };
+    console.log("parmas", params);
 
-      console.log("parmas", params);
+    await request(
+      () => SubmissionService.adminExcelGet(params),
+      (res) => {
+        console.log("엑셀 다운로드", res);
+        const blob = new Blob([res.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
 
-      await request(
-        () => SubmissionService.adminExcelGet(params),
-        (res) => {
-          console.log("엑셀 다운로드", res);
-          const blob = new Blob([res.data], {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          });
-
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `제출_목록_${submission.companyName}_${new Date().toISOString().split("T")[0]}.xlsx`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          window.URL.revokeObjectURL(url);
-        },
-        { ignoreErrorRedirect: true },
-      );
-
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `제출_목록_${submission.companyName}_${new Date().toISOString().split("T")[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      },
+      { ignoreErrorRedirect: true },
+    );
   };
 
   //카테고리 목록 조회
@@ -1720,47 +1716,76 @@ export default function SuperAdminPage() {
                           (checkbox: any, index: number) => (
                             <div
                               key={index}
-                              className="flex gap-3 items-center p-3 bg-white rounded border"
+                              className="bg-white rounded-lg border border-gray-200"
                             >
-                              <span className="text-sm font-medium w-12">
-                                {index + 1}.
-                              </span>
-                              <input
-                                type="text"
-                                value={checkbox.label || ""}
-                                onChange={(e) => {
-                                  const parsed = JSON.parse(
-                                    questionForm.options || "{}",
-                                  );
-                                  parsed.checkboxes[index].label =
-                                    e.target.value;
-                                  setQuestionForm({
-                                    ...questionForm,
-                                    options: JSON.stringify(parsed),
-                                  });
-                                }}
-                                placeholder="선택지 제목"
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-black"
-                              />
-                              <label className="flex items-center gap-2">
+                              <div className="flex gap-3 items-center p-3">
+                                <span className="text-sm font-medium w-8 text-gray-600">
+                                  {index + 1}.
+                                </span>
+
                                 <input
-                                  type="checkbox"
-                                  checked={checkbox.hasInput || false}
+                                  type="text"
+                                  value={checkbox.label || ""}
                                   onChange={(e) => {
                                     const parsed = JSON.parse(
                                       questionForm.options || "{}",
                                     );
-                                    parsed.checkboxes[index].hasInput =
-                                      e.target.checked;
+                                    parsed.checkboxes[index].label =
+                                      e.target.value;
                                     setQuestionForm({
                                       ...questionForm,
                                       options: JSON.stringify(parsed),
                                     });
                                   }}
-                                  className="w-4 h-4"
+                                  placeholder="선택지 제목"
+                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md
+                 focus:outline-none focus:ring-2 focus:ring-black"
                                 />
-                                <span className="text-sm">추가 입력 필드</span>
-                              </label>
+
+                                <label className="flex items-center gap-2 text-sm whitespace-nowrap">
+                                  <input
+                                    type="checkbox"
+                                    checked={checkbox.hasInput || false}
+                                    onChange={(e) => {
+                                      const parsed = JSON.parse(
+                                        questionForm.options || "{}",
+                                      );
+                                      parsed.checkboxes[index].hasInput =
+                                        e.target.checked;
+                                      setQuestionForm({
+                                        ...questionForm,
+                                        options: JSON.stringify(parsed),
+                                      });
+                                    }}
+                                    className="w-4 h-4"
+                                  />
+                                  추가 입력
+                                </label>
+                              </div>
+
+                              {/* 플레이스홀더 영역 */}
+                              {checkbox.hasInput && (
+                                <div className="px-2 pb-3">
+                                  <input
+                                    type="text"
+                                    value={checkbox.placeholder || ""}
+                                    onChange={(e) => {
+                                      const parsed = JSON.parse(
+                                        questionForm.options || "{}",
+                                      );
+                                      parsed.checkboxes[index].placeholder =
+                                        e.target.value;
+                                      setQuestionForm({
+                                        ...questionForm,
+                                        options: JSON.stringify(parsed),
+                                      });
+                                    }}
+                                    placeholder="원하는 플레이스홀더를 입력해주세요."
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md
+                     focus:outline-none focus:ring-2 focus:ring-black"
+                                  />
+                                </div>
+                              )}
                             </div>
                           ),
                         );
@@ -1775,30 +1800,6 @@ export default function SuperAdminPage() {
                   </div>
                 </div>
               )}
-              {/*repeatable 사용 안함으로 체크*/}
-              {/*{questionForm.questionType === "repeatable" && (*/}
-              {/*    <div>*/}
-              {/*      <label className="block text-sm font-semibold text-black mb-2">*/}
-              {/*        반복 필드 설정 (JSON 형식)*/}
-              {/*      </label>*/}
-              {/*      <textarea*/}
-              {/*          value={questionForm.options}*/}
-              {/*          onChange={(e) =>*/}
-              {/*              setQuestionForm({*/}
-              {/*                ...questionForm,*/}
-              {/*                options: e.target.value,*/}
-              {/*              })*/}
-              {/*          }*/}
-              {/*          rows={8}*/}
-              {/*          placeholder='{"fields": [{"label": "대표자명", "type": "text", "placeholder": "이름"}]}'*/}
-              {/*          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-mono text-sm"*/}
-              {/*      />*/}
-              {/*      <p className="text-xs text-gray-600 mt-1">*/}
-              {/*        반복 필드:{" "}*/}
-              {/*        {`{"fields": [{"label": "라벨", "type": "text/file", "placeholder": "힌트"}]}`}*/}
-              {/*      </p>*/}
-              {/*    </div>*/}
-              {/*)}*/}
               <div>
                 <label className="block text-sm font-semibold text-black mb-2">
                   썸네일 이미지 (선택사항)
@@ -1837,6 +1838,39 @@ export default function SuperAdminPage() {
                   </div>
                 )}
               </div>
+              {(questionForm.questionType === "text" ||
+                questionForm.questionType === "textarea") && (
+                <div>
+                  <label className="block text-sm font-semibold text-black mb-2">
+                    플레이스홀더
+                  </label>
+                  <input
+                    type="text"
+                    value={(() => {
+                      try {
+                        const parsed = JSON.parse(questionForm.options || "{}");
+                        return parsed.placeholder || "";
+                      } catch {
+                        return "";
+                      }
+                    })()}
+                    onChange={(e) => {
+                      let parsed: any = {};
+                      try {
+                        parsed = JSON.parse(questionForm.options || "{}");
+                      } catch {}
+                      parsed.placeholder = e.target.value;
+                      setQuestionForm({
+                        ...questionForm,
+                        options: JSON.stringify(parsed),
+                      });
+                    }}
+                    placeholder="원하는 플레이스홀더를 입력해주세요."
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+              )}
+
               {(questionForm.questionType === "text" ||
                 questionForm.questionType === "textarea") && (
                 <>
@@ -2142,7 +2176,10 @@ export default function SuperAdminPage() {
                                     임시저장
                                   </span>
                                 ) : (
-                                  <span onClick={() => submissionOff(submission)} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                                  <span
+                                    onClick={() => submissionOff(submission)}
+                                    className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold"
+                                  >
                                     제출완료
                                   </span>
                                 )}
@@ -2157,8 +2194,8 @@ export default function SuperAdminPage() {
                               <td className="px-6 py-4 text-sm">
                                 <div className="flex gap-2">
                                   <button
-                                    onClick={
-                                      () => handleDetailSubmission(submission)
+                                    onClick={() =>
+                                      handleDetailSubmission(submission)
                                     }
                                     className="text-blue-600 hover:text-blue-900 font-semibold"
                                   >
