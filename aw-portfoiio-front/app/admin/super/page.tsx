@@ -214,9 +214,30 @@ export default function SuperAdminPage() {
   };
 
   // 엑셀 다운로드 함수
+  const submissionOff = async (submission: Submission) => {
+
+    if (!confirm('임시저장으로 되돌리시겠습니까?')) {
+      return;
+    }
+
+    const params = {
+      portfolioId: submission.portfolioId,
+      submissionId: submission.id,
+    };
+
+    await request(
+        () => SubmissionService.submissionOffPost(params),
+        (res) => {
+          alert('임시저장으로 변경하였습니다.');
+          fetchSubmissions();
+        },
+        { ignoreErrorRedirect: true },
+    );
+
+  };
+
+  // 엑셀 다운로드 함수
   const downloadExcel = async (submission: Submission) => {
-    try {
-      console.log("submission--- 엑셀", submission);
 
       const params = {
         portfolioId: submission.portfolioId,
@@ -245,36 +266,6 @@ export default function SuperAdminPage() {
         { ignoreErrorRedirect: true },
       );
 
-      // const token = localStorage.getItem("token");
-      // const response = await fetch(
-      //   `/api/submissions/export?portfolioId=${portfolioId}`,
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //   },
-      // );
-      //
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   alert(errorData.error || "엑셀 다운로드에 실패했습니다.");
-      //   return;
-      // }
-      //
-      // // 파일 다운로드
-      // const blob = await response.blob();
-      // const url = window.URL.createObjectURL(blob);
-      // const a = document.createElement("a");
-      // a.href = url;
-      // a.download = `${portfolioTitle}_제출목록_${new Date().toISOString().split("T")[0]}.xlsx`;
-      // document.body.appendChild(a);
-      // a.click();
-      // window.URL.revokeObjectURL(url);
-      // document.body.removeChild(a);
-    } catch (error) {
-      console.error("Excel download error:", error);
-      alert("엑셀 다운로드 중 오류가 발생했습니다.");
-    }
   };
 
   //카테고리 목록 조회
@@ -2145,13 +2136,13 @@ export default function SuperAdminPage() {
                               <td className="px-6 py-4 text-sm font-semibold text-black">
                                 {submission.companyName}
                               </td>
-                              <td className="px-6 py-4 text-sm">
+                              <td className="px-6 py-4 text-sm cursor-pointer">
                                 {submission.isDraft ? (
                                   <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">
                                     임시저장
                                   </span>
                                 ) : (
-                                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                                  <span onClick={() => submissionOff(submission)} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
                                     제출완료
                                   </span>
                                 )}
@@ -2168,12 +2159,6 @@ export default function SuperAdminPage() {
                                   <button
                                     onClick={
                                       () => handleDetailSubmission(submission)
-                                      // const responseText = Object.entries(
-                                      //     submission.responses,
-                                      // )
-                                      //     .map(([key, value]) => `${key}: ${value}`)
-                                      //     .join("\n\n");
-                                      // alert(`제출 내용:\n\n${responseText}`);
                                     }
                                     className="text-blue-600 hover:text-blue-900 font-semibold"
                                   >
