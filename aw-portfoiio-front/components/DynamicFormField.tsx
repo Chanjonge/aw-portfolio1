@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { SubmissionService } from "@/services/submission.service";
+import { useRequest } from "@/hooks/useRequest";
 
 interface FieldOption {
   label: string;
@@ -78,6 +80,9 @@ export default function DynamicFormField({
   error,
   disabled,
 }: DynamicFormFieldProps) {
+  //hooks
+  const { request } = useRequest();
+
   //썸네일
   const [showPreview, setShowPreview] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -97,18 +102,29 @@ export default function DynamicFormField({
     [question.options],
   );
 
-  //기존 파일 다운로드 수정해야함
+  //기존 파일 다운로드
   const downloadFile = async (value: { url: string; name: string }) => {
-    console.log("value", value);
-    const response = await fetch(value.url);
-    const blob = await response.blob();
+    const fullUrl = value.url;
+    const parsedUrl = new URL(fullUrl);
+    const filePath = parsedUrl.pathname.slice(1);
 
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = value.name;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    await request(
+      () => SubmissionService.fileGet(filePath),
+      (res) => {
+        console.log("res", res);
+        const blob = new Blob([res.data]);
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = value.name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      },
+      { ignoreErrorRedirect: true },
+    );
   };
 
   //이미지 외부 영역
@@ -406,21 +422,12 @@ export default function DynamicFormField({
         </div>
         {hasUploadedFile && (
           <div className="text-sm text-green-700">
-            기존 파일:
-            <a
-              href={value.url}
-              download
-              target="_blank"
-              className="ml-2 underline"
+            <button
+              onClick={() => downloadFile(value)}
+              className="underline text-sm text-green-700"
             >
-              {value.name}
-            </a>
-            {/*<button*/}
-            {/*  onClick={() => downloadFile(value)}*/}
-            {/*  className="underline text-sm text-green-700"*/}
-            {/*>*/}
-            {/*  기존 파일: {value.name} 다운로드*/}
-            {/*</button>*/}
+              기존 파일: {value.name} 다운로드
+            </button>
           </div>
         )}
         {error && <p className="text-sm text-red-500">{error}</p>}

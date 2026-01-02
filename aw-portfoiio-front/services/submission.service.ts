@@ -14,6 +14,10 @@ export const SubmissionService = {
     return api.post(`/api/excel`, body, { responseType: "blob" });
   },
 
+  fileGet(fileName: string) {
+    return api.get(`/api/download/${fileName}`, { responseType: "blob" });
+  },
+
   temporaryPost: (body: FormData) =>
     api.post("/api/submission/temporaryStorage", body),
 
