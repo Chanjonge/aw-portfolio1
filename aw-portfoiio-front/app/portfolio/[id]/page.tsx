@@ -237,14 +237,10 @@ export default function PortfolioForm() {
       await request(
         () => SubmissionService.get(submissionId),
         (res) => {
-          console.log("res 작성내역 불러오기----", res);
-
           const data = res.data;
 
           if (data) {
             const parsedResponses = JSON.parse(data.submissionJson);
-
-            console.log("parsedResponses", parsedResponses);
 
             setExistingSubmissionId(data.submissionId);
             setFormData(parsedResponses);
@@ -315,13 +311,9 @@ export default function PortfolioForm() {
 
   const fetchPortfolioAndQuestions = async () => {
     try {
-      console.log("idddd", id);
-
       await request(
         () => PortfolioService.getOne(id),
         (res) => {
-          console.log("포토폴리오 해당 아이디 목록 조회", res);
-
           if (!res.data) {
             router.push("/");
             return;
@@ -335,8 +327,6 @@ export default function PortfolioForm() {
       await request(
         () => QuestionService.getPortfolios(id),
         (res) => {
-          console.log("포토폴리오 해당 질문목록 조회", res);
-
           setQuestions(res.data);
         },
         { ignoreErrorRedirect: true },
@@ -766,8 +756,6 @@ export default function PortfolioForm() {
       fd.append("portfolioId", String(portfolio.id));
       fd.append("response", JSON.stringify(response));
 
-      console.log("optionFiles", optionFiles);
-
       optionFiles.forEach((opt, idx) => {
         fd.append(`optionFiles[${idx}].optionsId`, opt.optionsId);
         fd.append(`optionFiles[${idx}].questionStep`, String(opt.questionStep));
@@ -783,8 +771,6 @@ export default function PortfolioForm() {
       await request(
         () => SubmissionService.temporaryPost(fd),
         (res) => {
-          console.log("res 임시저장----", res);
-
           alert("임시저장되었습니다.");
 
           if (!existingSubmissionId) {
@@ -826,7 +812,6 @@ export default function PortfolioForm() {
       await request(
         () => SubmissionService.post(fd),
         (res) => {
-          console.log("res 임시저장----", res);
           alert("제출이 완료되었습니다!\n데이터가 안전하게 저장되었습니다.");
           router.push("/thank-you");
         },

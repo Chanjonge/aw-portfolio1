@@ -43,16 +43,12 @@ export default function MySubmissionsPage() {
     if (!login) {
       window.location.href = "/login";
     } else if (currentUser) {
-      console.log("currentUser", currentUser);
       handleSearch();
     }
   }, [currentUser]);
 
   const handleSearch = async () => {
     setError("");
-
-    console.log("currentUser----- 서치안에", currentUser);
-
     setLoading(true);
 
     const params = {

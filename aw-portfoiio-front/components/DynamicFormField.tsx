@@ -361,7 +361,7 @@ export default function DynamicFormField({
             disabled={disabled}
             onChange={(e) => {
               const file = e.target.files?.[0];
-              console.log("file", value);
+
               if (file) onChange(file);
             }}
             className="hidden"

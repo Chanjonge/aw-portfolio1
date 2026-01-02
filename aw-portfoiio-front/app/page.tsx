@@ -92,7 +92,6 @@ export default function Home() {
     await request(
       () => PortfolioService.getCategorySelect(),
       (res) => {
-        console.log("카테고리 셀렉트 목록 조회", res);
         setCategories(res.data);
       },
       { ignoreErrorRedirect: true },
@@ -106,7 +105,6 @@ export default function Home() {
       await request(
         () => PortfolioService.getUser(true, selectedCategory ?? null),
         (res) => {
-          console.log("유저 포토폴리오 조회", res);
           setPortfolios(res.data);
         },
         { ignoreErrorRedirect: true },

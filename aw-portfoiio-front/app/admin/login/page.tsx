@@ -62,14 +62,10 @@ export default function AdminLoginPage() {
     setError("");
     setLoading(true);
 
-    console.log("로그인 시도:", { email, password: "***" });
-
     try {
       await request(
         () => AuthService.login(email, password),
         (res) => {
-          console.log("로그인 응답완료", res);
-
           tokenStore.set(res.data.token);
           setUser(res.data.user);
           localStorage.setItem("login", "true");
@@ -86,52 +82,6 @@ export default function AdminLoginPage() {
     } finally {
       setLoading(false);
     }
-
-    // try {
-    //     console.log('API 호출 시작...');
-    //     const response = await fetch('/api/auth/login', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({ email, password }),
-    //     });
-    //
-    //     console.log('응답 상태:', response.status);
-    //     console.log('응답 헤더:', response.headers);
-    //
-    //     if (!response.ok) {
-    //         console.log('HTTP 오류:', response.status, response.statusText);
-    //     }
-    //
-    //     const data = await response.json();
-    //     console.log('응답 데이터:', data);
-    //     return;
-    //
-    //     if (response.ok) {
-    //         localStorage.setItem('token', data.token);
-    //         localStorage.setItem('user', JSON.stringify(data.user));
-    //
-    //         console.log('로그인 성공, 리다이렉트:', data.user.role);
-    //
-    //         // 강제로 페이지 새로고침을 통한 리다이렉트
-    //         if (data.user.role === 'SUPER_ADMIN') {
-    //             console.log('SUPER_ADMIN으로 리다이렉트');
-    //             window.location.href = '/admin/super';
-    //         } else {
-    //             console.log('일반 관리자로 리다이렉트');
-    //             window.location.href = '/admin/dashboard';
-    //         }
-    //     } else {
-    //         console.log('로그인 실패:', data.error);
-    //         setError(data.error || '로그인에 실패했습니다.');
-    //     }
-    // } catch (error) {
-    //     console.error('Login error:', error);
-    //     setError('로그인 중 오류가 발생했습니다.');
-    // } finally {
-    //     setLoading(false);
-    // }
   };
 
   return (

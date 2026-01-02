@@ -147,7 +147,6 @@ export default function SuperAdminPage() {
     await request(
       () => UserService.get({ page: page, size: 5 }),
       (res) => {
-        console.log("사용자 관리 목록 조회", res);
         setUsers(res.data);
       },
       { ignoreErrorRedirect: true },
@@ -159,13 +158,11 @@ export default function SuperAdminPage() {
     await request(
       () => PortfolioService.get({ page: page, size: 5, name: searchName }),
       (res) => {
-        console.log("포토폴리오 목록 조회", res);
         setPortfolios(res.data);
         //카테고리 select 목록
         request(
           () => PortfolioService.getCategorySelect(),
           (res) => {
-            console.log("카테고리 셀렉트 목록 조회", res);
             setSelectCategory(res.data);
           },
           { ignoreErrorRedirect: true },
@@ -180,7 +177,6 @@ export default function SuperAdminPage() {
     await request(
       () => PortfolioService.getAll(),
       (res) => {
-        console.log("포토폴리오 전체 목록 조회", res);
         setAllPortfolios(res.data);
       },
       { ignoreErrorRedirect: true },
@@ -191,7 +187,6 @@ export default function SuperAdminPage() {
     await request(
       () => QuestionService.get(portfolioId),
       (res) => {
-        console.log("질문 목록 조회", res);
         setQuestions(res.data);
       },
       { ignoreErrorRedirect: true },
@@ -203,7 +198,6 @@ export default function SuperAdminPage() {
       await request(
         () => SubmissionService.adminGet(),
         (res) => {
-          console.log("제출목록 조회", res);
           setSubmissions(res.data || []);
         },
         { ignoreErrorRedirect: true },
@@ -241,12 +235,9 @@ export default function SuperAdminPage() {
       submissionId: submission.id,
     };
 
-    console.log("parmas", params);
-
     await request(
       () => SubmissionService.adminExcelGet(params),
       (res) => {
-        console.log("엑셀 다운로드", res);
         const blob = new Blob([res.data], {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
@@ -269,7 +260,6 @@ export default function SuperAdminPage() {
     await request(
       () => CategoriesService.get({ page: page, size: 5 }),
       (res) => {
-        console.log("카테고리 목록 조회", res);
         setCategories(res.data);
       },
       { ignoreErrorRedirect: true },
@@ -345,7 +335,6 @@ export default function SuperAdminPage() {
     await request(
       () => UserService.post(newUser),
       (res) => {
-        console.log("사용자 관리 목록 조회", res);
         alert("사용자가 생성되었습니다.");
         setShowUserForm(false);
         setNewUser({ email: "", password: "", name: "", role: "ADMIN" });
@@ -615,7 +604,6 @@ export default function SuperAdminPage() {
         return;
       }
 
-      console.log("접속 유저", currentUser);
       await fetchPortfolios();
       await fetchAllPortfolios();
       setLoading(false);
@@ -624,7 +612,6 @@ export default function SuperAdminPage() {
 
   //제출목록 > 상세보기
   const handleDetailSubmission = (submission: Submission) => {
-    console.log("submission", submission);
     router.push(
       `/portfolio/${submission.portfolioId}?submissionId=${submission.id}&detail=true`,
     );

@@ -69,7 +69,6 @@ export default function AdminDashboard() {
     await request(
       () => PortfolioService.getUser(true, null),
       (res) => {
-        console.log("포토폴리오 조회", res);
         setPortfolios(res.data);
       },
       { ignoreErrorRedirect: true },
@@ -80,7 +79,6 @@ export default function AdminDashboard() {
     await request(
       () => SubmissionService.adminGet(),
       (res) => {
-        console.log("제출목록 조회", res);
         setSubmissions(res.data || []);
       },
       { ignoreErrorRedirect: true },

@@ -1,23 +1,30 @@
-import type { Metadata } from 'next';
-import './globals.css';
+import type { Metadata } from "next";
+import "./globals.css";
 import RecoilProvider from "@/app/RecoilProvider";
 import AuthListener from "@/app/AuthListener";
 
 export const metadata: Metadata = {
-    title: '언제나 디자인 타입형 리스트',
-    description: 'Professional form management system',
+  title: "언제나 디자인 타입형 리스트",
+  description: "Professional form management system",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <html lang="ko">
-            <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"></meta>
-            <body>
-                <RecoilProvider>
-                    <AuthListener/>
-                        {children}
-                </RecoilProvider>
-            </body>
-        </html>
-    );
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="ko">
+      <meta
+        httpEquiv="Content-Security-Policy"
+        content="upgrade-insecure-requests"
+      ></meta>
+      <body>
+        <RecoilProvider>
+          <AuthListener />
+          {children}
+        </RecoilProvider>
+      </body>
+    </html>
+  );
 }
