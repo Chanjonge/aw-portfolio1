@@ -49,6 +49,7 @@ public class SubmissionRepositoryImpl implements SubmissionQueryRepository {
                 .from(submission)
                 .join(submission.portfolio, portfolio).fetchJoin()
                 .where(submission.member.id.eq(memberId))
+                .orderBy(submission.registDate.desc())
                 .fetch();
     }
     
