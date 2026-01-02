@@ -791,6 +791,7 @@ export default function PortfolioForm() {
     if (!validateAllSteps() || !portfolio) return;
     setSubmitting(true);
     try {
+      const { response, optionFiles } = extractSubmitData();
       const fd = new FormData();
 
       // 수정일 경우
@@ -799,15 +800,19 @@ export default function PortfolioForm() {
       }
 
       fd.append("portfolioId", String(portfolio.id));
+      fd.append("response", JSON.stringify(response));
 
-      fd.append(
-        "response",
-        JSON.stringify({
-          ...formData,
-          rooms,
-          specials,
-        }),
-      );
+      optionFiles.forEach((opt, idx) => {
+        fd.append(`optionFiles[${idx}].optionsId`, opt.optionsId);
+        fd.append(`optionFiles[${idx}].questionStep`, String(opt.questionStep));
+        fd.append(
+          `optionFiles[${idx}].questionOrder`,
+          String(opt.questionOrder),
+        );
+        opt.files.forEach((file: File) => {
+          fd.append(`optionFiles[${idx}].files`, file);
+        });
+      });
 
       await request(
         () => SubmissionService.post(fd),

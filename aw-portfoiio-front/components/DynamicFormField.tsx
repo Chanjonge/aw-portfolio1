@@ -97,6 +97,20 @@ export default function DynamicFormField({
     [question.options],
   );
 
+  //기존 파일 다운로드 수정해야함
+  const downloadFile = async (value: { url: string; name: string }) => {
+    console.log("value", value);
+    const response = await fetch(value.url);
+    const blob = await response.blob();
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = value.name;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   //이미지 외부 영역
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -251,6 +265,29 @@ export default function DynamicFormField({
           <div className="flex items-center gap-1 text-lg font-semibold text-black">
             <span>{question.title}</span>
             {question.isRequired && <span className="text-red-500">*</span>}
+            {question.thumbnail && (
+              <div className="relative inline-flex items-center gap-1">
+                <span
+                  className="text-xs text-gray-400 hover:text-black cursor-pointer"
+                  onClick={() => setShowPreview((prev) => !prev)}
+                >
+                  ❓
+                </span>
+
+                {showPreview && (
+                  <div
+                    ref={previewRef}
+                    className="absolute top-6 left-0 z-50 w-72 border border-gray-300 shadow-lg bg-white rounded-lg p-2"
+                  >
+                    <img
+                      src={question.thumbnail}
+                      alt={question.title}
+                      className="w-full h-auto object-cover rounded"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           {question.description && (
             <span className="block text-sm text-gray-600 mt-1">
@@ -369,15 +406,12 @@ export default function DynamicFormField({
         </div>
         {hasUploadedFile && (
           <div className="text-sm text-green-700">
-            기존 파일:
-            <a
-              href={value.url}
-              download
-              target="_blank"
-              className="ml-2 underline"
+            <button
+              onClick={() => downloadFile(value)}
+              className="underline text-sm text-green-700"
             >
-              {value.name}
-            </a>
+              기존 파일: {value.name} 다운로드
+            </button>
           </div>
         )}
         {error && <p className="text-sm text-red-500">{error}</p>}
