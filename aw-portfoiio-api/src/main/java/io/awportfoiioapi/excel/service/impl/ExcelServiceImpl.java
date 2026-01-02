@@ -201,7 +201,7 @@ public class ExcelServiceImpl implements ExcelService {
                 if (val == null) {
                     dataRow.createCell(colIdx++).setCellValue("");
                 } else {
-                    dataRow.createCell(colIdx++).setCellValue(val.toString());
+                     dataRow.createCell(colIdx++).setCellValue(val.toString());
                 }
             }
 
