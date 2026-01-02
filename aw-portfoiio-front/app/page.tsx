@@ -55,6 +55,8 @@ export default function Home() {
 
   // 미리보기 팝업 상태
   const [showPreview, setShowPreview] = useState(false);
+  // 포토폴리오 아이디
+  const [previewPortfolioId, setPreviewPortfolioId] = useState<string>("");
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [previewTitle, setPreviewTitle] = useState<string>("");
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">(
@@ -151,9 +153,14 @@ export default function Home() {
   };
 
   // 미리보기 열기 함수
-  const handlePreviewOpen = async (domain: string, title: string) => {
+  const handlePreviewOpen = async (
+    domain: string,
+    title: string,
+    id: string,
+  ) => {
     setProxyError("");
     setIsPreviewLoading(true);
+    setPreviewPortfolioId(id);
     const proxyUrl = getProxyUrl(domain);
     setPreviewUrl(proxyUrl);
     setPreviewTitle(title);
@@ -304,11 +311,17 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 cursor-pointer">
             {portfolios.map((portfolio) => (
-              <Link
+              <div
                 key={portfolio.id}
-                href={`/portfolio/${portfolio.id}`}
+                onClick={() => {
+                  handlePreviewOpen(
+                    portfolio.domain!,
+                    portfolio.title,
+                    portfolio.id,
+                  );
+                }}
                 className="border-black transition-all overflow-hidden group"
               >
                 {portfolio.thumbnail && (
@@ -342,7 +355,11 @@ export default function Home() {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        handlePreviewOpen(portfolio.domain!, portfolio.title);
+                        handlePreviewOpen(
+                          portfolio.domain!,
+                          portfolio.title,
+                          portfolio.id,
+                        );
                       }}
                       className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all"
                     >
@@ -364,27 +381,8 @@ export default function Home() {
                       미리보기
                     </button>
                   )}
-
-                  {/* 정보입력 버튼 */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      //비로그인시
-                      if (!currentUser) {
-                        window.location.href = "/login";
-                        return;
-                      }
-
-                      e.preventDefault();
-                      e.stopPropagation();
-                      router.push(`/portfolio/${portfolio.id}`);
-                    }}
-                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-all"
-                  >
-                    정보입력
-                  </button>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}
@@ -423,33 +421,53 @@ export default function Home() {
               </div>
 
               {/* 모드 토글 */}
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPreviewMode("desktop")}
-                  className={`px-3 py-2 rounded-md border text-sm transition-all ${previewMode === "desktop" ? "bg-black text-white border-black" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}
-                  title="데스크톱 미리보기"
-                >
-                  PC
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewMode("mobile")}
-                  className={`px-3 py-2 rounded-md border text-sm transition-all ${previewMode === "mobile" ? "bg-black text-white border-black" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}
-                  title="모바일 미리보기(500px)"
-                >
-                  모바일
-                </button>
+              <div className="flex-1 flex justify-center">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewMode("desktop")}
+                    className={`px-3 py-2 rounded-md border text-sm transition-all ${previewMode === "desktop" ? "bg-black text-white border-black" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}
+                    title="데스크톱 미리보기"
+                  >
+                    PC
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewMode("mobile")}
+                    className={`px-3 py-2 rounded-md border text-sm transition-all ${previewMode === "mobile" ? "bg-black text-white border-black" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}
+                    title="모바일 미리보기(500px)"
+                  >
+                    모바일
+                  </button>
+                </div>
               </div>
 
-              {/* 닫기 */}
-              <button
-                onClick={() => setShowPreview(false)}
-                className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600 font-bold text-lg transition-colors"
-                title="닫기 (ESC)"
-              >
-                ×
-              </button>
+              <div className="flex-1 flex justify-end items-center gap-3">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    //비로그인시
+                    if (!currentUser) {
+                      window.location.href = "/login";
+                      return;
+                    }
+
+                    router.push(`/portfolio/${previewPortfolioId}`);
+                  }}
+                  className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-all"
+                >
+                  정보입력
+                </button>
+
+                {/* 닫기 */}
+                <button
+                  onClick={() => setShowPreview(false)}
+                  className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600 font-bold text-lg transition-colors"
+                  title="닫기 (ESC)"
+                >
+                  ×
+                </button>
+              </div>
             </div>
 
             {/* iframe 컨텐츠 */}
@@ -513,7 +531,11 @@ export default function Home() {
                               new URLSearchParams(
                                 previewUrl.split("?")[1] || "",
                               ).get("url") || previewUrl;
-                            handlePreviewOpen(originalUrl, previewTitle);
+                            handlePreviewOpen(
+                              originalUrl,
+                              previewTitle,
+                              previewPortfolioId,
+                            );
                           }}
                           className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-all text-sm font-medium"
                         >
