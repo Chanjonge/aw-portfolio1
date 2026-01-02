@@ -16,18 +16,24 @@ public class ProxyController {
     
     
     @GetMapping("/proxy")
-    public ResponseEntity<String> proxy(@RequestParam String url) {
+    public ResponseEntity<byte[]> proxy(@RequestParam String url) {
         // http만 허용
+        // http만 허용 (필요하면 https도 추가 가능)
         if (!url.startsWith("http://")) {
-            return ResponseEntity.badRequest().body("Only http allowed");
+            return ResponseEntity.badRequest().build();
         }
         RestClient restClient = RestClient.create();
+        // 원본 응답을 상태/헤더/바디 통째로 받음
         
-        String body = restClient.get()
+        ResponseEntity<byte[]> upstream = restClient.get()
                 .uri(url)
                 .retrieve()
-                .body(String.class);
-
-        return ResponseEntity.ok(body);
+                .toEntity(byte[].class);
+        
+        // 그대로 반환
+        return ResponseEntity
+                .status(upstream.getStatusCode())
+                .headers(upstream.getHeaders())
+                .body(upstream.getBody());
     }
 }
