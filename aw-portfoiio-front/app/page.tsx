@@ -257,7 +257,7 @@ export default function Home() {
                                 <button
                                     key={category.id}
                                     onClick={() => setSelectedCategory(category.id)}
-                                    className={`rounded-md px-6 py-1 text-base font-semibold transition-all ${selectedCategory === category.id ? 'bg-black text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
+                                    className={`rounded-md px-6 py-1 text-base font-semibold transition-all ${selectedCategory === category.id ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
                                 >
                                     {category.name}
                                 </button>

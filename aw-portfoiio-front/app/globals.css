@@ -146,6 +146,8 @@ input[type='text']:disabled {
 .swiper-button-next,
 .swiper-button-prev {
     color: #666666 !important;
+    width: 25px !important;
+    height: 25px !important;
 }
 
 .swiper-button-next:after,

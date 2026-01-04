@@ -72,12 +72,6 @@ export default function LoginPage() {
             </header>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-                <div className="text-center mb-18">
-                    <h2 className="text-4xl text-black mb-4">
-                        당신의 감각에 맞는 디자인을 찾아보세요
-                    </h2>
-                    <p className="text-xl text-gray-600">쉽고 간편하게 만들어보세요</p>
-                </div>
                 <form
                     onSubmit={(e) => {
                         e.preventDefault(); // 새로고침 방지
