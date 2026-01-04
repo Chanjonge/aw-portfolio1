@@ -174,7 +174,7 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-white">
             {/* Header */}
-            <header className="bg-white border-b-2 border-gray-200">
+            <header className="bg-white border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
                         <a href="/" className="block">

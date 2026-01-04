@@ -1100,7 +1100,7 @@ export default function PortfolioForm() {
                         {rooms.map((room, index) => (
                           <div
                             key={room.id}
-                            className="p-4 border rounded-lg space-y-4 relative bg-gray-50"
+                            className="p-4 border rounded-lg space-y-4 relative"
                           >
                             {rooms.length > 1 && (
                               <button
@@ -1125,6 +1125,7 @@ export default function PortfolioForm() {
                               <label className="block font-semibold mb-1">
                                 객실명
                               </label>
+                              <p className="text-xs text-gray-500 mb-1">고객에게 노출될 객실 이름을 입력해주세요.</p>
                               <input
                                 type="text"
                                 value={room.name}
@@ -1138,7 +1139,7 @@ export default function PortfolioForm() {
                                   setRooms(updated);
                                 }}
                                 className="w-full border border-gray-300 rounded-lg p-2"
-                                placeholder="예: Signature Spa Room"
+                                placeholder="예: 달빛방, 스테이 101호, 온돌 독채"
                               />
                             </div>
 
@@ -1146,6 +1147,7 @@ export default function PortfolioForm() {
                               <label className="block font-semibold mb-1">
                                 객실 설명
                               </label>
+                              <p className="text-xs text-gray-500 mb-1">객실의 분위기와 특징, 보이는 풍경, 제공되는 서비스를 자유롭게 작성해주세요.</p>
                               <textarea
                                 value={room.desc}
                                 disabled={isDetailMode}
@@ -1159,14 +1161,15 @@ export default function PortfolioForm() {
                                 }}
                                 className="w-full border border-gray-300 rounded-lg p-2"
                                 rows={3}
-                                placeholder="객실 특징, 뷰, 서비스 등을 적어주세요."
+                                placeholder="예: 따뜻한 우드 톤의 인테리어와 넓은 통창으로 숲 전망을 즐길 수 있으며, 프라이빗 바비큐와 조식 서비스가 제공됩니다."
                               />
                             </div>
 
                             <div>
                               <label className="block font-semibold mb-1">
-                                형태
+                                객실 형태
                               </label>
+                              <p className="text-xs text-gray-500 mb-1">객실의 구조를 간단히 적어주세요.</p>
                               <input
                                 type="text"
                                 value={room.type}
@@ -1180,7 +1183,7 @@ export default function PortfolioForm() {
                                   setRooms(updated);
                                 }}
                                 className="w-full border border-gray-300 rounded-lg p-2"
-                                placeholder="예: 침실1 + 거실1 + 화장실1"
+                                placeholder="예: 독채형, 복층 구조, 침실 분리형, 원룸형 등"
                               />
                             </div>
 
@@ -1583,7 +1586,7 @@ export default function PortfolioForm() {
                     disabled={submitting}
                     className="px-6 py-3 border-2 border-gray-300 rounded-lg font-semibold hover:border-black transition-all disabled:opacity-50"
                 >
-                  💾 임시저장
+                  임시저장
                 </button>)}
 
                 {currentStep < maxStep ? (
