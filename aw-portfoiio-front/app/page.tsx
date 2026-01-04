@@ -219,7 +219,7 @@ export default function Home() {
                                         // 로그인 상태면 바로 이동
                                         router.push(targetPath);
                                     }}
-                                    className="px-4 py-2 border-2 border-black rounded-lg font-semibold hover:bg-black hover:text-white transition-all"
+                                    className="px-4 py-2 border border-gray-300 rounded-lg font-semibold hover:bg-black hover:text-white transition-all"
                                 >
                                     작성 내역 불러오기
                                 </button>
@@ -249,7 +249,7 @@ export default function Home() {
                 {categories.length > 0 && (
                     <div className="mb-8">
                         <div className="flex justify-center gap-3 flex-wrap">
-                            <button onClick={() => setSelectedCategory(null)} className={`rounded-md px-6 py-1 text-base font-semibold transition-all ${selectedCategory === null ? 'bg-black text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}>
+                            <button onClick={() => setSelectedCategory(null)} className={`rounded-md px-6 py-1 text-base font-semibold transition-all ${selectedCategory === null ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}>
                                 전체
                             </button>
 

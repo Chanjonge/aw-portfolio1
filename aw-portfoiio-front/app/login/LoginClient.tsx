@@ -77,11 +77,11 @@ export default function LoginPage() {
                         e.preventDefault(); // 새로고침 방지
                         handleAuth(); // 확인 버튼과 동일한 동작
                     }}
-                    className="max-w-md mx-auto mb-12 bg-white border-2 border-black rounded-lg p-8 shadow-lg"
+                    className="max-w-md mx-auto mt-36 mb-12 bg-white border border-gray-300 rounded-lg p-8 shadow-lg"
                 >
                     <div className="text-center mb-6">
                         <h3 className="text-2xl font-bold text-black mb-2">
-                        제작 문의 진행하기기
+                        제작 문의 진행하기
                         </h3>
                         <p className="text-gray-600">
                         문의 내용을 안전하게 관리하기 위해 간단한 확인 정보를 입력해주세요
