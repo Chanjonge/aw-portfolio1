@@ -81,10 +81,10 @@ export default function LoginPage() {
                 >
                     <div className="text-center mb-6">
                         <h3 className="text-2xl font-bold text-black mb-2">
-                            제출자 정보 입력
+                        제작 문의 진행하기기
                         </h3>
                         <p className="text-gray-600">
-                            상호명과 4자리 비밀번호를 입력하세요
+                        문의 내용을 안전하게 관리하기 위해 간단한 확인 정보를 입력해주세요
                         </p>
                     </div>
 
@@ -105,7 +105,7 @@ export default function LoginPage() {
 
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-2">
-                                비밀번호 4자리 <span className="text-red-500">*</span>
+                                확인용 비밀번호 (4자리) <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="password"
@@ -119,7 +119,7 @@ export default function LoginPage() {
                                 required
                             />
                             <p className="text-sm text-gray-500 mt-1">
-                                숫자 4자리만 입력 가능합니다
+                            별도의 회원가입 없이, 문의 내역 확인용으로만 사용됩니다.
                             </p>
                         </div>
 

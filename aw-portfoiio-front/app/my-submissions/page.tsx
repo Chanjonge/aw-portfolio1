@@ -86,12 +86,11 @@ export default function MySubmissionsPage() {
       <header className="bg-white border-b-2 border-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link
-              href="/"
-              className="text-2xl font-bold text-black hover:text-gray-700"
-            >
-              포트폴리오 시스템
-            </Link>
+          <a href="/" className="block">
+                            <h1 className="text-2xl font-bold text-black">
+                                <img src="/logo.png" alt="로고" className="h-8" />
+                            </h1>
+                        </a>
             <div className="flex items-center gap-2">
               <Link
                 href="/"
@@ -206,15 +205,13 @@ export default function MySubmissionsPage() {
           <h4 className="font-bold mb-2">💡 안내</h4>
           <ul className="text-sm space-y-1">
             <li>
-              • 페이지 진입/회사명 변경 시, 로컬에 저장된 제출 내역이 있으면
-              자동으로 표시됩니다.
+              • 이전에 작성하신 제출 내역이 있을 경우, 자동으로 목록에 표시됩니다.
             </li>
-            {/*<li>• 최신 서버 내역이 필요하면 상호명과 비밀번호로 조회하세요.</li>*/}
             <li>
-              • 임시저장된 제출물은 "이어서 작성"으로 계속 작성할 수 있습니다.
+              • 임시 저장된 제출물은 언제든지 이어서 작성할 수 있습니다.
             </li>
-            <li>• 제출 완료된 내용도 언제든지 수정할 수 있습니다.</li>
-            <li>• 비밀번호를 분실한 경우 관리자에게 문의해주세요.</li>
+            <li>• 제출 완료된 내용은 기본적으로 수정이 제한됩니다.</li>
+            <li>• 관리자 검토 과정에서 보완이 필요한 경우 제출이 완료된 내용도 수정이 가능하도록 안내드립니다.</li>
           </ul>
         </div>
       </div>
