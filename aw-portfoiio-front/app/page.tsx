@@ -297,7 +297,7 @@ export default function Home() {
                                 </div>
 
                                 {/* 버튼 영역 */}
-                                <div className="flex gap-3 px-2 pb-6">
+                                <div className="hidden flex gap-3 px-2 pb-6">
                                     {/* 미리보기 버튼 - 팝업 모달 */}
                                     {portfolio.domain ? (
                                         <button
