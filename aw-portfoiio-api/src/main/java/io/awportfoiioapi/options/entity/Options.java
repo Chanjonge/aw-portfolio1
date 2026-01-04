@@ -65,7 +65,7 @@ public class Options extends DateSuperClass {
     @Column(name = "OPTIONS_IS_ACTIVE")
     private Boolean optionsIsActive;
     
-    @Column(name = "OPTIONS_JSON")
+    @Column(name = "OPTIONS_JSON",columnDefinition = "TEXT")
     private String option;
     
     public void updateBasic(

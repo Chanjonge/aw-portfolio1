@@ -96,4 +96,12 @@ public class QuestionRepositoryImpl implements QuestionQueryRepository {
                 .fetch();
 
     }
+    
+    @Override
+    public List<Question> findByPortfolioId(Long portfolioId) {
+        return queryFactory
+                .selectFrom(question)
+                .where(question.portfolio.id.eq(portfolioId))
+                .fetch();
+    }
 }

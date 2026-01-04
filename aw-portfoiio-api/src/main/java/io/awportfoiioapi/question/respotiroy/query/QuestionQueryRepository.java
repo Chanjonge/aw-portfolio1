@@ -17,4 +17,6 @@ public interface QuestionQueryRepository {
     
     List<ExcelColumnResponse> findByColumn(Long portfolioId);
     
+    List<Question> findByPortfolioId(Long portfolioId);
+    
 }

@@ -53,6 +53,11 @@ public class ExcelController {
         return excelService.modifySubmitOff(request);
     }
     
+    @GetMapping("/copy")
+    public ApiResponse copy(@RequestParam Long portfolioId) {
+        return null;
+    }
+    
     @GetMapping("/download/{folder}/{fileName}")
              public ResponseEntity<Resource> download(
                      @PathVariable String fileName,

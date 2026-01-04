@@ -1,6 +1,7 @@
 package io.awportfoiioapi.excel.service.impl;
 
 import io.awportfoiioapi.RepositoryAndServiceTestSupport;
+import io.awportfoiioapi.apiresponse.ApiResponse;
 import io.awportfoiioapi.excel.dto.request.ExcelRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,14 @@ class ExcelServiceImplTest extends RepositoryAndServiceTestSupport {
         ExcelRequest excelRequest = new ExcelRequest(portfolioId,submissionId);
         byte[] submissionExcel = excelService.createSubmissionExcel(excelRequest);
         System.out.println("submissionExcel = " + submissionExcel);
+    }
+    
+    @DisplayName("")
+    @Test
+    void test2(){
+        
+        ApiResponse apiResponse = excelService.copyPortfolio(14L);
+        System.out.println("apiResponse = " + apiResponse);
         
     }
 }

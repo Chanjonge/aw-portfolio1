@@ -4,9 +4,16 @@ package io.awportfoiioapi.excel.service.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awportfoiioapi.apiresponse.ApiResponse;
+import io.awportfoiioapi.category.entity.Category;
+import io.awportfoiioapi.category.repository.CategoryRepository;
 import io.awportfoiioapi.excel.dto.request.ExcelRequest;
 import io.awportfoiioapi.excel.dto.response.ExcelColumnResponse;
 import io.awportfoiioapi.excel.service.ExcelService;
+import io.awportfoiioapi.options.entity.Options;
+import io.awportfoiioapi.options.respotiroy.OptionsRepository;
+import io.awportfoiioapi.portfolio.entity.Portfolio;
+import io.awportfoiioapi.portfolio.repository.PortfolioRepository;
+import io.awportfoiioapi.question.entity.Question;
 import io.awportfoiioapi.question.respotiroy.QuestionRepository;
 import io.awportfoiioapi.submission.entity.Submission;
 import io.awportfoiioapi.submission.repository.SubmissionRepository;
@@ -31,6 +38,9 @@ public class ExcelServiceImpl implements ExcelService {
     
     private final QuestionRepository questionRepository;
     private final SubmissionRepository submissionRepository;
+    private final PortfolioRepository portfolioRepository;
+    private final OptionsRepository optionsRepository;
+    private final CategoryRepository categoryRepository;
     private final ObjectMapper mapper;
     
     @Override
@@ -327,5 +337,68 @@ public class ExcelServiceImpl implements ExcelService {
         submission.modifySubmitOff();
         
         return new ApiResponse(200, true, "제출완료가 취소 되었습니다.");
+    }
+    
+    @Override
+    public ApiResponse copyPortfolio(Long portfolioId) {
+        // 1. 원본 포트폴리오 조회
+        Portfolio original = portfolioRepository.findById(portfolioId)
+                .orElseThrow(() -> new RuntimeException("포트폴리오가 존재하지 않습니다."));
+        
+        // 2. 카테고리 조회 (FK 유지)
+        Category category = categoryRepository.findById(original.getCategory().getId())
+                .orElseThrow(() -> new RuntimeException("카테고리가 존재하지 않습니다."));
+        
+        // 3. 포트폴리오 복사
+        Portfolio copied = Portfolio.builder()
+                .category(category)
+                .title(original.getTitle() + " 복사본")
+                .description(original.getDescription())
+                .domain(original.getDomain())
+                .orders(original.getOrders())
+                .slug(original.getSlug())
+                .thumbnail(original.getThumbnail())
+                .isActive(original.getIsActive())
+                .build();
+        
+        portfolioRepository.save(copied);
+        
+        // 4. 질문 목록 조회
+        List<Question> questions = questionRepository.findByPortfolioId((original.getId()));
+        
+        for (Question q : questions) {
+            
+            // 4-1 질문 복사
+            Question copiedQuestion = Question.builder()
+                    .portfolio(copied)
+                    .step(q.getStep())
+                    .build();
+            
+            questionRepository.save(copiedQuestion);
+            
+            // 5. 옵션 복사
+            List<Options> optionList = optionsRepository.findByQuestionId(q.getId());
+            
+            for (Options op : optionList) {
+                
+                Options copiedOption = Options.builder()
+                        .question(copiedQuestion)
+                        .orders(op.getOrders())
+                        .title(op.getTitle())
+                        .description(op.getDescription())
+                        .type(op.getType())
+                        .thumbnail(op.getThumbnail())
+                        .minLength(op.getMinLength())
+                        .maxLength(op.getMaxLength())
+                        .minLengthIsActive(op.getMinLengthIsActive())
+                        .optionsIsActive(op.getOptionsIsActive())
+                        .option(op.getOption())
+                        .build();
+                
+                optionsRepository.save(copiedOption);
+            }
+        }
+        
+        return new ApiResponse(200, true, "포트폴리오가 복사되었습니다.");
     }
 }
