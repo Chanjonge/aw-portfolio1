@@ -231,8 +231,8 @@ export default function Home() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
                 {/* Swiper Slide */}
-                <div className="mb-18">
-                    <Swiper modules={[Navigation, Pagination, Autoplay]} navigation pagination={{ clickable: true }} autoplay={{ delay: 3000, disableOnInteraction: false }} loop={true} className="w-full rounded-md" style={{ height: '500px' }}>
+                <div className="mb-10 md:mb-18">
+                    <Swiper modules={[Navigation, Pagination, Autoplay]} navigation pagination={{ clickable: true }} autoplay={{ delay: 3000, disableOnInteraction: false }} loop={true} className="w-full rounded-md h-[280px] md:h-[400px] lg:h-[500px]">
                         <SwiperSlide>
                             <img src="/slide1.jpg" alt="슬라이드 1" className="w-full h-full object-cover" />
                         </SwiperSlide>
@@ -356,7 +356,7 @@ export default function Home() {
                                     <button
                                         type="button"
                                         onClick={() => setPreviewMode('desktop')}
-                                        className={`px-3 py-2 rounded-md border text-sm transition-all ${previewMode === 'desktop' ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                                        className={`hidden md:block px-3 py-2 rounded-md border text-sm transition-all ${previewMode === 'desktop' ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
                                         title="데스크톱 미리보기"
                                     >
                                         PC
