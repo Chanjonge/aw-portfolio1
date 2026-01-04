@@ -27,16 +27,16 @@ import java.nio.charset.StandardCharsets;
 public class ExcelController {
 
     private final ExcelService excelService;
-    
+
     private final S3Client s3Client;
-    
+
      @Value("${spring.cloud.aws.s3.bucket}")
      private String bucketName;
-    
-    
+
+
     @PostMapping("/excel")
     public ResponseEntity<byte[]> getExcel(@RequestBody ExcelRequest request) {
-    
+
     byte[] excelFile = excelService.createSubmissionExcel(request);
 
     //파일명 (원하면 동적으로 생성해도 됨)
@@ -47,17 +47,17 @@ public class ExcelController {
             .header(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             .body(excelFile);
     }
-    
+
     @PostMapping("/submitOff")
     public ApiResponse submitOff(@RequestBody ExcelRequest request) {
         return excelService.modifySubmitOff(request);
     }
-    
+
     @GetMapping("/copy")
     public ApiResponse copy(@RequestParam Long portfolioId) {
-        return null;
+        return excelService.copyPortfolio(portfolioId);
     }
-    
+
     @GetMapping("/download/{folder}/{fileName}")
              public ResponseEntity<Resource> download(
                      @PathVariable String fileName,
@@ -70,19 +70,19 @@ public class ExcelController {
                                  .key(key)
                                  .build()
                  );
-                 
+
                  // 메타데이터에서 원본 파일명 가져오기
                  String encodedFilenameInMetadata = object.response().metadata().get("original-filename");
-                 
+
                  // 원래 이름 복원 (디코딩)
                  String decodedFilename = encodedFilenameInMetadata != null
                          ? URLDecoder.decode(encodedFilenameInMetadata, StandardCharsets.UTF_8)
                          : fileName;
-                 
+
                  // 다시 Content-Disposition용으로 인코딩 (한 번만)
                  String encodedFilename = UriUtils.encode(decodedFilename, StandardCharsets.UTF_8);
                  String contentDisposition = "attachment; filename*=UTF-8''" + encodedFilename;
-                 
+
                  InputStreamResource resource = new InputStreamResource(object);
                  return ResponseEntity.ok()
                          .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)

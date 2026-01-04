@@ -407,6 +407,7 @@ export default function SuperAdminPage() {
             thumbnailFile: null,
           });
           fetchPortfolios();
+          fetchAllPortfolios();
         },
         { ignoreErrorRedirect: true },
       );
@@ -414,6 +415,30 @@ export default function SuperAdminPage() {
       console.error("Save portfolio error:", error);
     }
   };
+
+  //포트폴리오 복제
+  const handleCopyPortfolio = async (portfolioId: string) => {
+    if (
+        !confirm(
+            "정말 이 포트폴리오를 복제하시겠습니까?",
+        )
+    )
+      return;
+
+    try {
+      await request(
+          () => PortfolioService.copy(portfolioId),
+          (res) => {
+            alert("포트폴리오가 복제되었습니다.");
+            fetchPortfolios();
+            fetchAllPortfolios();
+          },
+          { ignoreErrorRedirect: true },
+      );
+    } catch (error) {
+      console.error("copy portfolio error:", error);
+    }
+  }
 
   //포토폴리오 삭제
   const handleDeletePortfolio = async (portfolioId: string) => {
@@ -430,6 +455,7 @@ export default function SuperAdminPage() {
         (res) => {
           alert("포트폴리오가 삭제되었습니다.");
           fetchPortfolios();
+          fetchAllPortfolios();
         },
         { ignoreErrorRedirect: true },
       );
@@ -924,16 +950,22 @@ export default function SuperAdminPage() {
                     </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleEditPortfolio(portfolio)}
-                        className="flex-1 px-3 py-2 text-sm border-2 border-black rounded hover:bg-black hover:text-white transition-all"
+                          onClick={() => handleEditPortfolio(portfolio)}
+                          className="flex-1 px-3 py-2 text-sm border-2 border-black rounded hover:bg-black hover:text-white transition-all"
                       >
                         수정
                       </button>
                       <button
-                        onClick={() => handleDeletePortfolio(portfolio.id)}
-                        className="flex-1 px-3 py-2 text-sm border-2 border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white transition-all"
+                          onClick={() => handleDeletePortfolio(portfolio.id)}
+                          className="flex-1 px-3 py-2 text-sm border-2 border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white transition-all"
                       >
                         삭제
+                      </button>
+                      <button
+                          onClick={() => handleCopyPortfolio(portfolio.id)}
+                          className="flex-1 px-3 py-2 text-sm border-2 border-green-500 text-green-500 rounded hover:bg-green-500 hover:text-white transition-all"
+                      >
+                        복제
                       </button>
                     </div>
                   </div>
@@ -942,9 +974,9 @@ export default function SuperAdminPage() {
             </div>
             <div className="my-6">
               <Pagination
-                current={page}
-                totalPages={portfolios?.totalPages ?? 0}
-                onChange={handlePageClick}
+                  current={page}
+                  totalPages={portfolios?.totalPages ?? 0}
+                  onChange={handlePageClick}
               />
             </div>
           </div>

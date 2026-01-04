@@ -18,6 +18,10 @@ export const PortfolioService = {
 
   getCategorySelect: () => api.get("/api/categorys"),
 
+  copy: (id: string) => api.get("/api/copy", {
+    params: { portfolioId: id },
+  }),
+
   post: (body: FormData) => api.post("/api/portfolio", body),
 
   put: (body: FormData) => api.put("/api/portfolio", body),
