@@ -40,7 +40,7 @@ public class CategoryRepositoryImpl implements CategoryQueryRepository {
                 )
                 .from(category)
                 .limit(pageable.getPageSize())
-                .offset(pageable.getPageNumber())
+                .offset(pageable.getOffset())
                 .orderBy(category.categoryOrders.asc())
                 .fetch();
         

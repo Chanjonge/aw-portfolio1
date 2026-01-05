@@ -81,7 +81,7 @@ class CategoryServiceImplTest extends RepositoryAndServiceTestSupport {
     @Test
     void test7() {
         
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        PageRequest pageRequest = PageRequest.of(0, 5);
         Page<CategoryGetResponse> categoryList = categoryService.getCategoryList(pageRequest);
         
         System.out.println("categoryList = " + categoryList);
