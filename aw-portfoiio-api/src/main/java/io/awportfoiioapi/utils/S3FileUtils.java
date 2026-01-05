@@ -106,7 +106,6 @@ public class S3FileUtils {
         return originalFilename.substring(pos + 1);
     }
     
-    @Cacheable(cacheNames = "presigned", key = "#key")
     public String createPresignedUrl(String key) {
         
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
