@@ -39,7 +39,7 @@ class SubmissionServiceImplTest extends RepositoryAndServiceTestSupport {
         List<MultipartFile> files = Arrays.asList(multipartFile);
         
         SubmissionPostDraftRequest.OptionFileRequest optionFileRequest =
-                new SubmissionPostDraftRequest.OptionFileRequest(20L,1,1, files);
+                new SubmissionPostDraftRequest.OptionFileRequest(20L,1,1,null, files);
     
         SubmissionPostDraftRequest request =
                 new SubmissionPostDraftRequest(
@@ -108,7 +108,7 @@ class SubmissionServiceImplTest extends RepositoryAndServiceTestSupport {
               
               List<MultipartFile> files = Arrays.asList(multipartFile);
               
-              SubmissionPostRequest.OptionFileRequest optionFileRequest = new SubmissionPostRequest.OptionFileRequest(20L,1,1, files);
+              SubmissionPostRequest.OptionFileRequest optionFileRequest = new SubmissionPostRequest.OptionFileRequest(20L,1,1,null, files);
         
               
               

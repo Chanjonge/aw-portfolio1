@@ -22,6 +22,7 @@ public class SubmissionPostDraftRequest {
     private String response;
     
     private List<OptionFileRequest> optionFiles;
+
     
     public List<OptionFileRequest> getOptionFiles() {
         if (this.optionFiles == null) {
@@ -30,6 +31,8 @@ public class SubmissionPostDraftRequest {
         return this.optionFiles;
     }
     
+
+    
     @AllArgsConstructor
     @NoArgsConstructor
     @Data
@@ -37,6 +40,7 @@ public class SubmissionPostDraftRequest {
         private Long optionsId;
         private Integer questionStep;
         private Integer questionOrder;
+        private List<Long> deleteFileIds;
         private List<MultipartFile> files;
         
         public List<MultipartFile> getFiles() {
@@ -44,6 +48,13 @@ public class SubmissionPostDraftRequest {
                 this.files = new ArrayList<>();
             }
             return this.files;
+        }
+        
+        public List<Long> getDeleteFileIds() {
+            if (this.deleteFileIds == null) {
+                this.deleteFileIds = new ArrayList<>();
+            }
+            return this.deleteFileIds;
         }
     }
 }

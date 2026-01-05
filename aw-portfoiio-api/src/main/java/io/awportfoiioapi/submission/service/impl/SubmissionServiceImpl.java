@@ -143,7 +143,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         }
         
         /**
-         * 4️⃣ optionFiles 자체가 없으면 파일은 건드리지 않음
+         * optionFiles 자체가 없으면 파일은 건드리지 않음
          * -> 다른 질문 파일 삭제되는 문제 방지
          */
         if (request.getOptionFiles() == null || request.getOptionFiles().isEmpty()) {
@@ -169,32 +169,25 @@ public class SubmissionServiceImpl implements SubmissionService {
                                 SubmissionPostRequest.OptionFileRequest::getFiles
                         ));
         
-        // 요청에 포함된 optionId만 변경대상
-        Set<Long> optionIdsInRequest = requestFilesByOption.keySet();
+        /**
+         * 요청에서 삭제할 파일 id 목록 수집
+         */
+        Set<Long> deleteFileIds =
+                request.getOptionFiles().stream()
+                        .filter(of -> of.getDeleteFileIds() != null)
+                        .flatMap(of -> of.getDeleteFileIds().stream())
+                        .collect(Collectors.toSet());
         
         /**
-         * 삭제 처리
-         * -> 요청된 optionId 범위 안에서만 삭제 판단
+         * deleteFileIds 에 포함된 파일만 삭제
          */
         for (CommonFile file : existingFiles) {
-            
-            Long optionId = file.getOptionsId();
-            
-            // 요청되지 않은 optionId는 유지 (절대 건들지 않음)
-            if (!optionIdsInRequest.contains(optionId)) continue;
-            
-            boolean existsInRequest =
-                    requestFilesByOption.containsKey(optionId)
-                            && requestFilesByOption.get(optionId) != null
-                            && !requestFilesByOption.get(optionId).isEmpty();
-            
-            // 요청에서 해당 옵션 파일 없이 오면 → 삭제로 간주
-            if (!existsInRequest) {
+            if (deleteFileIds.contains(file.getId())) {
                 s3FileUtils.deleteFile(file.getFileUrl());
                 commonFileRepository.delete(file);
             }
         }
-        
+     
         /**
          * 신규 업로드 처리 (해당 optionId 내부)
          */
@@ -289,37 +282,25 @@ public class SubmissionServiceImpl implements SubmissionService {
                                 SubmissionPostDraftRequest.OptionFileRequest::getFiles
                         ));
         
-        /**
-         *  7. 요청에 포함된 optionId만 “변경 대상”으로 삼음
-         *  - 나머지 옵션은 유지(절대 삭제 안 함)
-         */
-        Set<Long> optionIdsInRequest = requestFilesByOption.keySet();
         
         /**
-         * 8. 삭제 처리
-         *  - 동일 optionId 안에서만 삭제 판단
+         * 요청에서 삭제할 파일 id 목록 수집
+         */
+        Set<Long> deleteFileIds =
+                request.getOptionFiles().stream()
+                        .filter(of -> of.getDeleteFileIds() != null)
+                        .flatMap(of -> of.getDeleteFileIds().stream())
+                        .collect(Collectors.toSet());
+        
+        /**
+         * deleteFileIds 에 포함된 파일만 삭제
          */
         for (CommonFile file : existingFiles) {
-            
-            Long optionId = file.getOptionsId();
-            
-            // 요청되지 않은 optionId는 아예 건드리지 않음
-            if (!optionIdsInRequest.contains(optionId)) {
-                continue;
-            }
-            
-            boolean existsInRequest =
-                    requestFilesByOption.containsKey(optionId)
-                            && requestFilesByOption.get(optionId) != null
-                            && !requestFilesByOption.get(optionId).isEmpty();
-            
-            // 요청 optionId 안에서 files 비어 있으면 해당 옵션은 삭제 의사로 간주
-            if (!existsInRequest) {
+            if (deleteFileIds.contains(file.getId())) {
                 s3FileUtils.deleteFile(file.getFileUrl());
                 commonFileRepository.delete(file);
             }
         }
-        
         /**
          * 9. 신규 업로드 처리
          *  - 요청 optionId 범위 안에서만 새 파일 추가
