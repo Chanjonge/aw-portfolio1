@@ -781,12 +781,18 @@ export default function PortfolioForm() {
         }
     };
 
-    const handleSubmit = async () => {
-        if (!validateAllSteps() || !portfolio) return;
-        setSubmitting(true);
-        try {
-            const { response, optionFiles } = extractSubmitData();
-            const fd = new FormData();
+  //제출하기
+  const handleSubmit = async () => {
+    if (!validateAllSteps() || !portfolio) return;
+
+    if (!confirm("최종 제출 후에는 수정이 불가능합니다. 제출하시겠습니까?")) {
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { response, optionFiles } = extractSubmitData();
+      const fd = new FormData();
 
             // 수정일 경우
             if (existingSubmissionId) {
