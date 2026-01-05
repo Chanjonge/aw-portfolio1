@@ -79,7 +79,7 @@ export default function LoginPage() {
                     className="max-w-md mx-auto mt-36 mb-12 bg-white border border-gray-300 rounded-lg p-8 shadow-lg"
                 >
                     <div className="text-center mb-6">
-                        <h3 className="text-2xl font-bold text-black mb-2">제작 문의 진행하기</h3>
+                        <h3 className="text-2xl font-bold text-black mb-2">로그인</h3>
                         <p className="text-gray-600">제공받은 상호명과 비밀번호를 입력해주세요.</p>
                     </div>
 
@@ -105,6 +105,7 @@ export default function LoginPage() {
                                 required
                             />
                             <p className="text-sm text-gray-500 mt-1">정보가 일치하지 않을 시, 담당자께 문의부탁드립니다.</p>
+                            <p className="text-sm text-gray-500 mt-1">대표전화 : 1522-5453</p>
                         </div>
 
                         {authError && (
