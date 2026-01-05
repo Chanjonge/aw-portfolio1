@@ -47,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
     
     @Override
     public List<CategoryGetAllResponse> getAllResponse() {
-        List<Category> categoryAll = categoryRepository.findAll();
+        List<Category> categoryAll = categoryRepository.findAllOrders();
         return categoryAll
                 .stream()
                 .map(item -> new CategoryGetAllResponse(item.getId(), item.getCategoryName(), item.getCategoryOrders()))

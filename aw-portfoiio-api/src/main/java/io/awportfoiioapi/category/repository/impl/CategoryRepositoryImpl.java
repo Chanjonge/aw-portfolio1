@@ -94,4 +94,12 @@ public class CategoryRepositoryImpl implements CategoryQueryRepository {
                 .where(category.id.eq(id))
                 .fetchFirst() != null;
     }
+    
+    @Override
+    public List<Category> findAllOrders() {
+        return queryFactory
+                .selectFrom(category)
+                .orderBy(category.categoryOrders.asc())
+                .fetch();
+    }
 }

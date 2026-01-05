@@ -2,6 +2,7 @@ package io.awportfoiioapi.category.repository.query;
 
 import io.awportfoiioapi.category.dto.response.CategoryCountResponse;
 import io.awportfoiioapi.category.dto.response.CategoryGetResponse;
+import io.awportfoiioapi.category.entity.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -18,4 +19,6 @@ public interface CategoryQueryRepository  {
     boolean existsByOrder(Integer order, Long excludeCategoryId);
     
     boolean existsByPortfolio(Long id);
+    
+    List<Category> findAllOrders();
 }
