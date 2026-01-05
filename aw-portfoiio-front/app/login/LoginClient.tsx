@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useRequest } from "@/hooks/useRequest";
-import {useRouter, useSearchParams} from "next/navigation";
-import { useState } from "react";
-import { AuthService } from "@/services/auth.service";
-import { tokenStore } from "@/services/tokenStore";
-import { useSetRecoilState } from "recoil";
-import { userState } from "@/store/user";
+import { useRequest } from '@/hooks/useRequest';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { AuthService } from '@/services/auth.service';
+import { tokenStore } from '@/services/tokenStore';
+import { useSetRecoilState } from 'recoil';
+import { userState } from '@/store/user';
 
 export default function LoginPage() {
     //hooks
@@ -14,24 +14,24 @@ export default function LoginPage() {
 
     const searchParams = useSearchParams();
 
-    const redirect = searchParams.get("redirect");
+    const redirect = searchParams.get('redirect');
 
     const setUser = useSetRecoilState(userState);
 
-    const [companyName, setCompanyName] = useState("");
-    const [password, setPassword] = useState("");
-    const [authError, setAuthError] = useState("");
+    const [companyName, setCompanyName] = useState('');
+    const [password, setPassword] = useState('');
+    const [authError, setAuthError] = useState('');
 
     // 인증 처리
     const handleAuth = async () => {
-        setAuthError("");
+        setAuthError('');
 
         if (!companyName.trim()) {
-            setAuthError("상호명을 입력해주세요.");
+            setAuthError('상호명을 입력해주세요.');
             return;
         }
         if (password.length !== 4 || !/^\d{4}$/.test(password)) {
-            setAuthError("비밀번호 4자리를 입력해주세요.");
+            setAuthError('비밀번호 4자리를 입력해주세요.');
             return;
         }
 
@@ -39,22 +39,21 @@ export default function LoginPage() {
             await request(
                 () => AuthService.UserLogin(companyName, password),
                 (res) => {
-                    localStorage.removeItem("showLoginForm");
+                    localStorage.removeItem('showLoginForm');
                     tokenStore.set(res.data.token);
                     setUser(res.data.user);
-                    localStorage.setItem("login", "true");
+                    localStorage.setItem('login', 'true');
 
-                    if (res.data.isNewMember)
-                        alert("환영합니다! 새로운 회원으로 등록되었습니다.");
+                    if (res.data.isNewMember) alert('환영합니다! 새로운 회원으로 등록되었습니다.');
 
-                    const target = redirect ? decodeURIComponent(redirect) : "/";
+                    const target = redirect ? decodeURIComponent(redirect) : '/';
                     window.location.href = target;
                 },
-                { ignoreErrorRedirect: true },
+                { ignoreErrorRedirect: true }
             );
         } catch (error) {
-            console.error("Auth error:", error);
-            setAuthError("인증 처리 중 오류가 발생했습니다.");
+            console.error('Auth error:', error);
+            setAuthError('인증 처리 중 오류가 발생했습니다.');
         }
     };
     return (
@@ -80,12 +79,8 @@ export default function LoginPage() {
                     className="max-w-md mx-auto mt-36 mb-12 bg-white border border-gray-300 rounded-lg p-8 shadow-lg"
                 >
                     <div className="text-center mb-6">
-                        <h3 className="text-2xl font-bold text-black mb-2">
-                        제작 문의 진행하기
-                        </h3>
-                        <p className="text-gray-600">
-                        문의 내용을 안전하게 관리하기 위해 간단한 확인 정보를 입력해주세요
-                        </p>
+                        <h3 className="text-2xl font-bold text-black mb-2">제작 문의 진행하기</h3>
+                        <p className="text-gray-600">제공받은 상호명과 비밀번호를 입력해주세요.</p>
                     </div>
 
                     <div className="space-y-4">
@@ -93,14 +88,7 @@ export default function LoginPage() {
                             <label className="block text-sm font-bold text-gray-700 mb-2">
                                 상호명 <span className="text-red-500">*</span>
                             </label>
-                            <input
-                                type="text"
-                                value={companyName}
-                                onChange={(e) => setCompanyName(e.target.value)}
-                                placeholder="상호명을 입력해주세요"
-                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-all"
-                                required
-                            />
+                            <input type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="상호명을 입력해주세요" className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-all" required />
                         </div>
 
                         <div>
@@ -110,17 +98,13 @@ export default function LoginPage() {
                             <input
                                 type="password"
                                 value={password}
-                                onChange={(e) =>
-                                    setPassword(e.target.value.replace(/[^0-9]/g, "").slice(0, 4))
-                                }
+                                onChange={(e) => setPassword(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
                                 placeholder="숫자 4자리"
                                 maxLength={4}
                                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-all"
                                 required
                             />
-                            <p className="text-sm text-gray-500 mt-1">
-                            별도의 회원가입 없이, 문의 내역 확인용으로만 사용됩니다.
-                            </p>
+                            <p className="text-sm text-gray-500 mt-1">정보가 일치하지 않을 시, 담당자께 문의부탁드립니다.</p>
                         </div>
 
                         {authError && (
@@ -129,10 +113,7 @@ export default function LoginPage() {
                             </div>
                         )}
 
-                        <button
-                            type="submit"
-                            className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-all"
-                        >
+                        <button type="submit" className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-all">
                             확인
                         </button>
                     </div>
