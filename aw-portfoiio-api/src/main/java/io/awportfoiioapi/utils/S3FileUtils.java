@@ -118,7 +118,7 @@ public class S3FileUtils {
                 .build();
         
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(60)) // 1시간 만료시간
+                .signatureDuration(Duration.ofDays(1))
                 .getObjectRequest(getObjectRequest)
                 .build();
         
