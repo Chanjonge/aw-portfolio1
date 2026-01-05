@@ -5,10 +5,10 @@ import AuthListener from '@/app/AuthListener';
 
 export const metadata: Metadata = {
     title: '언제나 디자인',
-    description: '언제나 디자인 포트폴리오',
+    description: '언제나 디자인 기초자료 사이트',
     openGraph: {
         title: '언제나 디자인',
-        description: '언제나 디자인 포트폴리오',
+        description: '언제나 디자인 기초자료 사이트',
         url: 'https://www.alwaysdesign.co.kr',
     },
 };
