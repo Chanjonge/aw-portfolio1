@@ -1,7 +1,10 @@
 package io.awportfoiioapi.utils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -23,6 +26,7 @@ import org.springframework.cache.annotation.Cacheable;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class S3FileUtils {
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
@@ -106,8 +110,8 @@ public class S3FileUtils {
         return originalFilename.substring(pos + 1);
     }
     
+    @Cacheable(cacheNames = "presigned", key = "#key")
     public String createPresignedUrl(String key) {
-        
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
@@ -121,5 +125,11 @@ public class S3FileUtils {
         return s3Presigner.presignGetObject(presignRequest)
                 .url()
                 .toExternalForm();
+    }
+    
+    @Scheduled(cron = "0 0/50 * * * *")
+    @CacheEvict(cacheNames = "presigned", allEntries = true)
+    public void clearPresignedCache() {
+        log.info("캐시삭제");
     }
 }
