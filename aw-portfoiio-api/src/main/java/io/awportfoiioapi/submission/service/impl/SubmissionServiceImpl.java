@@ -160,16 +160,6 @@ public class SubmissionServiceImpl implements SubmissionService {
                 );
         
         /**
-         * 요청 optionId 기준 그룹핑
-         */
-        Map<Long, List<MultipartFile>> requestFilesByOption =
-                request.getOptionFiles().stream()
-                        .collect(Collectors.toMap(
-                                SubmissionPostRequest.OptionFileRequest::getOptionsId,
-                                SubmissionPostRequest.OptionFileRequest::getFiles
-                        ));
-        
-        /**
          * 요청에서 삭제할 파일 id 목록 수집
          */
         Long deleteFileId =
@@ -273,16 +263,6 @@ public class SubmissionServiceImpl implements SubmissionService {
                         submission.getId(),
                         CommonFileType.SUBMISSION_OPTION
                 );
-        
-        /**
-         * 6. 요청 optionId 기준으로 파일 그룹핑
-         */
-        Map<Long, List<MultipartFile>> requestFilesByOption =
-                request.getOptionFiles().stream()
-                        .collect(Collectors.toMap(
-                                SubmissionPostDraftRequest.OptionFileRequest::getOptionsId,
-                                SubmissionPostDraftRequest.OptionFileRequest::getFiles
-                        ));
         
         
         /**
