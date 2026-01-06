@@ -343,7 +343,9 @@ export default function DynamicFormField({ question, value, onChange, error, dis
                             {/* 기존 저장된 파일 */}
                             {savedFiles.map((file: any, idx: number) => (
                                 <div key={`saved-${idx}`} className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                                    <span className="flex-1 text-sm">✓ {file.name}</span>
+                                    <button type="button" onClick={() => downloadFile(file)} className="flex-1 text-sm text-left text-green-700 underline hover:text-green-900">
+                                        ✓ {file.name}
+                                    </button>
                                     {!disabled && (
                                         <button
                                             type="button"
