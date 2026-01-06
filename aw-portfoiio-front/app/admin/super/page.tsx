@@ -683,6 +683,16 @@ export default function SuperAdminPage() {
             }));
         }
 
+        if (questionForm.questionType === 'files') {
+            setQuestionForm((prev) => ({
+                ...prev,
+                options: JSON.stringify({
+                    maxFiles: 5,
+                    maxSizeMB: 10,
+                }),
+            }));
+        }
+
         //객실, 스페셜, 환불
         if (['parlor', 'special', 'refund'].includes(questionForm.questionType)) {
             const label = QUESTION_TYPE_LABEL_MAP[questionForm.questionType] || questionForm.questionType;
@@ -1745,6 +1755,82 @@ export default function SuperAdminPage() {
                                             placeholder="두 번째 항목의 플레이스홀더"
                                             className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                                         />
+                                    </div>
+                                </div>
+                            )}
+
+                            {questionForm.questionType === 'files' && (
+                                <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                                    <h4 className="font-semibold text-black">다중 파일 업로드 설정</h4>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-black mb-2">최대 파일 개수</label>
+                                            <input
+                                                type="number"
+                                                min="2"
+                                                max="10"
+                                                value={(() => {
+                                                    try {
+                                                        const parsed = JSON.parse(questionForm.options || '{}');
+                                                        return parsed.maxFiles || 5;
+                                                    } catch {
+                                                        return 5;
+                                                    }
+                                                })()}
+                                                onChange={(e) => {
+                                                    let parsed: any = {};
+                                                    try {
+                                                        parsed = JSON.parse(questionForm.options || '{}');
+                                                    } catch {}
+                                                    parsed.maxFiles = parseInt(e.target.value);
+                                                    setQuestionForm({
+                                                        ...questionForm,
+                                                        options: JSON.stringify(parsed),
+                                                    });
+                                                }}
+                                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-black mb-2">파일당 최대 크기 (MB)</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max="50"
+                                                value={(() => {
+                                                    try {
+                                                        const parsed = JSON.parse(questionForm.options || '{}');
+                                                        return parsed.maxSizeMB || 10;
+                                                    } catch {
+                                                        return 10;
+                                                    }
+                                                })()}
+                                                onChange={(e) => {
+                                                    let parsed: any = {};
+                                                    try {
+                                                        parsed = JSON.parse(questionForm.options || '{}');
+                                                    } catch {}
+                                                    parsed.maxSizeMB = parseInt(e.target.value);
+                                                    setQuestionForm({
+                                                        ...questionForm,
+                                                        options: JSON.stringify(parsed),
+                                                    });
+                                                }}
+                                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded">
+                                        <strong>💡 안내:</strong>
+                                        <ul className="list-disc ml-5 mt-2 space-y-1">
+                                            <li>사용자가 여러 파일을 한 번에 업로드할 수 있습니다</li>
+                                            <li>드래그 앤 드롭을 지원합니다</li>
+                                            <li>개별 파일 삭제가 가능합니다</li>
+                                            <li>허용 파일 형식: 이미지, PDF, AI</li>
+                                        </ul>
                                     </div>
                                 </div>
                             )}
