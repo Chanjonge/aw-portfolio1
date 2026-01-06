@@ -506,7 +506,14 @@ export default function DynamicFormField({ question, value, onChange, error, dis
                     onDrop={(e) => {
                         e.preventDefault();
                         const file = e.dataTransfer.files?.[0];
-                        if (file) onChange(file);
+                        if (file) {
+                            // 파일 크기 검증
+                            if (file.size > maxSizeMB * 1024 * 1024) {
+                                alert(`파일 크기는 최대 ${maxSizeMB}MB까지만 업로드 가능합니다.`);
+                                return;
+                            }
+                            onChange(file);
+                        }
                     }}
                     className={`w-full px-4 py-8 border-2 rounded-lg text-center transition-all 
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer border-gray-300 hover:border-black'}`}
@@ -520,7 +527,15 @@ export default function DynamicFormField({ question, value, onChange, error, dis
                         onChange={(e) => {
                             const file = e.target.files?.[0];
 
-                            if (file) onChange(file);
+                            if (file) {
+                                // 파일 크기 검증
+                                if (file.size > maxSizeMB * 1024 * 1024) {
+                                    alert(`파일 크기는 최대 ${maxSizeMB}MB까지만 업로드 가능합니다.`);
+                                    e.target.value = '';
+                                    return;
+                                }
+                                onChange(file);
+                            }
                         }}
                         className="hidden"
                     />
