@@ -157,7 +157,8 @@ export default function PortfolioForm() {
         });
 
         Object.entries(formData).forEach(([k, v]) => {
-            if (v && typeof v === 'object' && v.deleteFileId) {
+            // 단일 파일 삭제 처리
+            if (v && typeof v === 'object' && v.deleteFileId && !v.files) {
                 const question = questions.find((q) => String(q.id) === String(k));
                 if (!question) return;
 
@@ -172,6 +173,26 @@ export default function PortfolioForm() {
                 console.log('v.deleteFileId', v.deleteFileId);
 
                 cleanedFormData[k] = null;
+                return;
+            }
+
+            // 다중 파일 삭제 처리 (deleteFileId + files)
+            if (v && typeof v === 'object' && v.deleteFileId && v.files) {
+                const question = questions.find((q) => String(q.id) === String(k));
+                if (!question) return;
+
+                optionFiles.push({
+                    optionsId: question.id,
+                    questionStep: question.step,
+                    questionOrder: question.order,
+                    deleteFileId: v.deleteFileId,
+                    files: [],
+                });
+
+                console.log('v.deleteFileId', v.deleteFileId);
+
+                // 남은 파일들은 formData에 유지
+                cleanedFormData[k] = v.files;
                 return;
             }
 
@@ -1075,6 +1096,25 @@ export default function PortfolioForm() {
     };
 
     const handleChange = (questionId: string, value: any) => {
+        // deleteFileId + remainingFiles 처리 (다중 파일 삭제)
+        if (value && typeof value === 'object' && value.deleteFileId && value.remainingFiles) {
+            const files = Array.isArray(value.remainingFiles) ? value.remainingFiles.filter((v: any) => v instanceof File) : [];
+            if (files.length > 0) {
+                fileMapRef.current[questionId] = files;
+            } else {
+                delete fileMapRef.current[questionId];
+            }
+
+            setFormData((prev) => ({
+                ...prev,
+                [questionId]: {
+                    deleteFileId: value.deleteFileId,
+                    files: value.remainingFiles,
+                },
+            }));
+            return;
+        }
+
         // File[] 배열 처리 (다중 파일)
         if (Array.isArray(value) && value.some((v) => v instanceof File)) {
             const files = value.filter((v) => v instanceof File);

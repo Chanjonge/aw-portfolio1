@@ -302,11 +302,17 @@ export default function DynamicFormField({ question, value, onChange, error, dis
 
         // 다중 파일 모드
         if (isMultiple) {
+            // value가 객체 형태일 때 (deleteFileId + files 구조)
+            let actualValue = value;
+            if (value && typeof value === 'object' && !Array.isArray(value) && value.files) {
+                actualValue = value.files;
+            }
+
             // 현재 업로드된 파일들 (File 객체)
-            const currentFiles: File[] = Array.isArray(value) ? value.filter((v) => v instanceof File) : value instanceof File ? [value] : [];
+            const currentFiles: File[] = Array.isArray(actualValue) ? actualValue.filter((v) => v instanceof File) : actualValue instanceof File ? [actualValue] : [];
 
             // 기존 저장된 파일들 (서버에서 가져온 파일)
-            const savedFiles = Array.isArray(value) ? value.filter((v) => v && v.url) : value && value.url ? [value] : [];
+            const savedFiles = Array.isArray(actualValue) ? actualValue.filter((v) => v && v.url) : actualValue && actualValue.url ? [actualValue] : [];
 
             return (
                 <div className="space-y-3">
@@ -350,12 +356,21 @@ export default function DynamicFormField({ question, value, onChange, error, dis
                                         <button
                                             type="button"
                                             onClick={() => {
-                                                const deleteFileIds = (value as any)?.deleteFileIds || [];
-                                                const newSavedFiles = savedFiles.filter((_: any, i: number) => i !== idx);
-                                                onChange({
-                                                    files: [...newSavedFiles, ...currentFiles],
-                                                    deleteFileIds: [...deleteFileIds, file.fileId],
-                                                });
+                                                if (confirm('삭제하시겠습니까?')) {
+                                                    // 삭제할 파일 ID를 formData의 별도 키에 저장
+                                                    const newSavedFiles = savedFiles.filter((_: any, i: number) => i !== idx);
+                                                    const newValue = [...newSavedFiles, ...currentFiles];
+
+                                                    // deleteFileId 처리를 위해 별도로 전달
+                                                    if (file.fileId) {
+                                                        onChange({
+                                                            deleteFileId: file.fileId,
+                                                            remainingFiles: newValue,
+                                                        });
+                                                    } else {
+                                                        onChange(newValue);
+                                                    }
+                                                }
                                             }}
                                             className="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                                         >
