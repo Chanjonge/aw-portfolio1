@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,10 +87,10 @@ public class ExcelServiceImpl implements ExcelService {
                 }
                 // ===================== 객실 =====================
                 if ("PARLOR".equals(optionsType)) {
-                    
+                
                     List<Map<String, Object>> rooms =
                             (List<Map<String, Object>>) responseMap.get("rooms");
-                    
+                
                     // 헤더
                     headerRow.createCell(colIdx + 0).setCellValue("객실명");
                     headerRow.createCell(colIdx + 1).setCellValue("객실설명");
@@ -97,33 +98,53 @@ public class ExcelServiceImpl implements ExcelService {
                     headerRow.createCell(colIdx + 3).setCellValue("비수기");
                     headerRow.createCell(colIdx + 4).setCellValue("준성수기");
                     headerRow.createCell(colIdx + 5).setCellValue("성수기");
-                    
+                
                     if (rooms != null) {
-                        
+                
                         String names = rooms.stream()
                                 .map(r -> String.valueOf(r.getOrDefault("name", "")))
                                 .collect(Collectors.joining(", "));
-                        
+                
                         String descs = rooms.stream()
                                 .map(r -> String.valueOf(r.getOrDefault("desc", "")))
                                 .collect(Collectors.joining(", "));
-                        
+                
                         String types = rooms.stream()
                                 .map(r -> String.valueOf(r.getOrDefault("type", "")))
                                 .collect(Collectors.joining(", "));
                         
+                        Function<Object, String> priceFormatter = priceObj -> {
+                
+                            if (!(priceObj instanceof Map<?, ?> raw)) {
+                                return "";
+                            }
+                
+                            @SuppressWarnings("unchecked")
+                            Map<String, Object> map = (Map<String, Object>) raw;
+                
+                            String weekday = String.valueOf(map.getOrDefault("weekday", ""));
+                            String fri = String.valueOf(map.getOrDefault("fri", ""));
+                            String sat = String.valueOf(map.getOrDefault("sat", ""));
+                            String sun = String.valueOf(map.getOrDefault("sun", ""));
+                
+                            return String.format(
+                                    "평일:%s 금:%s 토:%s 일:%s",
+                                    weekday, fri, sat, sun
+                            );
+                        };
+                
                         String low = rooms.stream()
-                                .map(r -> String.valueOf(r.getOrDefault("priceLow", "")))
-                                .collect(Collectors.joining(", "));
-                        
+                                .map(r -> priceFormatter.apply(r.get("priceLow")))
+                                .collect(Collectors.joining(" | "));
+                
                         String mid = rooms.stream()
-                                .map(r -> String.valueOf(r.getOrDefault("priceMid", "")))
-                                .collect(Collectors.joining(", "));
-                        
+                                .map(r -> priceFormatter.apply(r.get("priceMid")))
+                                .collect(Collectors.joining(" | "));
+                
                         String high = rooms.stream()
-                                .map(r -> String.valueOf(r.getOrDefault("priceHigh", "")))
-                                .collect(Collectors.joining(", "));
-                        
+                                .map(r -> priceFormatter.apply(r.get("priceHigh")))
+                                .collect(Collectors.joining(" | "));
+                
                         dataRow.createCell(colIdx + 0).setCellValue(names);
                         dataRow.createCell(colIdx + 1).setCellValue(descs);
                         dataRow.createCell(colIdx + 2).setCellValue(types);
@@ -131,7 +152,7 @@ public class ExcelServiceImpl implements ExcelService {
                         dataRow.createCell(colIdx + 4).setCellValue(mid);
                         dataRow.createCell(colIdx + 5).setCellValue(high);
                     }
-                    
+                
                     colIdx += 6;
                     continue;
                 }
