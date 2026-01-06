@@ -1530,6 +1530,19 @@ export default function PortfolioForm() {
                                     스페셜 추가
                                 </button>
                             )}
+
+                            {/* 에러 메시지 표시 */}
+                            {!isDetailMode && Object.keys(errors).length > 0 && (
+                                <div className="flex flex-col gap-1">
+                                    {currentQuestions
+                                        .filter((q) => errors[q.id])
+                                        .map((q) => (
+                                            <p key={q.id} className="text-sm text-red-500">
+                                                {q.title}: {errors[q.id]}
+                                            </p>
+                                        ))}
+                                </div>
+                            )}
                         </div>
 
                         {/* 오른쪽 - 디테일 모드 분리*/}
