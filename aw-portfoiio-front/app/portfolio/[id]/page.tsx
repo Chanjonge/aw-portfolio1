@@ -470,25 +470,37 @@ export default function PortfolioForm() {
                 }
 
                 if (question.questionType === 'file') {
-                    const hasNewFile = !!fileMapRef.current[question.id];
-                    const hasSavedFile = !!value; // 기존 임시저장 값
+                    const newFile = fileMapRef.current[question.id];
 
-                    if (!hasNewFile && !hasSavedFile) {
-                        newErrors[question.id] = '파일을 업로드해주세요.';
-                        isValid = false;
-                    }
-                    return;
-                }
+                    // 다중 파일 모드 체크
+                    const isMultiple = (() => {
+                        try {
+                            const opts = JSON.parse(question.options || '{}');
+                            return opts.multiple || false;
+                        } catch {
+                            return false;
+                        }
+                    })();
 
-                if (question.questionType === 'files') {
-                    const newFiles = fileMapRef.current[question.id];
-                    const filesArray = Array.isArray(newFiles) ? newFiles : [];
-                    const savedFiles = Array.isArray(value) ? value.filter((v) => v && v.url) : [];
-                    const totalFiles = filesArray.length + savedFiles.length;
+                    if (isMultiple) {
+                        // 다중 파일: 배열 처리
+                        const filesArray = Array.isArray(newFile) ? newFile : [];
+                        const savedFiles = Array.isArray(value) ? value.filter((v) => v && v.url) : [];
+                        const totalFiles = filesArray.length + savedFiles.length;
 
-                    if (totalFiles === 0) {
-                        newErrors[question.id] = '파일을 업로드해주세요.';
-                        isValid = false;
+                        if (totalFiles === 0) {
+                            newErrors[question.id] = '파일을 업로드해주세요.';
+                            isValid = false;
+                        }
+                    } else {
+                        // 단일 파일: 기존 로직
+                        const hasNewFile = !!newFile;
+                        const hasSavedFile = !!value;
+
+                        if (!hasNewFile && !hasSavedFile) {
+                            newErrors[question.id] = '파일을 업로드해주세요.';
+                            isValid = false;
+                        }
                     }
                     return;
                 }
@@ -716,26 +728,37 @@ export default function PortfolioForm() {
                 return;
             }
 
-            //파일 (단일)
+            //파일
             if (question.questionType === 'file') {
-                const hasNewFile = !!fileMapRef.current[question.id];
-                const hasSavedFile = !!value;
+                const newFile = fileMapRef.current[question.id];
 
-                if (!hasNewFile && !hasSavedFile) {
-                    fail('파일을 업로드해주세요.');
-                }
-                return;
-            }
+                // 다중 파일 모드 체크
+                const isMultiple = (() => {
+                    try {
+                        const opts = JSON.parse(question.options || '{}');
+                        return opts.multiple || false;
+                    } catch {
+                        return false;
+                    }
+                })();
 
-            //파일 (다중)
-            if (question.questionType === 'files') {
-                const newFiles = fileMapRef.current[question.id];
-                const filesArray = Array.isArray(newFiles) ? newFiles : [];
-                const savedFiles = Array.isArray(value) ? value.filter((v) => v && v.url) : [];
-                const totalFiles = filesArray.length + savedFiles.length;
+                if (isMultiple) {
+                    // 다중 파일: 배열 처리
+                    const filesArray = Array.isArray(newFile) ? newFile : [];
+                    const savedFiles = Array.isArray(value) ? value.filter((v) => v && v.url) : [];
+                    const totalFiles = filesArray.length + savedFiles.length;
 
-                if (totalFiles === 0) {
-                    fail('파일을 업로드해주세요.');
+                    if (totalFiles === 0) {
+                        fail('파일을 업로드해주세요.');
+                    }
+                } else {
+                    // 단일 파일: 기존 로직
+                    const hasNewFile = !!newFile;
+                    const hasSavedFile = !!value;
+
+                    if (!hasNewFile && !hasSavedFile) {
+                        fail('파일을 업로드해주세요.');
+                    }
                 }
                 return;
             }
