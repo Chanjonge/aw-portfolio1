@@ -111,7 +111,10 @@ export default function PortfolioForm() {
     const [specials, setSpecials] = useState<Array<{ id: string; name: string; desc: string }>>([{ id: 'special-1', name: '', desc: '' }]);
 
     //환불
-    const [refunds, setRefunds] = useState<Array<{ id: string; day: string; percent: string }>>([{ id: 'refund-1', day: '', percent: '' }]);
+    const [refunds, setRefunds] = useState<Array<{ id: string; day: string; percent: string }>>([
+        { id: 'refund-1', day: '', percent: '' }, // 기본취소수수료
+        { id: 'refund-2', day: '', percent: '' }, // 방문당일
+    ]);
 
     const handleAddRefund = () => {
         setRefunds((prev) => [...prev, { id: `refund-${Date.now()}`, day: '', percent: '' }]);
@@ -331,7 +334,10 @@ export default function PortfolioForm() {
                                 }))
                             );
                         } else {
-                            setRefunds([{ id: 'refund-1', day: '', percent: '' }]);
+                            setRefunds([
+                                { id: 'refund-1', day: '', percent: '' }, // 기본취소수수료
+                                { id: 'refund-2', day: '', percent: '' }, // 방문당일
+                            ]);
                         }
                     }
                 },
@@ -426,24 +432,33 @@ export default function PortfolioForm() {
 
                 //환불 검증
                 if (question.questionType === 'refund') {
-                    if (!refunds || refunds.length === 0) {
-                        newErrors[question.id] = '환불 정책을 최소 1개 이상 입력해주세요.';
+                    if (!refunds || refunds.length < 2) {
+                        newErrors[question.id] = '환불 정책을 최소 2개 이상 입력해주세요.';
                         isValid = false;
                         return;
                     }
 
                     const invalid = refunds.some((r, idx) => {
-                        // percent 필수
-                        if (!r.percent) return true;
+                        // idx === 0 (기본취소수수료): 선택사항
+                        if (idx === 0) {
+                            // 입력하지 않으면 OK
+                            return false;
+                        }
 
-                        // day도 필수
-                        if (idx > 0 && !r.day) return true;
+                        // idx === 1 (방문당일): percent만 필수
+                        if (idx === 1) {
+                            if (!r.percent || !r.percent.trim()) return true;
+                            return false;
+                        }
 
+                        // idx > 1 (방문N일전): percent + day 둘 다 필수
+                        if (!r.percent || !r.percent.trim()) return true;
+                        if (!r.day || !r.day.trim()) return true;
                         return false;
                     });
 
                     if (invalid) {
-                        newErrors[question.id] = '환불 비율과 방문일 기준을 모두 입력해주세요.';
+                        newErrors[question.id] = '방문당일 환불 비율과 방문일 기준을 모두 입력해주세요.';
                         isValid = false;
                         return;
                     }
@@ -656,19 +671,31 @@ export default function PortfolioForm() {
 
             //환불
             if (question.questionType === 'refund') {
-                if (!refunds || refunds.length === 0) {
-                    fail('환불 정책을 최소 1개 이상 입력해주세요.');
+                if (!refunds || refunds.length < 2) {
+                    fail('환불 정책을 최소 2개 이상 입력해주세요.');
                     return;
                 }
 
                 const invalid = refunds.some((r, idx) => {
-                    if (!r.percent) return true;
-                    if (idx > 0 && !r.day) return true;
+                    // idx === 0 (기본취소수수료): 선택사항
+                    if (idx === 0) {
+                        return false;
+                    }
+
+                    // idx === 1 (방문당일): percent만 필수
+                    if (idx === 1) {
+                        if (!r.percent || !r.percent.trim()) return true;
+                        return false;
+                    }
+
+                    // idx > 1 (방문N일전): percent + day 둘 다 필수
+                    if (!r.percent || !r.percent.trim()) return true;
+                    if (!r.day || !r.day.trim()) return true;
                     return false;
                 });
 
                 if (invalid) {
-                    fail('환불 비율과 방문일 기준을 모두 입력해주세요.');
+                    fail('방문당일 환불 비율과 방문일 기준을 모두 입력해주세요.');
                 }
                 return;
             }
@@ -1429,6 +1456,25 @@ export default function PortfolioForm() {
                                                         <div key={refund.id} className="flex flex-wrap items-center gap-2 bg-white p-3 rounded border border-gray-200">
                                                             {index === 0 ? (
                                                                 <>
+                                                                    <span>기본취소수수료</span>
+                                                                    <span className="text-xs text-gray-500">(선택사항)</span>
+                                                                    <input
+                                                                        type="number"
+                                                                        value={refund.percent}
+                                                                        min={0}
+                                                                        step={10}
+                                                                        disabled={isDetailMode}
+                                                                        onChange={(e) => {
+                                                                            const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: e.target.value } : r));
+                                                                            setRefunds(updated);
+                                                                        }}
+                                                                        className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center"
+                                                                        placeholder="0"
+                                                                    />
+                                                                    <span>% 환불</span>
+                                                                </>
+                                                            ) : index === 1 ? (
+                                                                <>
                                                                     <span>방문당일 총 금액의</span>
                                                                     <input
                                                                         type="number"
@@ -1456,7 +1502,7 @@ export default function PortfolioForm() {
                                                                             const updated = refunds.map((r) => (r.id === refund.id ? { ...r, day: e.target.value } : r));
                                                                             setRefunds(updated);
                                                                         }}
-                                                                        className="w-12 border border-gray-300 rounded-lg px-2 py-1 text-center"
+                                                                        className="w-20 border border-gray-300 rounded-lg px-2 py-1 text-center"
                                                                     />
                                                                     <span>일 전 총 금액의</span>
                                                                     <input
@@ -1475,7 +1521,7 @@ export default function PortfolioForm() {
                                                                 </>
                                                             )}
 
-                                                            {!isDetailMode && (
+                                                            {!isDetailMode && index > 1 && (
                                                                 <button type="button" onClick={() => handleRemoveRefund(refund.id)} className="ml-auto text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
                                                                     삭제
                                                                 </button>
