@@ -869,7 +869,9 @@ export default function PortfolioForm() {
 
     // 객실 삭제
     const handleRemoveRoom = (id: string) => {
-        setRooms((prev) => prev.filter((room) => room.id !== id));
+        if (confirm('삭제하시겠습니까?')) {
+            setRooms((prev) => prev.filter((room) => room.id !== id));
+        }
     };
 
     // 스페셜 추가
@@ -886,7 +888,9 @@ export default function PortfolioForm() {
 
     // 스페셜 삭제
     const handleRemoveSpecial = (id: string) => {
-        setSpecials((prev) => prev.filter((sp) => sp.id !== id));
+        if (confirm('삭제하시겠습니까?')) {
+            setSpecials((prev) => prev.filter((sp) => sp.id !== id));
+        }
     };
 
     const handleNext = () => {
