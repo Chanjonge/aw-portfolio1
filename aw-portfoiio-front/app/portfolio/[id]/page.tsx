@@ -477,11 +477,44 @@ export default function PortfolioForm() {
                                 isValid = false;
                                 return;
                             }
+
+                            // hasInput이 있는 항목의 입력값 검증
+                            if (options.checkboxes && Array.isArray(options.checkboxes)) {
+                                const checkedLabels = (value as any).checked || [];
+                                const hasEmptyInput = options.checkboxes.some((opt: any) => {
+                                    if (opt.hasInput && checkedLabels.includes(opt.label)) {
+                                        const inputValue = (value as any).inputs?.[opt.label];
+                                        return !inputValue || !inputValue.trim();
+                                    }
+                                    return false;
+                                });
+
+                                if (hasEmptyInput) {
+                                    newErrors[question.id] = '선택한 항목의 입력란을 모두 작성해주세요.';
+                                    isValid = false;
+                                    return;
+                                }
+                            }
                         } else {
                             if (!('selected' in value) || !(value as any).selected) {
                                 newErrors[question.id] = '하나를 선택해주세요.';
                                 isValid = false;
                                 return;
+                            }
+
+                            // 단일 선택에서도 hasInput 검증
+                            if (options.checkboxes && Array.isArray(options.checkboxes)) {
+                                const selectedLabel = (value as any).selected;
+                                const selectedOption = options.checkboxes.find((opt: any) => opt.label === selectedLabel);
+
+                                if (selectedOption?.hasInput) {
+                                    const inputValue = (value as any).inputs?.[selectedLabel];
+                                    if (!inputValue || !inputValue.trim()) {
+                                        newErrors[question.id] = '선택한 항목의 입력란을 작성해주세요.';
+                                        isValid = false;
+                                        return;
+                                    }
+                                }
                             }
                         }
                     } catch {
@@ -536,6 +569,20 @@ export default function PortfolioForm() {
                 if (question.questionType === 'agreement') {
                     if (!value || !value.agreed) {
                         newErrors[question.id] = '안내사항에 동의해주세요.';
+                        isValid = false;
+                        return;
+                    }
+                } else if (question.questionType === 'multi_text') {
+                    // 멀티텍스트 검증: 두 입력값 모두 필수
+                    if (!Array.isArray(value) || value.length !== 2) {
+                        newErrors[question.id] = '두 항목을 모두 입력해주세요.';
+                        isValid = false;
+                        return;
+                    }
+
+                    const [first, second] = value;
+                    if (!first || !first.trim() || !second || !second.trim()) {
+                        newErrors[question.id] = '두 항목을 모두 입력해주세요.';
                         isValid = false;
                         return;
                     }
@@ -651,10 +698,43 @@ export default function PortfolioForm() {
                     if (isMultiple) {
                         if (!value.checked || value.checked.length === 0) {
                             fail('최소 하나 이상 선택해주세요.');
+                            return;
+                        }
+
+                        // hasInput이 있는 항목의 입력값 검증
+                        if (options.checkboxes && Array.isArray(options.checkboxes)) {
+                            const checkedLabels = value.checked || [];
+                            const hasEmptyInput = options.checkboxes.some((opt: any) => {
+                                if (opt.hasInput && checkedLabels.includes(opt.label)) {
+                                    const inputValue = value.inputs?.[opt.label];
+                                    return !inputValue || !inputValue.trim();
+                                }
+                                return false;
+                            });
+
+                            if (hasEmptyInput) {
+                                fail('선택한 항목의 입력란을 모두 작성해주세요.');
+                                return;
+                            }
                         }
                     } else {
                         if (!value.selected) {
                             fail('하나를 선택해주세요.');
+                            return;
+                        }
+
+                        // 단일 선택에서도 hasInput 검증
+                        if (options.checkboxes && Array.isArray(options.checkboxes)) {
+                            const selectedLabel = value.selected;
+                            const selectedOption = options.checkboxes.find((opt: any) => opt.label === selectedLabel);
+
+                            if (selectedOption?.hasInput) {
+                                const inputValue = value.inputs?.[selectedLabel];
+                                if (!inputValue || !inputValue.trim()) {
+                                    fail('선택한 항목의 입력란을 작성해주세요.');
+                                    return;
+                                }
+                            }
                         }
                     }
                 } catch {
@@ -705,6 +785,20 @@ export default function PortfolioForm() {
             if (question.questionType === 'agreement') {
                 if (!value || !value.agreed) {
                     fail('안내사항에 동의해주세요.');
+                }
+                return;
+            }
+
+            //multi_text
+            if (question.questionType === 'multi_text') {
+                if (!Array.isArray(value) || value.length !== 2) {
+                    fail('두 항목을 모두 입력해주세요.');
+                    return;
+                }
+
+                const [first, second] = value;
+                if (!first || !first.trim() || !second || !second.trim()) {
+                    fail('두 항목을 모두 입력해주세요.');
                 }
                 return;
             }
@@ -1425,9 +1519,17 @@ export default function PortfolioForm() {
                             </button>
 
                             {/* 객실, 스페셜, 환불 규정 추가 예정*/}
-                            {currentQuestions.some((q) => q.questionType === 'parlor') && <button onClick={handleAddRoom}>객실 추가</button>}
+                            {currentQuestions.some((q) => q.questionType === 'parlor') && (
+                                <button className={'hidden'} onClick={handleAddRoom}>
+                                    객실 추가
+                                </button>
+                            )}
 
-                            {currentQuestions.some((q) => q.questionType === 'special') && <button onClick={handleAddSpecial}>스페셜 추가</button>}
+                            {currentQuestions.some((q) => q.questionType === 'special') && (
+                                <button className={'hidden'} onClick={handleAddSpecial}>
+                                    스페셜 추가
+                                </button>
+                            )}
                         </div>
 
                         {/* 오른쪽 - 디테일 모드 분리*/}
