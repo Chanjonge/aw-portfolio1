@@ -88,6 +88,7 @@ export default function PortfolioForm() {
             id: string;
             name: string;
             desc: string;
+            capacity: { standard: string; max: string }; // 인원
             type: string;
             priceLow: { weekday: string; fri: string; sat: string; sun: string }; // 비수기
             priceMid: { weekday: string; fri: string; sat: string; sun: string }; // 준성수기
@@ -98,6 +99,7 @@ export default function PortfolioForm() {
             id: 'room-1',
             name: '',
             desc: '',
+            capacity: { standard: '', max: '' },
             type: '',
             priceLow: { weekday: '', fri: '', sat: '', sun: '' },
             priceMid: { weekday: '', fri: '', sat: '', sun: '' },
@@ -264,6 +266,10 @@ export default function PortfolioForm() {
                                     id: r.id ? String(r.id) : `room-${idx + 1}`,
                                     name: r.name || '',
                                     desc: r.desc || '',
+                                    capacity: {
+                                        standard: r.capacity?.standard || '',
+                                        max: r.capacity?.max || '',
+                                    },
                                     type: r.type || '',
                                     priceLow: {
                                         weekday: r.priceLow?.weekday || '',
@@ -291,6 +297,7 @@ export default function PortfolioForm() {
                                     id: 'room-1',
                                     name: '',
                                     desc: '',
+                                    capacity: { standard: '', max: '' },
                                     type: '',
                                     priceLow: { weekday: '', fri: '', sat: '', sun: '' },
                                     priceMid: { weekday: '', fri: '', sat: '', sun: '' },
@@ -383,7 +390,7 @@ export default function PortfolioForm() {
                     }
 
                     const hasInvalidRoom = rooms.some((room) => {
-                        if (!room.name?.trim() || !room.desc?.trim() || !room.type?.trim()) return true;
+                        if (!room.name?.trim() || !room.desc?.trim() || !room.capacity?.standard?.trim() || !room.capacity?.max?.trim() || !room.type?.trim()) return true;
 
                         const seasons = [room.priceLow, room.priceMid, room.priceHigh];
 
@@ -577,7 +584,7 @@ export default function PortfolioForm() {
                 }
 
                 const hasInvalidRoom = rooms.some((room) => {
-                    if (!room.name?.trim() || !room.desc?.trim() || !room.type?.trim()) return true;
+                    if (!room.name?.trim() || !room.desc?.trim() || !room.capacity?.standard?.trim() || !room.capacity?.max?.trim() || !room.type?.trim()) return true;
 
                     const seasons = [room.priceLow, room.priceMid, room.priceHigh];
 
@@ -730,6 +737,7 @@ export default function PortfolioForm() {
                 id: `room-${Date.now()}`,
                 name: '',
                 desc: '',
+                capacity: { standard: '', max: '' },
                 type: '',
                 priceLow: { weekday: '', fri: '', sat: '', sun: '' },
                 priceMid: { weekday: '', fri: '', sat: '', sun: '' },
@@ -1093,6 +1101,55 @@ export default function PortfolioForm() {
                                                                 rows={3}
                                                                 placeholder="예: 따뜻한 우드 톤의 인테리어와 넓은 통창으로 숲 전망을 즐길 수 있으며, 프라이빗 바비큐와 조식 서비스가 제공됩니다."
                                                             />
+                                                        </div>
+
+                                                        <div>
+                                                            <label className="block font-semibold mb-1">객실 인원</label>
+                                                            <p className="text-xs text-gray-500 mb-1">객실 수용 인원을 작성해주세요.</p>
+                                                            <div className="grid grid-cols-2 gap-4">
+                                                                <input
+                                                                    type="number"
+                                                                    value={room.capacity.standard}
+                                                                    disabled={isDetailMode}
+                                                                    onChange={(e) => {
+                                                                        const updated = rooms.map((r) =>
+                                                                            r.id === room.id
+                                                                                ? {
+                                                                                      ...r,
+                                                                                      capacity: {
+                                                                                          ...r.capacity,
+                                                                                          standard: e.target.value,
+                                                                                      },
+                                                                                  }
+                                                                                : r
+                                                                        );
+                                                                        setRooms(updated);
+                                                                    }}
+                                                                    className="w-full border border-gray-300 rounded-lg p-2"
+                                                                    placeholder="기준"
+                                                                />
+                                                                <input
+                                                                    type="number"
+                                                                    value={room.capacity.max}
+                                                                    disabled={isDetailMode}
+                                                                    onChange={(e) => {
+                                                                        const updated = rooms.map((r) =>
+                                                                            r.id === room.id
+                                                                                ? {
+                                                                                      ...r,
+                                                                                      capacity: {
+                                                                                          ...r.capacity,
+                                                                                          max: e.target.value,
+                                                                                      },
+                                                                                  }
+                                                                                : r
+                                                                        );
+                                                                        setRooms(updated);
+                                                                    }}
+                                                                    className="w-full border border-gray-300 rounded-lg p-2"
+                                                                    placeholder="최대"
+                                                                />
+                                                            </div>
                                                         </div>
 
                                                         <div>
