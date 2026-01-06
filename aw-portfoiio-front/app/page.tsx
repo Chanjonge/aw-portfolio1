@@ -308,7 +308,7 @@ export default function Home() {
 
         {/* Category Filter */}
         {categories.length > 0 && (
-          <div className="mb-8">
+          <div className="mb-8 mt-12">
             <div className="flex justify-center gap-1 md:gap-3 flex-wrap">
               <button
                 onClick={() => setSelectedCategory(null)}
