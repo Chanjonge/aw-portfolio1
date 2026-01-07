@@ -900,7 +900,7 @@ export default function DynamicFormField({
           )}
         </label>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
           <input
             value={zonecode}
             readOnly
@@ -918,7 +918,7 @@ export default function DynamicFormField({
           <button
             type="button"
             onClick={handleSearchAddress}
-            className="px-4 py-2 bg-black text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-all"
+            className="w-16 px-4 py-2 bg-black text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-all"
             disabled={disabled}
           >
             검색
