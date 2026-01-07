@@ -247,12 +247,12 @@ export default function Home() {
                         <SwiperSlide className="relative">
                             <img src="/slide1.jpg" alt="슬라이드 1" className="w-full h-full object-cover" />
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 bg-black/30">
-                                <h3 className="text-white text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4">
+                                <h3 className="text-white text-2xl md:text-4xl lg:text-4xl line-height-1.5 font-bold mb-3 md:mb-4">
                                     복잡한 제작은 덜고
                                     <br />
                                     타입으로 쉽게 시작해 보세요
                                 </h3>
-                                <p className="text-white text-sm md:text-lg lg:text-xl">전문 지식 없이도 선택만으로 홈페이지 제작이 가능합니다.</p>
+                                <p className="text-white text-sm md:text-lg">전문 지식 없이도 선택만으로 홈페이지 제작이 가능합니다.</p>
                             </div>
                         </SwiperSlide>
                         <SwiperSlide className="relative">
