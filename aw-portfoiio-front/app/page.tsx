@@ -326,12 +326,12 @@ export default function Home() {
                 {/* 고급형 카테고리 선택 시 콜아웃 */}
                 {selectedCategory && categories.find((cat) => cat.id === selectedCategory && cat.name === '고급형') && (
                     <div className="mb-8 p-6 md:p-8 border border-amber-300 rounded-xl shadow-lg">
-                        <div className="flex items-start gap-4">
+                        <div className="">
                             <div className="text-center">
-                                <h3 className="text-xl md:text-2xl font-bold text-amber-900 mb-2 flex items-center gap-2">
-                                    <span className="bg-clip-text text-transparent">프리미엄 고급형 타입</span>
+                                <h3 className="text-xl md:text-2xl font-bold mb-2">
+                                    <span className="bg-clip-text">프리미엄 고급형 타입</span>
                                 </h3>
-                                <p className="text-gray-700 text-sm md:text-base leading-relaxed mb-3">
+                                <p className="text-gray-700 text-base leading-relaxed mb-3">
                                     본 포트폴리오는 고급형(주문형) 제작 사례입니다. <br /> 고객의 니즈와 숙소 특성에 맞춰 <br />
                                     디자인 및 개발이 진행된 커스텀 프로젝트입니다.
                                 </p>
