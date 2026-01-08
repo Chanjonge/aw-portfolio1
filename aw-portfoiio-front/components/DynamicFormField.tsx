@@ -391,7 +391,7 @@ export default function DynamicFormField({
 
   // 파일 업로드
   if (questionType === "file") {
-    const hasUploadedFile = value && value.url;
+    const existingFiles = Array.isArray(value) ? value : [];
     return (
       <div className="space-y-3">
         <label className="block">
@@ -438,24 +438,6 @@ export default function DynamicFormField({
             </span>
           )}
         </label>
-        {!disabled && value && (value.fileId || value instanceof File) && (
-          <button
-            type="button"
-            onClick={() => {
-              if (value.fileId) {
-                console.log("value.fileId", value.fileId);
-                // 기존 업로드된 파일 삭제
-                onChange({ deleteFileId: value.fileId });
-              } else {
-                // 새로 업로드한 파일 삭제
-                onChange(null);
-              }
-            }}
-            className="px-4 py-2 bg-gray-100 border-2 border-black rounded-lg text-sm font-semibold hover:bg-black hover:text-white transition-all"
-          >
-            삭제
-          </button>
-        )}
         <div
           onClick={() => {
             if (!disabled) inputRef.current?.click();
@@ -472,7 +454,9 @@ export default function DynamicFormField({
           ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer border-gray-300 hover:border-black"}`}
         >
           <p className="text-sm text-gray-700 font-medium">
-            {value?.name ?? "클릭하거나 파일을 드래그하세요."}
+            {existingFiles.length + (value?.newFiles?.length || 0) > 0
+              ? "파일을 추가할 수 있습니다."
+              : "클릭하거나 파일을 드래그하세요."}
           </p>
           <input
             ref={inputRef}
@@ -480,23 +464,44 @@ export default function DynamicFormField({
             accept="image/*,.pdf,.ai"
             disabled={disabled}
             onChange={(e) => {
-              const file = e.target.files?.[0];
-
-              if (file) onChange(file);
+              const files = Array.from(e.target.files || []);
+              files.forEach((file) => onChange(file));
             }}
             className="hidden"
           />
         </div>
-        {hasUploadedFile && (
-          <div className="text-sm text-green-700">
-            <button
-              onClick={() => downloadFile(value)}
-              className="underline text-sm text-green-700"
-            >
-              기존 파일: {value.name} 다운로드
-            </button>
+        {existingFiles.map((file: any, idx: number) => (
+          <div
+            key={file.fileId ?? `temp-${idx}`}
+            className="flex justify-between items-center gap-2"
+          >
+            {file.__temp ? (
+              <span className="text-sm text-gray-600">{file.name}</span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => downloadFile(file)}
+                className="underline text-sm text-left"
+              >
+                {file.name}
+              </button>
+            )}
+            {!disabled && (
+              <button
+                type="button"
+                onClick={() =>
+                  file.__temp
+                    ? onChange({ removeTempFileIndex: idx })
+                    : onChange({ deleteFileId: file.fileId })
+                }
+                className="text-xs text-red-500"
+              >
+                삭제
+              </button>
+            )}
           </div>
-        )}
+        ))}
+
         {error && <p className="text-sm text-red-500">{error}</p>}
       </div>
     );
