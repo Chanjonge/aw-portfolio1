@@ -57,6 +57,7 @@ export default function Home() {
     const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isInitialLoad, setIsInitialLoad] = useState(true); // 초기 로드 체크
 
     // 미리보기 팝업 상태
     const [showPreview, setShowPreview] = useState(false);
@@ -105,7 +106,10 @@ export default function Home() {
 
     const fetchPortfolios = useCallback(async () => {
         try {
-            setLoading(true);
+            // 초기 로드일 때만 로딩 상태 표시
+            if (isInitialLoad) {
+                setLoading(true);
+            }
 
             await request(
                 () => PortfolioService.getUser(true, selectedCategory ?? null),
@@ -117,9 +121,12 @@ export default function Home() {
         } catch (error) {
             console.error('Failed to fetch portfolios:', error);
         } finally {
-            setLoading(false);
+            if (isInitialLoad) {
+                setLoading(false);
+                setIsInitialLoad(false);
+            }
         }
-    }, [selectedCategory]);
+    }, [selectedCategory, isInitialLoad]);
 
     useEffect(() => {
         fetchPortfolios();
@@ -284,7 +291,7 @@ export default function Home() {
                 {categories.length > 0 && (
                     <div className="mb-8 mt-12">
                         <div className="flex justify-center gap-1 md:gap-3 flex-wrap items-center">
-                            <button onClick={() => setSelectedCategory(null)} className={`rounded-md px-3 md:px-6 py-1 text-base font-semibold transition-all ${selectedCategory === null ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}>
+                            <button type="button" onClick={() => setSelectedCategory(null)} className={`rounded-md px-3 md:px-6 py-1 text-base font-semibold transition-all ${selectedCategory === null ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}>
                                 전체
                             </button>
 
@@ -293,6 +300,7 @@ export default function Home() {
                                 .filter((category) => category.name === '고급형')
                                 .map((category) => (
                                     <button
+                                        type="button"
                                         key={category.id}
                                         onClick={() => setSelectedCategory(category.id)}
                                         className={`rounded-md px-3 md:px-6 py-1 text-base font-semibold transition-all ${selectedCategory === category.id ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
@@ -309,6 +317,7 @@ export default function Home() {
                                 .filter((category) => category.name !== '고급형')
                                 .map((category) => (
                                     <button
+                                        type="button"
                                         key={category.id}
                                         onClick={() => setSelectedCategory(category.id)}
                                         className={`rounded-md px-3 md:px-6 py-1 text-base font-semibold transition-all ${selectedCategory === category.id ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
