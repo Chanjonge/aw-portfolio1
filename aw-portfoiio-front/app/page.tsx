@@ -99,6 +99,12 @@ export default function Home() {
             () => PortfolioService.getCategorySelect(),
             (res) => {
                 setCategories(res.data);
+
+                // 초기 로드 시 "독채형" 카테고리를 자동으로 선택
+                const dokchaeCategory = res.data.find((cat: Category) => cat.name === '독채형');
+                if (dokchaeCategory) {
+                    setSelectedCategory(dokchaeCategory.id);
+                }
             },
             { ignoreErrorRedirect: true }
         );
