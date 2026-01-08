@@ -290,7 +290,7 @@ export default function Home() {
 
                             {/* 고급형 카테고리 */}
                             {categories
-                                .filter((category) => category.name === '고급형')
+                                .filter((category) => category.name === '고급형1')
                                 .map((category) => (
                                     <button
                                         key={category.id}
