@@ -303,7 +303,7 @@ export default function Home() {
                                                     : 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-900 border-2 border-amber-300 hover:from-amber-500 hover:to-yellow-600 hover:text-white hover:border-amber-400 hover:shadow-lg'
                                             }`}
                                         >
-                                            ⭐ {category.name}
+                                            {category.name}
                                         </button>
                                     );
                                 }
@@ -319,6 +319,33 @@ export default function Home() {
                                     </button>
                                 );
                             })}
+                        </div>
+                    </div>
+                )}
+
+                {/* 고급형 카테고리 선택 시 콜아웃 */}
+                {selectedCategory && categories.find((cat) => cat.id === selectedCategory && cat.name === '고급형') && (
+                    <div className="mb-8 p-6 md:p-8 bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border-2 border-amber-300 rounded-xl shadow-lg">
+                        <div className="flex items-start gap-4">
+                            {/* 아이콘 */}
+                            <div className="flex-shrink-0">
+                                <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center shadow-md">
+                                    <span className="text-2xl md:text-3xl">⭐</span>
+                                </div>
+                            </div>
+
+                            {/* 콘텐츠 */}
+                            <div className="flex-1">
+                                <h3 className="text-xl md:text-2xl font-bold text-amber-900 mb-2 flex items-center gap-2">
+                                    <span className="bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent">프리미엄 고급형 타입</span>
+                                </h3>
+                                <p className="text-gray-700 text-sm md:text-base leading-relaxed mb-3">최상위 디자인과 기능을 갖춘 프리미엄 홈페이지 타입입니다. 고급스러운 레이아웃과 차별화된 사용자 경험을 제공합니다.</p>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full">🎨 고급 디자인</span>
+                                    <span className="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full">⚡ 최신 기술</span>
+                                    <span className="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full">💎 프리미엄 기능</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
