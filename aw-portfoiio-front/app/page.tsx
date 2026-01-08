@@ -283,33 +283,35 @@ export default function Home() {
                 {/* Category Filter */}
                 {categories.length > 0 && (
                     <div className="mb-8 mt-12">
-                        <div className="flex justify-center gap-1 md:gap-3 flex-wrap">
+                        <div className="flex justify-center gap-1 md:gap-3 flex-wrap items-center">
                             <button onClick={() => setSelectedCategory(null)} className={`rounded-md px-3 md:px-6 py-1 text-base font-semibold transition-all ${selectedCategory === null ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}>
                                 전체
                             </button>
 
-                            {categories.map((category) => {
-                                // "고급형" 카테고리 특별 스타일 적용
-                                const isPremium = category.name === '고급형';
+                            {/* 고급형 카테고리 */}
+                            {categories
+                                .filter((category) => category.name === '고급형')
+                                .map((category) => (
+                                    <button
+                                        key={category.id}
+                                        onClick={() => setSelectedCategory(category.id)}
+                                        className={`rounded-lg px-3 md:px-6 py-1 text-base font-bold transition-all ${
+                                            selectedCategory === category.id
+                                                ? 'bg-gradient-to-r from-amber-500 to-yellow-600 text-white shadow-lg border-2 border-amber-400'
+                                                : 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-900 border-2 border-amber-300 hover:from-amber-500 hover:to-yellow-600 hover:text-white hover:border-amber-400 hover:shadow-lg'
+                                        }`}
+                                    >
+                                        {category.name}
+                                    </button>
+                                ))}
 
-                                if (isPremium) {
-                                    return (
-                                        <button
-                                            key={category.id}
-                                            onClick={() => setSelectedCategory(category.id)}
-                                            className={`rounded-lg px-3 md:px-6 py-1 text-base font-bold transition-all ${
-                                                selectedCategory === category.id
-                                                    ? 'bg-gradient-to-r from-amber-500 to-yellow-600 text-white shadow-lg border-2 border-amber-400'
-                                                    : 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-900 border-2 border-amber-300 hover:from-amber-500 hover:to-yellow-600 hover:text-white hover:border-amber-400 hover:shadow-lg'
-                                            }`}
-                                        >
-                                            {category.name}
-                                        </button>
-                                    );
-                                }
+                            {/* 구분선 - 고급형 카테고리가 있을 때만 표시 */}
+                            {categories.some((cat) => cat.name === '고급형') && categories.some((cat) => cat.name !== '고급형') && <div className="h-8 w-[2px] bg-black/20 mx-2 md:mx-4"></div>}
 
-                                // 일반 카테고리 스타일
-                                return (
+                            {/* 일반 카테고리 */}
+                            {categories
+                                .filter((category) => category.name !== '고급형')
+                                .map((category) => (
                                     <button
                                         key={category.id}
                                         onClick={() => setSelectedCategory(category.id)}
@@ -317,8 +319,7 @@ export default function Home() {
                                     >
                                         {category.name}
                                     </button>
-                                );
-                            })}
+                                ))}
                         </div>
                     </div>
                 )}
