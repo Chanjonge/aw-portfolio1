@@ -366,14 +366,14 @@ export default function Home() {
                         <div className="text-xl text-gray-600">등록된 타입이 존재하지 않습니다.</div>
                     </div>
                 ) : (
-                    <div className="grid min-h-[65vh] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 cursor-pointer">
+                    <div className="grid min-h-[65vh] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {portfolios.map((portfolio) => (
                             <div
                                 key={portfolio.id}
                                 onClick={() => {
                                     handlePreviewOpen(portfolio.domain!, portfolio.title, portfolio.id);
                                 }}
-                                className="border-black transition-all overflow-hidden group h-[325px]"
+                                className="border-black transition-all overflow-hidden group h-[325px] cursor-pointer"
                             >
                                 {portfolio.thumbnail && (
                                     <div className="portfolio-list w-full h-48 bg-gray-200 overflow-hidden">
