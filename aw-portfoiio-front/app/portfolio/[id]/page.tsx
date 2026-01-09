@@ -36,6 +36,75 @@ interface FormData {
     [key: string]: any;
 }
 
+// 단계별 안내 문구
+const stepMessages: Record<number, { title: string; description: JSX.Element }> = {
+    0: {
+        title: '안내사항',
+        description: (
+            <>
+                다음 단계로 진행하기 전에
+                <br />
+                안내사항을 확인해주세요.
+            </>
+        ),
+    },
+    1: {
+        title: '단계 1 - 필수 정보 입력',
+        description: (
+            <>
+                홈페이지 제작을 위해 필요한 기본 정보를 입력해 주세요.
+                <br />* 표시된 항목은 반드시 작성해 주셔야 합니다.
+            </>
+        ),
+    },
+    2: {
+        title: '단계 2 - 계정 및 기술 정보 입력',
+        description: (
+            <>
+                홈페이지 운영 및 연동 설정을 위해 필요한 정보를 입력해 주세요.
+                <br />* 표시된 항목은 반드시 작성해 주셔야 합니다.
+            </>
+        ),
+    },
+    3: {
+        title: '단계 3 - 디자인 및 이미지 방향 설정',
+        description: (
+            <>
+                홈페이지의 전체 인상과 분위기를 결정하는 단계입니다.
+                <br />
+                선택하신 내용은 디자인 및 이미지 보정 방향에 직접 반영되므로,
+                <br />
+                숙소의 성격과 가장 잘 어울리는 방향을 기준으로 선택해 주세요.
+                <br />* 표시된 항목은 반드시 작성해 주셔야 합니다.
+            </>
+        ),
+    },
+    4: {
+        title: '단계 4',
+        description: <></>,
+    },
+    5: {
+        title: '단계 5',
+        description: <></>,
+    },
+    6: {
+        title: '단계 6',
+        description: <></>,
+    },
+    7: {
+        title: '단계 7',
+        description: <></>,
+    },
+    8: {
+        title: '단계 8',
+        description: <></>,
+    },
+    9: {
+        title: '단계 9',
+        description: <></>,
+    },
+};
+
 export default function PortfolioForm() {
     const router = useRouter();
     const params = useParams();
@@ -1277,8 +1346,19 @@ export default function PortfolioForm() {
                 <div className="bg-white border-2 border-black rounded-lg p-8 shadow-lg">
                     <div>
                         <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-black mb-2">{currentStep === 0 ? '안내사항' : `단계 ${currentStep}`}</h2>
-                            <p className="text-gray-600">{currentStep === 0 ? '다음 단계로 진행하기 전에 안내사항을 확인해주세요.' : '홈페이지 제작을 위해 필요한 기본 정보를 입력해 주세요.'}</p>
+                            {(() => {
+                                const currentMessage = stepMessages[currentStep] || {
+                                    title: `단계 ${currentStep}`,
+                                    description: <>정보를 입력해 주세요.</>,
+                                };
+
+                                return (
+                                    <>
+                                        <h2 className="text-2xl font-bold text-black mb-2">{currentMessage.title}</h2>
+                                        <p className="text-gray-600">{currentMessage.description}</p>
+                                    </>
+                                );
+                            })()}
                         </div>
 
                         <div className="pr-2 space-y-8">
