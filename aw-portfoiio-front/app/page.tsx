@@ -297,13 +297,15 @@ export default function Home() {
                 {categories.length > 0 && (
                     <div className="mb-8 mt-12">
                         <div className="flex justify-center gap-1 md:gap-3 flex-wrap items-center">
+                            {/* 전체 버튼 - 현재 미사용
                             <button
                                 type="button"
                                 onClick={() => setSelectedCategory(null)}
-                                className={`hidden rounded-md px-3 md:px-6 py-1 text-base font-semibold transition-all ${selectedCategory === null ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
+                                className={`rounded-md px-3 md:px-6 py-1 text-base font-semibold transition-all ${selectedCategory === null ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
                             >
                                 전체
                             </button>
+                            */}
 
                             {/* 일반 카테고리 */}
                             {categories
