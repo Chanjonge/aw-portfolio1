@@ -18,7 +18,6 @@ public class PortfolioResponse {
     private String slug;
     private String thumbnail;
     private Boolean isActive;
-    private String mood;
     private Count count;
     
     public Count getCount() {
@@ -29,7 +28,7 @@ public class PortfolioResponse {
     }
     
     @QueryProjection
-    public PortfolioResponse(Long id, Long categoryId, String title, String description, String domain, Integer order, String slug, String thumbnail, Boolean isActive, String mood) {
+    public PortfolioResponse(Long id, Long categoryId, String title, String description, String domain, Integer order, String slug, String thumbnail, Boolean isActive) {
         this.id = id;
         this.categoryId = categoryId;
         this.title = title;
@@ -39,7 +38,6 @@ public class PortfolioResponse {
         this.slug = slug;
         this.thumbnail = thumbnail;
         this.isActive = isActive;
-        this.mood = mood;
     }
     
     @Data

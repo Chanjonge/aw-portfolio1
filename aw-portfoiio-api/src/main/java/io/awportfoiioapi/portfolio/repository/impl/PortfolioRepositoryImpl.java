@@ -57,8 +57,7 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
                                 portfolio.orders,
                                 portfolio.slug,
                                 portfolio.thumbnail,
-                                portfolio.isActive,
-                                portfolio.mood
+                                portfolio.isActive
                         )
                 )
                 .from(portfolio)
@@ -88,8 +87,7 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
                                 portfolio.orders,
                                 portfolio.slug,
                                 portfolio.thumbnail,
-                                portfolio.isActive,
-                                portfolio.mood
+                                portfolio.isActive
                         )
                 )
                 .from(portfolio)
@@ -110,8 +108,7 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
                                 portfolio.orders,
                                 portfolio.slug,
                                 portfolio.thumbnail,
-                                portfolio.isActive,
-                                portfolio.mood
+                                portfolio.isActive
                         )
                 )
                 .from(portfolio)
@@ -191,8 +188,7 @@ public class PortfolioRepositoryImpl implements PortfolioQueryRepository {
                         portfolio.orders,
                         portfolio.slug,
                         portfolio.thumbnail,
-                        portfolio.isActive,
-                        portfolio.mood
+                        portfolio.isActive
                 ))
                 .from(portfolio)
                 .where(portfolio.id.eq(id))

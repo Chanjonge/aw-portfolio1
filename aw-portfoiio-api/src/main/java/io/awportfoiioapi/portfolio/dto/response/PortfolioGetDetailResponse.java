@@ -18,9 +18,8 @@ public class PortfolioGetDetailResponse {
     private String slug;
     private String thumbnail;
     private Boolean isActive;
-    private String mood;
     @QueryProjection
-    public PortfolioGetDetailResponse(Long id, Long categoryId, String title, String description, String domain, Integer order, String slug, String thumbnail, Boolean isActive, String mood) {
+    public PortfolioGetDetailResponse(Long id, Long categoryId, String title, String description, String domain, Integer order, String slug, String thumbnail, Boolean isActive) {
         this.id = id;
         this.categoryId = categoryId;
         this.title = title;
@@ -30,6 +29,5 @@ public class PortfolioGetDetailResponse {
         this.slug = slug;
         this.thumbnail = thumbnail;
         this.isActive = isActive;
-        this.mood = mood;
     }
 }

@@ -271,7 +271,6 @@ public class PortfolioServiceImpl implements PortfolioService {
                 .thumbnail(thumbnailUrl) // null 가능
                 .orders(request.getOrder())
                 .isActive(request.getIsActive())
-                .mood(request.getMood())
                 .build();
         
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
