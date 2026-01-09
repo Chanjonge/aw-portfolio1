@@ -5,7 +5,9 @@ export default function ThankYouPage() {
         <div className="min-h-screen bg-white flex items-center justify-center">
             <div className="max-w-2xl mx-auto px-4 py-12 text-center">
                 <div className="mb-8">
-                    <div className="hidden text-6xl mb-6">✅</div>
+                    <div className="text-6xl mb-6">
+                        <img src="/logo.png" alt="check" className="w-full h-full" />
+                    </div>
                     <h1 className="text-4xl font-bold text-black mb-4">제출이 완료되었습니다</h1>
                     <p className="text-xl text-gray-600 mb-8">
                         입력하신 정보가 성공적으로 접수되었습니다. <br />
