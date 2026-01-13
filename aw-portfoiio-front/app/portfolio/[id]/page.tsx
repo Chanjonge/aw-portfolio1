@@ -1703,6 +1703,7 @@ export default function PortfolioForm() {
                                                                         type="number"
                                                                         value={refund.percent}
                                                                         min={0}
+                                                                        max={100}
                                                                         step={10}
                                                                         disabled={isDetailMode}
                                                                         onKeyDown={(e) => {
@@ -1712,7 +1713,7 @@ export default function PortfolioForm() {
                                                                         }}
                                                                         onChange={(e) => {
                                                                             const value = e.target.value;
-                                                                            if (value === '' || (parseInt(value) >= 0 && !isNaN(parseInt(value)))) {
+                                                                            if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 100 && !isNaN(parseInt(value)))) {
                                                                                 const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: value } : r));
                                                                                 setRefunds(updated);
                                                                             }
@@ -1729,6 +1730,7 @@ export default function PortfolioForm() {
                                                                         type="number"
                                                                         value={refund.percent}
                                                                         min={0}
+                                                                        max={100}
                                                                         step={10}
                                                                         disabled={isDetailMode}
                                                                         onKeyDown={(e) => {
@@ -1738,7 +1740,7 @@ export default function PortfolioForm() {
                                                                         }}
                                                                         onChange={(e) => {
                                                                             const value = e.target.value;
-                                                                            if (value === '' || (parseInt(value) >= 0 && !isNaN(parseInt(value)))) {
+                                                                            if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 100 && !isNaN(parseInt(value)))) {
                                                                                 const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: value } : r));
                                                                                 setRefunds(updated);
                                                                             }
@@ -1774,6 +1776,7 @@ export default function PortfolioForm() {
                                                                         type="number"
                                                                         value={refund.percent}
                                                                         min={0}
+                                                                        max={100}
                                                                         step={10}
                                                                         disabled={isDetailMode}
                                                                         onKeyDown={(e) => {
@@ -1783,7 +1786,7 @@ export default function PortfolioForm() {
                                                                         }}
                                                                         onChange={(e) => {
                                                                             const value = e.target.value;
-                                                                            if (value === '' || (parseInt(value) >= 0 && !isNaN(parseInt(value)))) {
+                                                                            if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 100 && !isNaN(parseInt(value)))) {
                                                                                 const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: value } : r));
                                                                                 setRefunds(updated);
                                                                             }
