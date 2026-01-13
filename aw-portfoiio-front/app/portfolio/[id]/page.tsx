@@ -1363,7 +1363,7 @@ export default function PortfolioForm() {
                                     if (question.questionType === 'parlor') {
                                         return (
                                             <div key={question.id} className="mt-6 space-y-8">
-                                                <div className="flex items-center justify-between">
+                                                <div className="flex-col md:flex-row items-start md:items-center justify-between">
                                                     <h3 className="flex items-center gap-1 text-lg font-semibold text-black">
                                                         객실 정보 입력
                                                         {question.isRequired && <span className="text-red-500 ml-1">*</span>}
@@ -1376,7 +1376,7 @@ export default function PortfolioForm() {
                                                                 </span>
 
                                                                 {showPreview && (
-                                                                    <div ref={previewRef} className="absolute top-[-10.5rem] left-[4rem] z-50 w-[22rem] border border-gray-300 shadow-lg bg-white rounded-lg p-2">
+                                                                    <div ref={previewRef} className="absolute top-[-6.5rem] md:top-[-10.5rem] left-[3rem] md:left-[4rem] z-50 w-[11rem] md:w-[22rem] border border-gray-300 shadow-lg bg-white rounded-lg p-2">
                                                                         <img src={question.thumbnail} alt={question.title} className="w-full h-auto object-cover rounded" />
                                                                     </div>
                                                                 )}
@@ -1592,7 +1592,7 @@ export default function PortfolioForm() {
                                     if (question.questionType === 'special') {
                                         return (
                                             <div key={question.id} className="mt-6 space-y-8">
-                                                <div className="flex items-center justify-between">
+                                                <div className="flex-col md:flex-row items-start md:items-center justify-between">
                                                     <h3 className="flex items-center gap-1 text-lg font-semibold text-black">
                                                         스페셜 정보 입력
                                                         {question.isRequired && <span className="text-red-500 ml-1">*</span>}
@@ -1605,7 +1605,7 @@ export default function PortfolioForm() {
                                                                 </span>
 
                                                                 {showPreview && (
-                                                                    <div ref={previewRef} className="absolute top-[-10.5rem] left-[4rem] z-50 w-[22rem] border border-gray-300 shadow-lg bg-white rounded-lg p-2">
+                                                                    <div ref={previewRef} className="absolute top-[-6.5rem] md:top-[-10.5rem] left-[3rem] md:left-[4rem] z-50 w-[11rem] md:w-[22rem] border border-gray-300 shadow-lg bg-white rounded-lg p-2">
                                                                         <img src={question.thumbnail} alt={question.title} className="w-full h-auto object-cover rounded" />
                                                                     </div>
                                                                 )}
@@ -1680,7 +1680,7 @@ export default function PortfolioForm() {
                                     if (question.questionType === 'refund') {
                                         return (
                                             <div key={question.id} className="mt-6 space-y-4">
-                                                <div className="flex items-center justify-between">
+                                                <div className="flex-col md:flex-row items-start md:items-center justify-between">
                                                     <h3 className="flex items-center gap-1 text-lg font-semibold text-black">
                                                         취소/환불정책
                                                         {question.isRequired && <span className="text-red-500 ml-1">*</span>}
@@ -1693,7 +1693,7 @@ export default function PortfolioForm() {
                                                                 </span>
 
                                                                 {showPreview && (
-                                                                    <div ref={previewRef} className="absolute top-[-10.5rem] left-[4rem] z-50 w-[22rem] border border-gray-300 shadow-lg bg-white rounded-lg p-2">
+                                                                    <div ref={previewRef} className="absolute top-[-6.5rem] md:top-[-10.5rem] left-[3rem] md:left-[4rem] z-50 w-[11rem] md:w-[22rem] border border-gray-300 shadow-lg bg-white rounded-lg p-2">
                                                                         <img src={question.thumbnail} alt={question.title} className="w-full h-auto object-cover rounded" />
                                                                     </div>
                                                                 )}
