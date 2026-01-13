@@ -1705,9 +1705,17 @@ export default function PortfolioForm() {
                                                                         min={0}
                                                                         step={10}
                                                                         disabled={isDetailMode}
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+                                                                                e.preventDefault();
+                                                                            }
+                                                                        }}
                                                                         onChange={(e) => {
-                                                                            const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: e.target.value } : r));
-                                                                            setRefunds(updated);
+                                                                            const value = e.target.value;
+                                                                            if (value === '' || (parseInt(value) >= 0 && !isNaN(parseInt(value)))) {
+                                                                                const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: value } : r));
+                                                                                setRefunds(updated);
+                                                                            }
                                                                         }}
                                                                         className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center"
                                                                         placeholder="0"
@@ -1723,9 +1731,17 @@ export default function PortfolioForm() {
                                                                         min={0}
                                                                         step={10}
                                                                         disabled={isDetailMode}
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+                                                                                e.preventDefault();
+                                                                            }
+                                                                        }}
                                                                         onChange={(e) => {
-                                                                            const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: e.target.value } : r));
-                                                                            setRefunds(updated);
+                                                                            const value = e.target.value;
+                                                                            if (value === '' || (parseInt(value) >= 0 && !isNaN(parseInt(value)))) {
+                                                                                const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: value } : r));
+                                                                                setRefunds(updated);
+                                                                            }
                                                                         }}
                                                                         className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center"
                                                                     />
@@ -1739,9 +1755,17 @@ export default function PortfolioForm() {
                                                                         min={1}
                                                                         value={refund.day}
                                                                         disabled={isDetailMode}
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '.') {
+                                                                                e.preventDefault();
+                                                                            }
+                                                                        }}
                                                                         onChange={(e) => {
-                                                                            const updated = refunds.map((r) => (r.id === refund.id ? { ...r, day: e.target.value } : r));
-                                                                            setRefunds(updated);
+                                                                            const value = e.target.value;
+                                                                            if (value === '' || (parseInt(value) > 0 && !isNaN(parseInt(value)))) {
+                                                                                const updated = refunds.map((r) => (r.id === refund.id ? { ...r, day: value } : r));
+                                                                                setRefunds(updated);
+                                                                            }
                                                                         }}
                                                                         className="w-20 border border-gray-300 rounded-lg px-2 py-1 text-center"
                                                                     />
@@ -1752,9 +1776,17 @@ export default function PortfolioForm() {
                                                                         min={0}
                                                                         step={10}
                                                                         disabled={isDetailMode}
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+                                                                                e.preventDefault();
+                                                                            }
+                                                                        }}
                                                                         onChange={(e) => {
-                                                                            const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: e.target.value } : r));
-                                                                            setRefunds(updated);
+                                                                            const value = e.target.value;
+                                                                            if (value === '' || (parseInt(value) >= 0 && !isNaN(parseInt(value)))) {
+                                                                                const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: value } : r));
+                                                                                setRefunds(updated);
+                                                                            }
                                                                         }}
                                                                         className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center"
                                                                     />
