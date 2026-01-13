@@ -1443,44 +1443,60 @@ export default function PortfolioForm() {
                                                             <div className="grid grid-cols-2 gap-4">
                                                                 <input
                                                                     type="number"
-                                                                    min="0"
+                                                                    min="1"
                                                                     value={room.capacity.standard}
                                                                     disabled={isDetailMode}
+                                                                    onKeyDown={(e) => {
+                                                                        if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '.') {
+                                                                            e.preventDefault();
+                                                                        }
+                                                                    }}
                                                                     onChange={(e) => {
-                                                                        const updated = rooms.map((r) =>
-                                                                            r.id === room.id
-                                                                                ? {
-                                                                                      ...r,
-                                                                                      capacity: {
-                                                                                          ...r.capacity,
-                                                                                          standard: e.target.value,
-                                                                                      },
-                                                                                  }
-                                                                                : r
-                                                                        );
-                                                                        setRooms(updated);
+                                                                        const value = e.target.value;
+                                                                        if (value === '' || (parseInt(value) > 0 && !isNaN(parseInt(value)))) {
+                                                                            const updated = rooms.map((r) =>
+                                                                                r.id === room.id
+                                                                                    ? {
+                                                                                          ...r,
+                                                                                          capacity: {
+                                                                                              ...r.capacity,
+                                                                                              standard: value,
+                                                                                          },
+                                                                                      }
+                                                                                    : r
+                                                                            );
+                                                                            setRooms(updated);
+                                                                        }
                                                                     }}
                                                                     className="w-full border border-gray-300 rounded-lg p-2"
                                                                     placeholder="기준"
                                                                 />
                                                                 <input
                                                                     type="number"
-                                                                    min="0"
+                                                                    min="1"
                                                                     value={room.capacity.max}
                                                                     disabled={isDetailMode}
+                                                                    onKeyDown={(e) => {
+                                                                        if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '.') {
+                                                                            e.preventDefault();
+                                                                        }
+                                                                    }}
                                                                     onChange={(e) => {
-                                                                        const updated = rooms.map((r) =>
-                                                                            r.id === room.id
-                                                                                ? {
-                                                                                      ...r,
-                                                                                      capacity: {
-                                                                                          ...r.capacity,
-                                                                                          max: e.target.value,
-                                                                                      },
-                                                                                  }
-                                                                                : r
-                                                                        );
-                                                                        setRooms(updated);
+                                                                        const value = e.target.value;
+                                                                        if (value === '' || (parseInt(value) > 0 && !isNaN(parseInt(value)))) {
+                                                                            const updated = rooms.map((r) =>
+                                                                                r.id === room.id
+                                                                                    ? {
+                                                                                          ...r,
+                                                                                          capacity: {
+                                                                                              ...r.capacity,
+                                                                                              max: value,
+                                                                                          },
+                                                                                      }
+                                                                                    : r
+                                                                            );
+                                                                            setRooms(updated);
+                                                                        }
                                                                     }}
                                                                     className="w-full border border-gray-300 rounded-lg p-2"
                                                                     placeholder="최대"
