@@ -99,6 +99,7 @@ public class SubmissionRepositoryImpl implements SubmissionQueryRepository {
                 )
                 .from(submission)
                 .join(submission.portfolio, portfolio)
+                .orderBy(submission.completedDate.desc() , submission.registDate.desc())
                 .fetch();
     }
 }
