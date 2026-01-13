@@ -627,13 +627,18 @@ export default function DynamicFormField({ question, value, onChange, error, dis
                         if (data.bname) fullAddr += ` (${data.bname})`;
                         if (data.buildingName) fullAddr += `, ${data.buildingName}`;
                     }
-                    setZonecode(data.zonecode); //우편번호
-                    setFullAddress(fullAddr); //주소
-                    // 상세주소는 선택사항이므로 빈 문자열로 초기화
+                    const newZonecode = data.zonecode;
+                    setZonecode(newZonecode);
+                    setFullAddress(fullAddr);
+                    // 상세주소는 선택사항 - 현재 입력된 값 유지하거나 빈 문자열
+                    const currentDetail = detailAddress || '';
+                    setDetailAddress(currentDetail);
+
+                    // 즉시 부모에게 완전한 객체 전달
                     onChange({
                         address: fullAddr,
-                        detail: detailAddress || '',
-                        zonecode: data.zonecode,
+                        detail: currentDetail,
+                        zonecode: newZonecode,
                     });
                 },
             }).open();
