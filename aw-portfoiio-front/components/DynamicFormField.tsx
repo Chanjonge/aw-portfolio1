@@ -172,15 +172,30 @@ export default function DynamicFormField({ question, value, onChange, error, dis
                     {question.description && <span className="block text-sm text-gray-600 mt-1">{question.description}</span>}
                 </label>
                 <input
-                    type={isNumber ? 'number' : 'text'}
+                    type="text"
+                    inputMode={isNumber ? 'numeric' : 'text'}
                     value={value ?? ''}
                     onChange={(e) => {
-                        const filtered = e.target.value.replace(/-/g, '');
+                        let filtered = e.target.value;
+                        if (isNumber) {
+                            // 숫자만 허용
+                            filtered = filtered.replace(/[^0-9]/g, '');
+                        } else {
+                            // 마이너스만 제거
+                            filtered = filtered.replace(/-/g, '');
+                        }
                         onChange(filtered);
                     }}
                     onKeyDown={(e) => {
-                        if (e.key === '-' || e.key === 'Subtract') {
-                            e.preventDefault();
+                        if (isNumber) {
+                            // 숫자가 아닌 키 차단 (백스페이스, 화살표 등은 허용)
+                            if (!/^[0-9]$/.test(e.key) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
+                                e.preventDefault();
+                            }
+                        } else {
+                            if (e.key === '-' || e.key === 'Subtract') {
+                                e.preventDefault();
+                            }
                         }
                     }}
                     className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-all ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
@@ -279,17 +294,23 @@ export default function DynamicFormField({ question, value, onChange, error, dis
 
                 {/* 첫 번째 입력 */}
                 <input
-                    type={isNumber ? 'number' : 'text'}
+                    type="text"
+                    inputMode={isNumber ? 'numeric' : 'text'}
                     value={values[0]}
                     onChange={(e) => {
-                        const filtered = isNumber ? e.target.value.replace(/-/g, '') : e.target.value;
+                        let filtered = e.target.value;
+                        if (isNumber) {
+                            // 숫자만 허용
+                            filtered = filtered.replace(/[^0-9]/g, '');
+                        }
                         const newValue: [string, string] = [filtered, values[1]];
                         onChange(newValue);
                     }}
                     onKeyDown={
                         isNumber
                             ? (e) => {
-                                  if (e.key === '-' || e.key === 'Subtract') {
+                                  // 숫자가 아닌 키 차단
+                                  if (!/^[0-9]$/.test(e.key) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
                                       e.preventDefault();
                                   }
                               }
@@ -303,17 +324,23 @@ export default function DynamicFormField({ question, value, onChange, error, dis
 
                 {/* 두 번째 입력 */}
                 <input
-                    type={isNumber ? 'number' : 'text'}
+                    type="text"
+                    inputMode={isNumber ? 'numeric' : 'text'}
                     value={values[1]}
                     onChange={(e) => {
-                        const filtered = isNumber ? e.target.value.replace(/-/g, '') : e.target.value;
+                        let filtered = e.target.value;
+                        if (isNumber) {
+                            // 숫자만 허용
+                            filtered = filtered.replace(/[^0-9]/g, '');
+                        }
                         const newValue: [string, string] = [values[0], filtered];
                         onChange(newValue);
                     }}
                     onKeyDown={
                         isNumber
                             ? (e) => {
-                                  if (e.key === '-' || e.key === 'Subtract') {
+                                  // 숫자가 아닌 키 차단
+                                  if (!/^[0-9]$/.test(e.key) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
                                       e.preventDefault();
                                   }
                               }
