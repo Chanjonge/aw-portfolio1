@@ -316,16 +316,9 @@ export default function Home() {
                 {categories.length > 0 && (
                     <div className="mb-8 mt-12">
                         <div className="flex justify-center gap-1 md:gap-3 flex-wrap items-center">
-                            {/* 전체 버튼 - 현재 미사용
-                            <button
-                                type="button"
-                                onClick={() => setSelectedCategory(null)}
-                                className={`rounded-md px-3 md:px-6 py-1 text-base font-semibold transition-all ${selectedCategory === null ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
-                            >
+                            <button type="button" onClick={() => setSelectedCategory(null)} className={`rounded-md px-3 md:px-6 py-1 text-base font-semibold transition-all ${selectedCategory === null ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}>
                                 전체
                             </button>
-                            */}
-
                             {/* 일반 카테고리 */}
                             {categories
                                 .filter((category) => category.name !== '고급형')
@@ -341,7 +334,6 @@ export default function Home() {
                                 ))}
                             {/* 구분선 - 고급형 카테고리가 있을 때만 표시 */}
                             {categories.some((cat) => cat.name === '고급형') && categories.some((cat) => cat.name !== '고급형') && <div className="h-5 w-[1px] bg-black mx-2 md:mx-4"></div>}
-
                             {/* 고급형 카테고리 */}
                             {categories
                                 .filter((category) => category.name === '고급형')
