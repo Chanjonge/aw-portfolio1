@@ -236,11 +236,14 @@ public class ExcelServiceImpl implements ExcelService {
                 
                     if (obj != null) {
                 
-                        // 1) selected + inputs
+                        // =========================================================
+                        // 1) selected + inputs (라디오 + 기타입력)
+                        // =========================================================
                         if (obj.containsKey("selected")) {
                 
                             String selected = String.valueOf(obj.get("selected"));
-                            Map<String, Object> inputs = (Map<String, Object>) obj.get("inputs");
+                            Map<String, Object> inputs =
+                                    (Map<String, Object>) obj.get("inputs");
                 
                             String extra = "";
                             if (inputs != null && inputs.containsKey(selected)) {
@@ -248,30 +251,57 @@ public class ExcelServiceImpl implements ExcelService {
                             }
                 
                             result = selected;
-                            if (!extra.isBlank()) result += " (" + extra + ")";
+                            if (!extra.isBlank()) {
+                                result += " (" + extra + ")";
+                            }
                         }
                 
-                        // 2) checked = ["문자","문자"]
+                        // =========================================================
+                        // 2) checked = ["문자열"] + inputs(Map)
+                        //    예: 유아/아동(10000), 성인(20003)
+                        // =========================================================
                         else if (obj.containsKey("checked")
                                 && obj.get("checked") instanceof List<?>) {
                 
                             List<?> checkedList = (List<?>) obj.get("checked");
                 
-                            if (!checkedList.isEmpty() && checkedList.get(0) instanceof String) {
+                            // -----------------------------------------------------
+                            // ★ ADDED: 문자열 체크박스 + inputs(Map) 처리
+                            // -----------------------------------------------------
+                            if (!checkedList.isEmpty()
+                                    && checkedList.get(0) instanceof String) {
+                
+                                Map<String, Object> inputs =
+                                        (Map<String, Object>) obj.get("inputs");
                 
                                 result = checkedList.stream()
-                                        .map(String::valueOf)
+                                        .map(s -> {
+                                            String key = String.valueOf(s);
+                                            String extra = "";
+                
+                                            if (inputs != null && inputs.containsKey(key)) {
+                                                extra = String.valueOf(inputs.get(key));
+                                            }
+                
+                                            return extra.isBlank()
+                                                    ? key
+                                                    : key + "(" + extra + ")";
+                                        })
                                         .collect(Collectors.joining(", "));
                             }
                 
-                            // 3) checked = [0,1,2] + inputs 배열
-                            else if (!checkedList.isEmpty() && checkedList.get(0) instanceof Number) {
+                            // -----------------------------------------------------
+                            // 3) checked = [0,1,2] + inputs(List)
+                            // -----------------------------------------------------
+                            else if (!checkedList.isEmpty()
+                                    && checkedList.get(0) instanceof Number) {
                 
                                 List<Integer> idxList = checkedList.stream()
                                         .map(o -> ((Number) o).intValue())
                                         .toList();
                 
-                                List<String> inputs = (List<String>) obj.get("inputs");
+                                List<String> inputs =
+                                        (List<String>) obj.get("inputs");
                 
                                 if (inputs != null) {
                                     result = idxList.stream()
@@ -283,7 +313,6 @@ public class ExcelServiceImpl implements ExcelService {
                     }
                 
                     dataRow.createCell(colIdx).setCellValue(result);
-                
                     colIdx++;
                     continue;
                 }
