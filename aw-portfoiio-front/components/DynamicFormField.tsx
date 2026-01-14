@@ -842,7 +842,7 @@ export default function DynamicFormField({ question, value, onChange, error, dis
 
                 {/* 동의 체크박스 */}
                 <div className="border-gray-200 pt-6">
-                    <label className="flex items-start gap-4 cursor-pointer border-gray-300 rounded-lg hover:border-black transition-all">
+                    <div className="flex items-start gap-4 border-gray-300 rounded-lg transition-all">
                         <input type="checkbox" disabled={disabled} checked={currentValue.agreed || false} onChange={(e) => onChange({ agreed: e.target.checked })} className="w-5 h-5 mt-1 text-black border-2 border-gray-400 rounded focus:ring-2 focus:ring-black cursor-pointer" />
                         <div className="flex-1">
                             <span className="text-lg font-semibold text-black">
@@ -851,7 +851,7 @@ export default function DynamicFormField({ question, value, onChange, error, dis
                             </span>
                             <p className="text-sm text-gray-600 mt-1">동의하셔야 다음 단계로 진행하실 수 있습니다.</p>
                         </div>
-                    </label>
+                    </div>
                 </div>
 
                 {error && <p className="text-sm text-red-500 text-center">{error}</p>}
