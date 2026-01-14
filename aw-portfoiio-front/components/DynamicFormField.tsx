@@ -429,7 +429,7 @@ export default function DynamicFormField({ question, value, onChange, error, dis
                     className={`w-full px-4 py-8 border-2 rounded-lg text-center transition-all 
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer border-gray-300 hover:border-black'}`}
                 >
-                    <p className="text-sm text-gray-700 font-medium">{existingFiles.length + (value?.newFiles?.length || 0) > 0 ? '파일을 추가할 수 있습니다.' : '클릭하거나 파일을 드래그하여 업로드할 수 있습니다.'}</p>
+                    <p className="text-sm text-gray-700 font-medium">{existingFiles.length + (value?.newFiles?.length || 0) > 0 ? '파일을 더 추가하려면 클릭하거나 드래그하세요.' : '클릭하거나 파일을 드래그하여 업로드할 수 있습니다.'}</p>
                     <input
                         ref={inputRef}
                         type="file"
