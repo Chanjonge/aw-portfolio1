@@ -1728,7 +1728,7 @@ export default function PortfolioForm() {
                                                                             }
                                                                         }}
                                                                         onChange={(e) => {
-                                                                            const value = e.target.value;
+                                                                            let value = e.target.value.replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
                                                                             if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 100 && !isNaN(parseInt(value)))) {
                                                                                 const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: value } : r));
                                                                                 setRefunds(updated);
@@ -1755,7 +1755,7 @@ export default function PortfolioForm() {
                                                                             }
                                                                         }}
                                                                         onChange={(e) => {
-                                                                            const value = e.target.value;
+                                                                            let value = e.target.value.replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
                                                                             if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 100 && !isNaN(parseInt(value)))) {
                                                                                 const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: value } : r));
                                                                                 setRefunds(updated);
@@ -1779,7 +1779,7 @@ export default function PortfolioForm() {
                                                                             }
                                                                         }}
                                                                         onChange={(e) => {
-                                                                            const value = e.target.value;
+                                                                            let value = e.target.value.replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
                                                                             if (value === '' || (parseInt(value) > 0 && !isNaN(parseInt(value)))) {
                                                                                 const updated = refunds.map((r) => (r.id === refund.id ? { ...r, day: value } : r));
                                                                                 setRefunds(updated);
@@ -1801,7 +1801,7 @@ export default function PortfolioForm() {
                                                                             }
                                                                         }}
                                                                         onChange={(e) => {
-                                                                            const value = e.target.value;
+                                                                            let value = e.target.value.replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
                                                                             if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 100 && !isNaN(parseInt(value)))) {
                                                                                 const updated = refunds.map((r) => (r.id === refund.id ? { ...r, percent: value } : r));
                                                                                 setRefunds(updated);
