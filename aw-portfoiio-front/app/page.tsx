@@ -282,7 +282,7 @@ export default function Home() {
                                 <h3 className="text-white text-2xl md:text-4xl lg:text-4xl line-height-1.5 font-bold mb-3 md:mb-4">
                                     숙소에 가장 어울리는 타입을
                                     <br />
-                                    선택해보세요
+                                    선택해 보세요.
                                 </h3>
                                 <p className="text-white text-sm md:text-lg">시간과 장소에 구애받지 않고 제작을 시작할 수 있습니다.</p>
                             </div>
