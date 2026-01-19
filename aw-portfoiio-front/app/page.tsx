@@ -52,7 +52,7 @@ export default function Home() {
     // 설명 텍스트 포맷팅 (bold, #태그 처리)
     const renderDescriptionWithBold = (text: string) => {
         // **텍스트** 형태와 #태그를 찾아서 변환
-        const parts = text.split(/(\*\*.*?\*\*|#[^\s#]+)/g);
+        const parts = text.split(/(\*\*.*?\*\*|#[^\s#.,!?;:)\]}]+)/g);
 
         const tagClassMap: Record<string, string> = {
             '#오션뷰': 'bg-blue-900 text-white',
