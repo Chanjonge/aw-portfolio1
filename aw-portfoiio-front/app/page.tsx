@@ -446,7 +446,7 @@ export default function Home() {
                                 onClick={() => {
                                     handlePreviewOpen(portfolio.domain!, portfolio.title, portfolio.id);
                                 }}
-                                className="border-black transition-all overflow-hidden group h-[375px] cursor-pointer"
+                                className="border-black transition-all overflow-hidden group h-[400px] cursor-pointer"
                             >
                                 {portfolio.thumbnail && (
                                     <div className="portfolio-list w-full h-48 bg-gray-200 overflow-hidden">
