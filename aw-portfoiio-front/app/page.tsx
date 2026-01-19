@@ -57,6 +57,9 @@ export default function Home() {
         const tagClassMap: Record<string, string> = {
             '#오션뷰': 'bg-blue-900 text-white',
             '#감성': 'bg-orange-700 text-white',
+            '#모던': 'bg-green-700 text-white',
+            '#풀빌라': 'bg-blue-700 text-white',
+            '#호텔': 'bg-black text-white',
         };
 
         return parts.map((part, index) => {
