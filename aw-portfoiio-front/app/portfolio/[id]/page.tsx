@@ -1337,7 +1337,7 @@ export default function PortfolioForm() {
                 </div>
 
                 {/* Form Card */}
-                <div className="bg-white border-2 border-black rounded-lg p-4 md:p-8 shadow-lg">
+                <div className="bg-white border-2 border-black rounded-lg p-2 md:p-8 shadow-lg">
                     <div>
                         <div className="mb-6">
                             {(() => {

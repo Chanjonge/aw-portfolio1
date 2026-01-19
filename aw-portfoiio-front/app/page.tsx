@@ -250,7 +250,7 @@ export default function Home() {
             {/* Header */}
             <header className="bg-white border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div className="flex justify-between items-center gap-2 md:gap-1">
+                    <div className="flex justify-between items-center gap-2 md:gap-1 flex-col md:flex-row">
                         <a href="/" className="block">
                             <h1 className="text-2xl font-bold text-black">
                                 <img src="/logo.png" alt="로고" className="h-8" />
