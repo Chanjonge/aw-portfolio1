@@ -150,6 +150,12 @@ input[type='text']:disabled {
     overflow: hidden;
 }
 
+@media (max-width: 768px) {
+    .swiper {
+        border-radius: 0.75rem;
+    }
+}
+
 /* Swiper 화살표 스타일 */
 .swiper-button-next,
 .swiper-button-prev {

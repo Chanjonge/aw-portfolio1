@@ -80,7 +80,9 @@ export default function LoginPage() {
                 >
                     <div className="text-center mb-6">
                         <h3 className="text-2xl font-bold text-black mb-2">로그인</h3>
-                        <p className="text-gray-600">제공받은 상호명과 비밀번호를 입력해주세요.</p>
+                        <p className="text-gray-600">
+                            제공받은 상호명과 <br className="md:hidden" /> 비밀번호를 입력해주세요.
+                        </p>
                     </div>
 
                     <div className="space-y-4">
@@ -92,7 +94,7 @@ export default function LoginPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                            <label className="block text-xs md:text-sm font-bold text-gray-700 mb-2">
                                 확인용 비밀번호 (4자리) <span className="text-red-500">*</span>
                             </label>
                             <input

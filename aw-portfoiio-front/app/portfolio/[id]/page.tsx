@@ -1337,7 +1337,7 @@ export default function PortfolioForm() {
                 </div>
 
                 {/* Form Card */}
-                <div className="bg-white border-2 border-black rounded-lg p-8 shadow-lg">
+                <div className="bg-white border-2 border-black rounded-lg p-4 md:p-8 shadow-lg">
                     <div>
                         <div className="mb-6">
                             {(() => {
@@ -1529,7 +1529,7 @@ export default function PortfolioForm() {
                                                             ].map(({ label, key }) => (
                                                                 <div key={key}>
                                                                     <p className="text-xs text-gray-500 mb-1">{label}</p>
-                                                                    <div className="grid grid-cols-4 gap-4 mb-4">
+                                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                                                                         {['weekday', 'fri', 'sat', 'sun'].map((dayKey) => {
                                                                             const rawValue = (room as any)[key][dayKey];
                                                                             // 천 단위 콤마 포맷팅 함수
@@ -1544,6 +1544,8 @@ export default function PortfolioForm() {
                                                                                 <input
                                                                                     key={dayKey}
                                                                                     type="text"
+                                                                                    inputMode="numeric"
+                                                                                    pattern="[0-9]*"
                                                                                     disabled={isDetailMode}
                                                                                     value={formatNumber(rawValue)}
                                                                                     onChange={(e) => {

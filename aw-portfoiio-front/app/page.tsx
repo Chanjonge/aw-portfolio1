@@ -250,7 +250,7 @@ export default function Home() {
             {/* Header */}
             <header className="bg-white border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div className="flex justify-between items-center gap-2 md:gap-1 md:flex-row flex-col">
+                    <div className="flex justify-between items-center gap-2 md:gap-1">
                         <a href="/" className="block">
                             <h1 className="text-2xl font-bold text-black">
                                 <img src="/logo.png" alt="로고" className="h-8" />
@@ -358,7 +358,11 @@ export default function Home() {
                 {categories.length > 0 && (
                     <div className="mb-8 mt-12">
                         <div className="flex justify-center gap-1 md:gap-3 flex-wrap items-center">
-                            <button type="button" onClick={() => setSelectedCategory(null)} className={`rounded-md px-3 md:px-6 py-1 text-base font-semibold transition-all ${selectedCategory === null ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedCategory(null)}
+                                className={`rounded-md px-3 md:px-6 py-1 text-sm md:text-base font-semibold transition-all ${selectedCategory === null ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
+                            >
                                 전체
                             </button>
                             {/* 일반 카테고리 */}
@@ -369,7 +373,7 @@ export default function Home() {
                                         type="button"
                                         key={category.id}
                                         onClick={() => setSelectedCategory(category.id)}
-                                        className={`rounded-md px-3 md:px-6 py-1 text-base font-semibold transition-all ${selectedCategory === category.id ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
+                                        className={`rounded-md px-3 md:px-6 py-1 text-sm md:text-base font-semibold transition-all ${selectedCategory === category.id ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
                                     >
                                         {category.name}
                                     </button>
@@ -384,7 +388,7 @@ export default function Home() {
                                         type="button"
                                         key={category.id}
                                         onClick={() => setSelectedCategory(category.id)}
-                                        className={`rounded-md px-3 md:px-6 py-1 text-base font-semibold transition-all ${selectedCategory === category.id ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
+                                        className={`rounded-md px-3 md:px-6 py-1 text-sm md:text-base font-semibold transition-all ${selectedCategory === category.id ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
                                     >
                                         {category.name}
                                     </button>
@@ -529,7 +533,7 @@ export default function Home() {
                                         // 로그인 상태면 바로 이동
                                         router.push(targetPath);
                                     }}
-                                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-all"
+                                    className="px-4 py-2 width-[100px] bg-black text-white rounded-md hover:bg-gray-800 transition-all"
                                 >
                                     정보입력
                                 </button>
