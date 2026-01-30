@@ -153,6 +153,7 @@ export default function PortfolioForm() {
             desc: string;
             capacity: { standard: string; max: string }; // 인원
             type: string;
+            amenities: string;
             priceLow: { weekday: string; fri: string; sat: string; sun: string }; // 비수기
             priceMid: { weekday: string; fri: string; sat: string; sun: string }; // 준성수기
             priceHigh: { weekday: string; fri: string; sat: string; sun: string }; // 성수기
@@ -164,6 +165,7 @@ export default function PortfolioForm() {
             desc: '',
             capacity: { standard: '', max: '' },
             type: '',
+            amenities: '',
             priceLow: { weekday: '', fri: '', sat: '', sun: '' },
             priceMid: { weekday: '', fri: '', sat: '', sun: '' },
             priceHigh: { weekday: '', fri: '', sat: '', sun: '' },
@@ -344,6 +346,7 @@ export default function PortfolioForm() {
                                         max: r.capacity?.max || '',
                                     },
                                     type: r.type || '',
+                                    amenities: r.amenities || '',
                                     priceLow: {
                                         weekday: r.priceLow?.weekday || '',
                                         fri: r.priceLow?.fri || '',
@@ -372,6 +375,7 @@ export default function PortfolioForm() {
                                     desc: '',
                                     capacity: { standard: '', max: '' },
                                     type: '',
+                                    amenities: '',
                                     priceLow: { weekday: '', fri: '', sat: '', sun: '' },
                                     priceMid: { weekday: '', fri: '', sat: '', sun: '' },
                                     priceHigh: { weekday: '', fri: '', sat: '', sun: '' },
@@ -979,6 +983,7 @@ export default function PortfolioForm() {
                         desc: '',
                         capacity: { standard: '', max: '' },
                         type: '',
+                        amenities: '',
                         priceLow: { weekday: '', fri: '', sat: '', sun: '' },
                         priceMid: { weekday: '', fri: '', sat: '', sun: '' },
                         priceHigh: { weekday: '', fri: '', sat: '', sun: '' },
@@ -1517,6 +1522,22 @@ export default function PortfolioForm() {
                                                                 }}
                                                                 className="w-full border border-gray-300 rounded-lg p-2"
                                                                 placeholder="예: 독채형, 복층 구조, 침실 분리형, 원룸형 등"
+                                                            />
+                                                        </div>
+
+                                                        <div>
+                                                            <label className="block font-semibold mb-1">객실 비품</label>
+                                                            <p className="text-xs text-gray-500 mb-1">해당 객실에서 이용 가능한 비품 목록을 작성해 주세요.</p>
+                                                            <textarea
+                                                                value={room.amenities}
+                                                                disabled={isDetailMode}
+                                                                onChange={(e) => {
+                                                                    const updated = rooms.map((r) => (r.id === room.id ? { ...r, amenities: e.target.value } : r));
+                                                                    setRooms(updated);
+                                                                }}
+                                                                className="w-full border border-gray-300 rounded-lg p-2"
+                                                                rows={3}
+                                                                placeholder="예: TV, 에어컨, 냉장고, 전기포트, 헤어드라이어 등"
                                                             />
                                                         </div>
 
