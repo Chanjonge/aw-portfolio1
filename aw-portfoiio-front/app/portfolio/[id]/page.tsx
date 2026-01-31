@@ -1527,7 +1527,7 @@ export default function PortfolioForm() {
 
                                                         <div>
                                                             <label className="block font-semibold mb-1">객실 비품</label>
-                                                            <p className="text-xs text-gray-500 mb-1">해당 객실에서 이용 가능한  비품 목록을 작성해 주세요.</p>
+                                                            <p className="text-xs text-gray-500 mb-1">해당 객실에서 이용 가능한 비품 목록을 작성해 주세요.</p>
                                                             <textarea
                                                                 value={room.amenities}
                                                                 disabled={isDetailMode}
