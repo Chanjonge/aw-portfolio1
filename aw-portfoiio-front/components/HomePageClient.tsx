@@ -68,6 +68,9 @@ export type HomePagePreset = {
 
     /** selectedCategory가 정해지기 전엔 포트폴리오를 호출하지 않음(locked 페이지는 true 권장) */
     requireSelectedCategory?: boolean;
+
+    /** 메인 등에서 숨길 카테고리명 목록 */
+    hiddenCategoryNames?: string[];
 };
 
 export default function HomePageClient({ slides, preset }: { slides: HomeSlide[]; preset?: HomePagePreset }) {
@@ -184,11 +187,16 @@ export default function HomePageClient({ slides, preset }: { slides: HomeSlide[]
                     return;
                 }
 
-                setCategories(allCategories);
+                const visibleCategories =
+                    preset?.hiddenCategoryNames && preset.hiddenCategoryNames.length > 0
+                        ? allCategories.filter((cat) => !preset.hiddenCategoryNames!.includes(cat.name))
+                        : allCategories;
+
+                setCategories(visibleCategories);
 
                 // 초기 로드 시 특정 카테고리를 자동으로 선택 (기존 메인: 독채형)
                 if (preset?.autoSelectCategoryName) {
-                    const target = allCategories.find((cat) => cat.name === preset.autoSelectCategoryName);
+                    const target = visibleCategories.find((cat) => cat.name === preset.autoSelectCategoryName);
                     if (target) {
                         setSelectedCategory(target.id);
                     }

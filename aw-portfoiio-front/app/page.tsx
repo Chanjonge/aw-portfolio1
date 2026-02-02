@@ -57,5 +57,5 @@ const slides: HomeSlide[] = [
 ];
 
 export default function Page() {
-    return <HomePageClient slides={slides} preset={{ autoSelectCategoryName: '독채형' }} />;
+    return <HomePageClient slides={slides} preset={{ autoSelectCategoryName: '독채형', hiddenCategoryNames: ['컬렉션'] }} />;
 }
