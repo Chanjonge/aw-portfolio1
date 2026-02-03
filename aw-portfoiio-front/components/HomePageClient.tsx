@@ -71,6 +71,9 @@ export type HomePagePreset = {
 
     /** 메인 등에서 숨길 카테고리명 목록 */
     hiddenCategoryNames?: string[];
+
+    /** 포트폴리오 목록에서 제외할 카테고리명 목록 */
+    excludePortfolioCategoryNames?: string[];
 };
 
 export default function HomePageClient({
@@ -242,7 +245,21 @@ export default function HomePageClient({
             await request(
                 () => PortfolioService.getUser(true, selectedCategory ?? null),
                 (res) => {
-                    setPortfolios(res.data);
+                    const rawPortfolios: Portfolio[] = res.data;
+                    const excludeNames = preset?.excludePortfolioCategoryNames ?? [];
+
+                    if (excludeNames.length === 0) {
+                        setPortfolios(rawPortfolios);
+                        return;
+                    }
+
+                    const filtered = rawPortfolios.filter((portfolio) => {
+                        const categoryName = portfolio.category?.name;
+                        if (!categoryName) return true;
+                        return !excludeNames.includes(categoryName);
+                    });
+
+                    setPortfolios(filtered);
                 },
                 { ignoreErrorRedirect: true }
             );
