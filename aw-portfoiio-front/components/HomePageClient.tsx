@@ -73,7 +73,15 @@ export type HomePagePreset = {
     hiddenCategoryNames?: string[];
 };
 
-export default function HomePageClient({ slides, preset }: { slides: HomeSlide[]; preset?: HomePagePreset }) {
+export default function HomePageClient({
+    slides,
+    preset,
+    className,
+}: {
+    slides: HomeSlide[];
+    preset?: HomePagePreset;
+    className?: string;
+}) {
     const router = useRouter();
 
     //hooks
@@ -348,7 +356,7 @@ export default function HomePageClient({ slides, preset }: { slides: HomeSlide[]
     const selectedCategoryCallout = selectedCategoryName ? categoryCallouts[selectedCategoryName] : null;
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className={`min-h-screen bg-white ${className ?? ''}`.trim()}>
             {/* Header */}
             <header className="bg-white border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
