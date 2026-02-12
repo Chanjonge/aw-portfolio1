@@ -2033,7 +2033,7 @@ export default function SuperAdminPage() {
                             <p className="text-gray-600">사용자가 포트폴리오를 제출하면 여기에 표시됩니다</p>
                         </div>
                     ) : (
-                        <div className="space-y-6">
+                        <div className="space-y-6 pb-10">
                             {/* 포트폴리오별로 그룹화 */}
                             {submissions &&
                                 submissions.length > 0 &&
