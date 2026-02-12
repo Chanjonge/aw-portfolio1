@@ -2021,7 +2021,7 @@ export default function SuperAdminPage() {
                         <h2 className="text-2xl font-bold">제출 목록</h2>
                         <div className="flex gap-3">
                             <button onClick={fetchSubmissions} className="px-4 py-2 border-2 border-black rounded-lg font-semibold hover:bg-black hover:text-white transition-all">
-                                🔄 새로고침
+                                새로고침
                             </button>
                         </div>
                     </div>
