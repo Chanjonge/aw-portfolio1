@@ -115,9 +115,11 @@ public class ExcelServiceImpl implements ExcelService {
                                 .map(r -> {
                                     Map<String, Object> cap = (Map<String, Object>) r.get("capacity");
                                     if (cap == null) return "";
-                                    return cap.getOrDefault("standard", "") + "/" + cap.getOrDefault("max", "");
+                        
+                                    String standard = String.valueOf(cap.getOrDefault("standard", ""));
+                                    String max = String.valueOf(cap.getOrDefault("max", ""));
+                                    return standard + "명/" + max + "명";
                                 })
-                                .map(String::valueOf)
                                 .collect(Collectors.joining(", "));
                         
                         String names = rooms.stream()
