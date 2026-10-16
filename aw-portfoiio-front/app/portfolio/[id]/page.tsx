@@ -1640,7 +1640,7 @@ export default function PortfolioForm() {
                                                     스페셜이란? <br />
                                                     숙소에서만 경험할 수 있는 차별화된 서비스·공간·체험 요소를 소개하는 영역입니다. <br />
                                                     입력하신 내용은 홈페이지에서 숙소의 매력을 강조하는 콘텐츠로 활용됩니다. <br />
-                                                    <strong className="text-red-500 font-bold">스페셜은 각 1개씩 등록해주세요</strong>
+                                                    <strong className="text-red-500 font-bold">한 칸에 스페셜 1개만 적어주세요. 여러 개라면 아래 [+ 스페셜 추가] 버튼을 눌러 하나씩 추가해 주세요.</strong>
                                                 </p>
                                                 {specials.length === 0 && <p className="text-gray-500 text-sm">아직 등록된 스페셜이 없습니다. “스페셜 추가”를 눌러주세요.</p>}
 
@@ -1659,7 +1659,7 @@ export default function PortfolioForm() {
 
                                                         <div>
                                                             <label className="block font-semibold mb-1">스페셜명</label>
-                                                            <p className="text-xs text-gray-500 mb-1">이 숙소에서 경험할 수 있는 특별한 포인트의 이름을 적어주세요.</p>
+                                                            <p className="text-xs text-gray-500 mb-1">이 숙소만의 특별한 포인트 한 가지의 이름을 적어주세요.</p>
                                                             <input
                                                                 type="text"
                                                                 value={sp.name}
@@ -1675,7 +1675,7 @@ export default function PortfolioForm() {
 
                                                         <div>
                                                             <label className="block font-semibold mb-1">스페셜 설명</label>
-                                                            <p className="text-xs text-gray-500 mb-1">해당 스페셜에 대한 간단한 설명해 작성해 주세요.</p>
+                                                            <p className="text-xs text-gray-500 mb-1">해당 스페셜에 대한 간단한 설명을 작성해 주세요.</p>
                                                             <textarea
                                                                 value={sp.desc}
                                                                 disabled={isDetailMode}
@@ -1692,7 +1692,7 @@ export default function PortfolioForm() {
                                                     </div>
                                                 ))}
                                                 {!isDetailMode && (
-                                                    <button type="button" onClick={handleAddSpecial} className="px-4 py-2 bg-gray-100 border-2 border-black rounded-lg text-sm font-semibold hover:bg-black hover:text-white transition-all">
+                                                    <button type="button" onClick={handleAddSpecial} className="w-full px-6 py-4 bg-black text-white border-2 border-black rounded-lg text-base font-bold shadow-md hover:bg-white hover:text-black hover:shadow-lg transition-all">
                                                         + 스페셜 추가
                                                     </button>
                                                 )}
