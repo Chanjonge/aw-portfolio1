@@ -1506,7 +1506,7 @@ export default function PortfolioForm() {
                                                                     className="w-full border border-gray-300 rounded-lg p-2"
                                                                     placeholder="최대"
                                                                 />
-                                                            </div>
+                                                            </div>                                                         
                                                         </div>
 
                                                         <div>
@@ -1639,7 +1639,8 @@ export default function PortfolioForm() {
                                                 <p className="text-gray-500 text-sm mt-0">
                                                     스페셜이란? <br />
                                                     숙소에서만 경험할 수 있는 차별화된 서비스·공간·체험 요소를 소개하는 영역입니다. <br />
-                                                    입력하신 내용은 홈페이지에서 숙소의 매력을 강조하는 콘텐츠로 활용됩니다.
+                                                    입력하신 내용은 홈페이지에서 숙소의 매력을 강조하는 콘텐츠로 활용됩니다. <br />
+                                                    <strong className="text-red-500 font-bold">스페셜은 각 1개씩 등록해주세요</strong>
                                                 </p>
                                                 {specials.length === 0 && <p className="text-gray-500 text-sm">아직 등록된 스페셜이 없습니다. “스페셜 추가”를 눌러주세요.</p>}
 
@@ -1668,7 +1669,7 @@ export default function PortfolioForm() {
                                                                     setSpecials(updated);
                                                                 }}
                                                                 className="w-full border border-gray-300 rounded-lg p-2"
-                                                                placeholder="예: 오션뷰, 불멍 체험, 노천탕, 별보기, 프라이빗 사우나"
+                                                                placeholder="예: 오션뷰"
                                                             />
                                                         </div>
 
