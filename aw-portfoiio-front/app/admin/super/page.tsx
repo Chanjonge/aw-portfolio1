@@ -598,13 +598,18 @@ export default function SuperAdminPage() {
 
             await fetchPortfolios();
             await fetchAllPortfolios();
+
+            //상세보기에서 '제출목록으로 돌아가기'로 복귀한 경우 제출 목록 탭으로 진입
+            if (new URLSearchParams(window.location.search).get('tab') === 'submissions') {
+                setActiveTab('submissions');
+            }
             setLoading(false);
         }
     };
 
     //제출목록 > 상세보기
     const handleDetailSubmission = (submission: Submission) => {
-        router.push(`/portfolio/${submission.portfolioId}?submissionId=${submission.id}&detail=true`);
+        router.push(`/portfolio/${submission.portfolioId}?submissionId=${submission.id}&detail=true&from=super`);
     };
 
     //유저 변경시 auth 체크

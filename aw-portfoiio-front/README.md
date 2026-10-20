@@ -24,7 +24,7 @@ npm run dev
 ## 디렉토리 구조
 
 ### API 요청 – [services](services)
-
+ 
 - [auth.service.ts](services/auth.service.ts)
 - [categories.service.ts](services/categories.service.ts)
 - [member.service.ts](services/member.service.ts)

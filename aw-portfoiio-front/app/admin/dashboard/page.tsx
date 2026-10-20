@@ -116,7 +116,7 @@ export default function AdminDashboard() {
   // 자세히보기
   const handleDetailSubmission = (submission: Submission) => {
     router.push(
-      `/portfolio/${submission.portfolioId}?submissionId=${submission.id}&detail=true`,
+      `/portfolio/${submission.portfolioId}?submissionId=${submission.id}&detail=true&from=dashboard`,
     );
   };
 

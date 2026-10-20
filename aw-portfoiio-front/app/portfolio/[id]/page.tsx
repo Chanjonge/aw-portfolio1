@@ -112,6 +112,13 @@ export default function PortfolioForm() {
     const submissionId = searchParams.get('submissionId');
     //상세보기 제어
     const isDetailMode = searchParams.get('detail') === 'true';
+    //상세보기 진입 경로 (관리자 제출목록에서 들어온 경우 제출목록으로 복귀)
+    const SUBMISSION_LIST_PATH: Record<string, string> = {
+        super: '/admin/super?tab=submissions',
+        dashboard: '/admin/dashboard',
+    };
+    const from = searchParams.get('from');
+    const submissionListPath = isDetailMode && from ? SUBMISSION_LIST_PATH[from] : undefined;
 
     //로그인 상태
     const currentUser = useRecoilValue(userState);
@@ -1951,11 +1958,11 @@ export default function PortfolioForm() {
                 <div className="text-center mt-6">
                     <button
                         onClick={() => {
-                            router.push('/');
+                            router.push(submissionListPath ?? '/');
                         }}
                         className="text-gray-600 hover:text-black transition-all"
                     >
-                        포트폴리오 리스트로 돌아가기
+                        {submissionListPath ? '제출목록으로 돌아가기' : '포트폴리오 리스트로 돌아가기'}
                     </button>
                 </div>
             </div>
