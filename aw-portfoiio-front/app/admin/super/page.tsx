@@ -43,7 +43,7 @@ type TabType = 'users' | 'portfolios' | 'questions' | 'submissions' | 'categorie
 const USER_ROLE_SECTIONS = [
     { role: 'SUPER_ADMIN', label: '최고 관리자' },
     { role: 'ADMIN', label: '관리자', hideWhenEmpty: true },
-    { role: 'USER', label: '일반 회원' },
+    { role: 'USER', label: '숙소 사장님' },
 ];
 //사용자 목록 구역별 페이지당 표시 수
 const USER_PAGE_SIZE = 20;
@@ -1955,23 +1955,23 @@ export default function SuperAdminPage() {
                         <h3 className="text-2xl font-bold text-black mb-6">새 사용자 생성</h3>
                         <form onSubmit={handleCreateUser} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-semibold text-black mb-2">이름</label>
+                                <label className="block text-sm font-semibold text-black mb-2">숙소명</label>
                                 <input type="text" required value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black" />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-black mb-2">이메일</label>
+                                <label className="block text-sm font-semibold text-black mb-2">계정 아이디</label>
                                 <input type="text" required value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black" />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-black mb-2">비밀번호</label>
+                                <label className="block text-sm font-semibold text-black mb-2">계정 비밀번호</label>
                                 <input type="password" required value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black" />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-black mb-2">역할</label>
+                                <label className="block text-sm font-semibold text-black mb-2">구분</label>
                                 <select value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
                                     <option value="ADMIN">관리자</option>
                                     <option value="SUPER_ADMIN">최고 관리자</option>
-                                    <option value="USER">일반 회원</option>
+                                    <option value="USER">숙소 사장님</option>
                                 </select>
                             </div>
                             <div className="flex gap-2 pt-4">
@@ -2274,7 +2274,7 @@ function UserRoleSection({ label, users, hideWhenEmpty = false }: { label: strin
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">이름</th>
-                                    <th className="px-4 md:px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">이메일</th>
+                                    <th className="px-4 md:px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">계정 아이디</th>
                                     <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">생성일</th>
                                 </tr>
                             </thead>
