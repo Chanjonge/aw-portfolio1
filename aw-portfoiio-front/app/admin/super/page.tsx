@@ -18,7 +18,7 @@ import { QuestionForm } from '@/tpyes/question';
 import { SubmissionService } from '@/services/submission.service';
 import { Submission } from '@/tpyes/submission';
 import { UserService } from '@/services/user.service';
-import { UserList } from '@/tpyes/userList';
+import { UserContent, UserList } from '@/tpyes/userList';
 import { AuthService } from '@/services/auth.service';
 
 interface Question {
@@ -38,6 +38,15 @@ interface Question {
 }
 
 type TabType = 'users' | 'portfolios' | 'questions' | 'submissions' | 'categories' | 'members';
+
+//사용자 목록 역할별 구역 (표시 순서)
+const USER_ROLE_SECTIONS = [
+    { role: 'SUPER_ADMIN', label: '최고 관리자' },
+    { role: 'ADMIN', label: '관리자', hideWhenEmpty: true },
+    { role: 'USER', label: '일반 회원' },
+];
+//사용자 목록 구역별 페이지당 표시 수
+const USER_PAGE_SIZE = 20;
 
 export default function SuperAdminPage() {
     const router = useRouter();
@@ -139,7 +148,8 @@ export default function SuperAdminPage() {
 
     const fetchUsers = async () => {
         await request(
-            () => UserService.get({ page: page, size: 5 }),
+            //역할별 구역으로 나누기 위해 전체 조회 후 구역별로 페이지 처리
+            () => UserService.get({ page: 0, size: 1000 }),
             (res) => {
                 setUsers(res.data);
             },
@@ -252,7 +262,7 @@ export default function SuperAdminPage() {
     //카테고리 목록 조회
     const fetchCategories = async () => {
         await request(
-            () => CategoriesService.get({ page: page, size: 5 }),
+            () => CategoriesService.get({ page: page, size: 30 }),
             (res) => {
                 setCategories(res.data);
             },
@@ -995,40 +1005,13 @@ export default function SuperAdminPage() {
                             </button>
                         </div>
 
-                        <div className="bg-white border-2 border-black rounded-lg overflow-hidden">
-                            <table className="min-w-full divide-y-2 divide-gray-200">
-                                <thead className="bg-gray-100">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">이름</th>
-                                        <th className="px-4 md:px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">이메일</th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">역할</th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">생성일</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {users?.content.map((user) => (
-                                        <tr key={user.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-medium text-black">{user.name}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-600">{user.email}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.role === 'SUPER_ADMIN' ? 'bg-black text-white' : 'bg-gray-200 text-gray-800'}`}>
-                                                    {user.role === 'SUPER_ADMIN' && '최고 관리자'}
-                                                    {user.role === 'ADMIN' && '최고 관리자'}
-                                                    {user.role === 'USER' && '일반 회원'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{new Date(user.createdAt).toLocaleDateString('ko-KR')}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            <div className="my-6">
-                                <Pagination current={page} totalPages={users?.totalPages ?? 0} onChange={handlePageClick} />
-                            </div>
+                        {/* 역할별 구역 */}
+                        <div className="space-y-8 pb-10">
+                            {USER_ROLE_SECTIONS.map(({ role, label, hideWhenEmpty }) => (
+                                <UserRoleSection key={role} label={label} users={users?.content.filter((u) => u.role === role) ?? []} hideWhenEmpty={hideWhenEmpty} />
+                            ))}
+                            {/* 위 역할에 해당하지 않는 사용자 */}
+                            <UserRoleSection label="기타" users={users?.content.filter((u) => !USER_ROLE_SECTIONS.some((s) => s.role === u.role)) ?? []} hideWhenEmpty />
                         </div>
                     </div>
                 )}
@@ -2261,6 +2244,62 @@ export default function SuperAdminPage() {
                     </div>
                 </div>
             )}
+        </div>
+    );
+}
+
+//사용자 목록 > 역할별 구역 (구역마다 페이지 따로 관리)
+function UserRoleSection({ label, users, hideWhenEmpty = false }: { label: string; users: UserContent[]; hideWhenEmpty?: boolean }) {
+    const [page, setPage] = useState(0);
+
+    const totalPages = Math.ceil(users.length / USER_PAGE_SIZE);
+    //목록이 줄어 현재 페이지가 범위를 벗어나면 마지막 페이지로
+    const currentPage = Math.min(page, Math.max(totalPages - 1, 0));
+    const pageUsers = users.slice(currentPage * USER_PAGE_SIZE, (currentPage + 1) * USER_PAGE_SIZE);
+
+    if (hideWhenEmpty && users.length === 0) return null;
+
+    return (
+        <div>
+            <h3 className="text-lg font-bold text-black mb-3">
+                {label} <span className="text-gray-500 font-semibold">({users.length})</span>
+            </h3>
+
+            <div className="bg-white border-2 border-black rounded-lg overflow-hidden">
+                {users.length === 0 ? (
+                    <div className="px-6 py-8 text-center text-sm text-gray-500">등록된 사용자가 없습니다</div>
+                ) : (
+                    <>
+                        <table className="min-w-full divide-y-2 divide-gray-200">
+                            <thead className="bg-gray-100">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">이름</th>
+                                    <th className="px-4 md:px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">이메일</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">생성일</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {pageUsers.map((user) => (
+                                    <tr key={user.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm font-medium text-black">{user.name}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-600">{user.email}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{new Date(user.createdAt).toLocaleDateString('ko-KR')}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        {totalPages > 1 && (
+                            <div className="my-6">
+                                <Pagination current={currentPage} totalPages={totalPages} onChange={setPage} />
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
         </div>
     );
 }
