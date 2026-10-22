@@ -30,8 +30,8 @@ export default function LoginPage() {
             setAuthError('상호명을 입력해주세요.');
             return;
         }
-        if (password.length !== 4 || !/^\d{4}$/.test(password)) {
-            setAuthError('비밀번호 4자리를 입력해주세요.');
+        if (!/^\d{4,8}$/.test(password)) {
+            setAuthError('비밀번호 4~8자리를 입력해주세요.');
             return;
         }
 
@@ -95,14 +95,14 @@ export default function LoginPage() {
 
                         <div>
                             <label className="block text-xs md:text-sm font-bold text-gray-700 mb-2">
-                                확인용 비밀번호 (4자리) <span className="text-red-500">*</span>
+                                확인용 비밀번호 (4~8자리) <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="password"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
-                                placeholder="숫자 4자리"
-                                maxLength={4}
+                                onChange={(e) => setPassword(e.target.value.replace(/[^0-9]/g, '').slice(0, 8))}
+                                placeholder="숫자 4~8자리"
+                                maxLength={8}
                                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-all"
                                 required
                             />

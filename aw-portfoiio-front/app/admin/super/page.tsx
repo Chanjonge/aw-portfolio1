@@ -18,6 +18,8 @@ import { QuestionForm } from '@/tpyes/question';
 import { SubmissionService } from '@/services/submission.service';
 import { Submission } from '@/tpyes/submission';
 import { UserService } from '@/services/user.service';
+import { MemberService } from '@/services/member.service';
+import { MemberContent } from '@/tpyes/member';
 import { UserContent, UserList } from '@/tpyes/userList';
 import { AuthService } from '@/services/auth.service';
 
@@ -40,13 +42,24 @@ interface Question {
 type TabType = 'users' | 'portfolios' | 'questions' | 'submissions' | 'categories' | 'members';
 
 //사용자 목록 역할별 구역 (표시 순서)
+//deletable: 계정 삭제 버튼 노출 여부 (최고 관리자는 비밀번호 변경만 허용)
 const USER_ROLE_SECTIONS = [
-    { role: 'SUPER_ADMIN', label: '최고 관리자' },
-    { role: 'ADMIN', label: '관리자', hideWhenEmpty: true },
-    { role: 'USER', label: '숙소 사장님' },
+    { role: 'SUPER_ADMIN', label: '최고 관리자', deletable: false },
+    { role: 'ADMIN', label: '관리자', hideWhenEmpty: true, deletable: true },
+    { role: 'USER', label: '숙소 사장님', deletable: true },
 ];
 //사용자 목록 구역별 페이지당 표시 수
 const USER_PAGE_SIZE = 20;
+
+//비밀번호 변경 규칙 (일반 회원: 숫자 4~8자리 / 관리자: 제한 없음) - 통과 시 null, 실패 시 안내 문구
+const validateNewPassword = (role: string, password: string): string | null => {
+    if (role === 'USER') {
+        return /^\d{4,8}$/.test(password) ? null : '비밀번호는 숫자 4~8자리로 입력해주세요.';
+    }
+    return password.trim() ? null : '비밀번호를 입력해주세요.';
+};
+
+const formatDateTime = (dateString: string | null | undefined) => (dateString ? new Date(dateString).toLocaleString('ko-KR') : '-');
 
 export default function SuperAdminPage() {
     const router = useRouter();
@@ -77,6 +90,11 @@ export default function SuperAdminPage() {
     const [submissions, setSubmissions] = useState<Submission[]>([]);
 
     const [users, setUsers] = useState<UserList>();
+    //사용자별 마지막 접속 (회원 ID → 일시)
+    const [lastLoginMap, setLastLoginMap] = useState<Record<string, string | null>>({});
+    //비밀번호 변경 대상
+    const [passwordTargetUser, setPasswordTargetUser] = useState<UserContent | null>(null);
+    const [newPassword, setNewPassword] = useState('');
 
     //질문 목록
     const [questions, setQuestions] = useState<Question[]>([]);
@@ -147,11 +165,63 @@ export default function SuperAdminPage() {
     });
 
     const fetchUsers = async () => {
+        await Promise.all([
+            request(
+                //역할별 구역으로 나누기 위해 전체 조회 후 구역별로 페이지 처리
+                () => UserService.get({ page: 0, size: 1000 }),
+                (res) => {
+                    setUsers(res.data);
+                },
+                { ignoreErrorRedirect: true },
+            ),
+            //마지막 접속은 회원 API 에만 있어 회원 ID 로 매칭
+            request(
+                () => MemberService.get({ page: 0, size: 1000 }),
+                (res) => {
+                    const map: Record<string, string | null> = {};
+                    res.data.content.forEach((m: MemberContent) => {
+                        map[String(m.id)] = m.lastLoginAt;
+                    });
+                    setLastLoginMap(map);
+                },
+                { ignoreErrorRedirect: true },
+            ),
+        ]);
+    };
+
+    //사용자 비밀번호 변경
+    const handleSubmitPasswordChange = async () => {
+        if (!passwordTargetUser) return;
+
+        const error = validateNewPassword(passwordTargetUser.role, newPassword);
+        if (error) {
+            alert(error);
+            return;
+        }
+
         await request(
-            //역할별 구역으로 나누기 위해 전체 조회 후 구역별로 페이지 처리
-            () => UserService.get({ page: 0, size: 1000 }),
-            (res) => {
-                setUsers(res.data);
+            () => MemberService.post({ memberId: passwordTargetUser.id, password: newPassword }),
+            () => {
+                alert('비밀번호가 변경되었습니다.');
+                setPasswordTargetUser(null);
+                setNewPassword('');
+                fetchUsers();
+            },
+            { ignoreErrorRedirect: true },
+        );
+    };
+
+    //사용자 계정 삭제 (제출 내역·업로드 파일까지 함께 삭제됨)
+    const handleDeleteUser = async (user: UserContent) => {
+        if (!confirm(`'${user.name}' 계정을 삭제하시겠습니까?\n\n이 계정의 제출 내역과 업로드 파일도 모두 함께 삭제되며, 되돌릴 수 없습니다.`)) {
+            return;
+        }
+
+        await request(
+            () => MemberService.delete(user.id),
+            () => {
+                alert('계정이 삭제되었습니다.');
+                fetchUsers();
             },
             { ignoreErrorRedirect: true },
         );
@@ -609,9 +679,10 @@ export default function SuperAdminPage() {
             await fetchPortfolios();
             await fetchAllPortfolios();
 
-            //상세보기에서 '제출목록으로 돌아가기'로 복귀한 경우 제출 목록 탭으로 진입
-            if (new URLSearchParams(window.location.search).get('tab') === 'submissions') {
-                setActiveTab('submissions');
+            //?tab= 으로 진입한 경우 해당 탭으로 ('제출목록으로 돌아가기' 복귀, 옛 회원관리 주소 이동)
+            const initialTab = new URLSearchParams(window.location.search).get('tab');
+            if (initialTab === 'submissions' || initialTab === 'users') {
+                setActiveTab(initialTab);
             }
             setLoading(false);
         }
@@ -785,14 +856,6 @@ export default function SuperAdminPage() {
                             className={`py-1 md:py-4 px-2 font-semibold border-b-4 transition-all ${activeTab === 'categories' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-black'}`}
                         >
                             카테고리 관리
-                        </button>
-                        <button
-                            onClick={() => {
-                                window.location.href = '/admin/members';
-                            }}
-                            className="py-1 md:py-4 px-2 font-semibold border-b-4 border-transparent text-gray-500 hover:text-black transition-all"
-                        >
-                            회원 관리
                         </button>
                     </div>
                 </div>
@@ -1007,12 +1070,62 @@ export default function SuperAdminPage() {
 
                         {/* 역할별 구역 */}
                         <div className="space-y-8 pb-10">
-                            {USER_ROLE_SECTIONS.map(({ role, label, hideWhenEmpty }) => (
-                                <UserRoleSection key={role} label={label} users={users?.content.filter((u) => u.role === role) ?? []} hideWhenEmpty={hideWhenEmpty} />
+                            {USER_ROLE_SECTIONS.map(({ role, label, hideWhenEmpty, deletable }) => (
+                                <UserRoleSection
+                                    key={role}
+                                    label={label}
+                                    users={users?.content.filter((u) => u.role === role) ?? []}
+                                    lastLoginMap={lastLoginMap}
+                                    hideWhenEmpty={hideWhenEmpty}
+                                    onChangePassword={(user) => {
+                                        setPasswordTargetUser(user);
+                                        setNewPassword('');
+                                    }}
+                                    onDelete={deletable ? handleDeleteUser : undefined}
+                                />
                             ))}
                             {/* 위 역할에 해당하지 않는 사용자 */}
-                            <UserRoleSection label="기타" users={users?.content.filter((u) => !USER_ROLE_SECTIONS.some((s) => s.role === u.role)) ?? []} hideWhenEmpty />
+                            <UserRoleSection
+                                label="기타"
+                                users={users?.content.filter((u) => !USER_ROLE_SECTIONS.some((s) => s.role === u.role)) ?? []}
+                                lastLoginMap={lastLoginMap}
+                                hideWhenEmpty
+                                onChangePassword={(user) => {
+                                    setPasswordTargetUser(user);
+                                    setNewPassword('');
+                                }}
+                                onDelete={handleDeleteUser}
+                            />
                         </div>
+
+                        {/* 비밀번호 변경 모달 */}
+                        {passwordTargetUser && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4" onClick={() => setPasswordTargetUser(null)}>
+                                <div className="bg-white rounded-lg p-6 w-full max-w-md border-2 border-black" onClick={(e) => e.stopPropagation()}>
+                                    <h3 className="text-lg font-bold text-black mb-4">비밀번호 변경</h3>
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        대상 계정: <strong>{passwordTargetUser.name}</strong> ({passwordTargetUser.email})
+                                    </p>
+                                    <input
+                                        type="password"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(passwordTargetUser.role === 'USER' ? e.target.value.replace(/[^0-9]/g, '').slice(0, 8) : e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSubmitPasswordChange()}
+                                        placeholder={passwordTargetUser.role === 'USER' ? '숫자 4~8자리' : '새 비밀번호'}
+                                        autoFocus
+                                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-black"
+                                    />
+                                    <div className="flex justify-end gap-2">
+                                        <button onClick={() => setPasswordTargetUser(null)} className="px-4 py-2 bg-white text-black border-2 border-black rounded-lg font-semibold hover:bg-black hover:text-white transition-all">
+                                            취소
+                                        </button>
+                                        <button onClick={handleSubmitPasswordChange} className="px-4 py-2 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-all">
+                                            저장
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -2249,7 +2362,22 @@ export default function SuperAdminPage() {
 }
 
 //사용자 목록 > 역할별 구역 (구역마다 페이지 따로 관리)
-function UserRoleSection({ label, users, hideWhenEmpty = false }: { label: string; users: UserContent[]; hideWhenEmpty?: boolean }) {
+function UserRoleSection({
+    label,
+    users,
+    lastLoginMap,
+    hideWhenEmpty = false,
+    onChangePassword,
+    onDelete,
+}: {
+    label: string;
+    users: UserContent[];
+    lastLoginMap: Record<string, string | null>;
+    hideWhenEmpty?: boolean;
+    onChangePassword: (user: UserContent) => void;
+    //없으면 삭제 버튼 숨김
+    onDelete?: (user: UserContent) => void;
+}) {
     const [page, setPage] = useState(0);
 
     const totalPages = Math.ceil(users.length / USER_PAGE_SIZE);
@@ -2270,12 +2398,15 @@ function UserRoleSection({ label, users, hideWhenEmpty = false }: { label: strin
                     <div className="px-6 py-8 text-center text-sm text-gray-500">등록된 사용자가 없습니다</div>
                 ) : (
                     <>
+                        <div className="overflow-x-auto">
                         <table className="min-w-full divide-y-2 divide-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">이름</th>
                                     <th className="px-4 md:px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">계정 아이디</th>
                                     <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">생성일</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">마지막 접속</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">작업</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -2288,10 +2419,22 @@ function UserRoleSection({ label, users, hideWhenEmpty = false }: { label: strin
                                             <div className="text-sm text-gray-600">{user.email}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{new Date(user.createdAt).toLocaleDateString('ko-KR')}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDateTime(lastLoginMap[String(user.id)])}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">
+                                            <button onClick={() => onChangePassword(user)} className="text-green-600 hover:text-green-900 mr-4">
+                                                비밀번호 변경
+                                            </button>
+                                            {onDelete && (
+                                                <button onClick={() => onDelete(user)} className="text-red-600 hover:text-red-900">
+                                                    삭제
+                                                </button>
+                                            )}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                         {totalPages > 1 && (
                             <div className="my-6">
                                 <Pagination current={currentPage} totalPages={totalPages} onChange={setPage} />
