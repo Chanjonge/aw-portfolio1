@@ -372,6 +372,52 @@ export default function HomePageClient({
     const selectedCategoryName = selectedCategory ? categories.find((cat) => cat.id === selectedCategory)?.name : null;
     const selectedCategoryCallout = selectedCategoryName ? categoryCallouts[selectedCategoryName] : null;
 
+    // 탭 버튼 스타일
+    const tabButtonClass = (active: boolean) =>
+        `rounded-full border-2 px-4 md:px-6 py-1.5 md:py-2 text-sm md:text-base font-semibold transition-all ${active ? 'bg-[#1C1C1E] text-white border-[#1C1C1E] shadow-md' : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'}`;
+
+    // 고급형은 탭과 동일하게 맨 뒤로
+    const orderedCategories = [...categories.filter((cat) => cat.name !== '고급형'), ...categories.filter((cat) => cat.name === '고급형')];
+
+    // "전체" 선택 시 타입별로 묶어서 노출
+    const portfolioGroups =
+        selectedCategory === null
+            ? [
+                  ...orderedCategories.map((cat) => ({
+                      key: String(cat.id),
+                      name: cat.name,
+                      items: portfolios.filter((p) => String(p.categoryId) === String(cat.id)),
+                  })),
+                  {
+                      key: 'etc',
+                      name: '기타',
+                      items: portfolios.filter((p) => !categories.some((cat) => String(cat.id) === String(p.categoryId))),
+                  },
+              ].filter((group) => group.items.length > 0)
+            : null;
+
+    const renderPortfolioCard = (portfolio: Portfolio) => (
+        <div
+            key={portfolio.id}
+            onClick={() => {
+                handlePreviewOpen(portfolio.domain!, portfolio.title, portfolio.id);
+            }}
+            className="border-black transition-all overflow-hidden group h-[400px] cursor-pointer"
+        >
+            {portfolio.thumbnail && (
+                <div className="portfolio-list w-full h-48 bg-gray-200 overflow-hidden">
+                    <img src={portfolio.thumbnail} alt={portfolio.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                </div>
+            )}
+
+            <div className="p-2 pt-6">
+                <h3 className="text-2xl font-bold mb-3 group-hover:text-gray-700">{portfolio.title}</h3>
+                {portfolio.description && <p className="text-gray-600 mb-2 whitespace-pre-line">{renderDescriptionWithBold(portfolio.description)}</p>}
+                {portfolio.mood && <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">#{portfolio.mood}</span>}
+            </div>
+        </div>
+    );
+
     return (
         <div className={`min-h-screen bg-white ${className ?? ''}`.trim()}>
             {/* Header */}
@@ -460,13 +506,9 @@ export default function HomePageClient({
                 {/* Category Filter */}
                 {categories.length > 0 && (
                     <div className="mb-8 mt-12">
-                        <div className="flex justify-center gap-1 md:gap-3 flex-wrap items-center">
+                        <div className="flex justify-start gap-2 md:gap-3 flex-wrap items-center">
                             {!preset?.hideAllButton && (
-                                <button
-                                    type="button"
-                                    onClick={() => setSelectedCategory(null)}
-                                    className={`rounded-md px-2 md:px-6 py-1 text-[0.75rem] md:text-base font-semibold transition-all ${selectedCategory === null ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
-                                >
+                                <button type="button" onClick={() => setSelectedCategory(null)} className={tabButtonClass(selectedCategory === null)}>
                                     전체
                                 </button>
                             )}
@@ -475,12 +517,7 @@ export default function HomePageClient({
                             {categories
                                 .filter((category) => category.name !== '고급형')
                                 .map((category) => (
-                                    <button
-                                        type="button"
-                                        key={category.id}
-                                        onClick={() => setSelectedCategory(category.id)}
-                                        className={`rounded-md px-2 md:px-6 py-1 text-[0.75rem] md:text-base font-semibold transition-all ${selectedCategory === category.id ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
-                                    >
+                                    <button type="button" key={category.id} onClick={() => setSelectedCategory(category.id)} className={tabButtonClass(selectedCategory === category.id)}>
                                         {category.name}
                                     </button>
                                 ))}
@@ -492,12 +529,7 @@ export default function HomePageClient({
                             {categories
                                 .filter((category) => category.name === '고급형')
                                 .map((category) => (
-                                    <button
-                                        type="button"
-                                        key={category.id}
-                                        onClick={() => setSelectedCategory(category.id)}
-                                        className={`rounded-md px-3 md:px-6 py-1 text-[0.6rem] md:text-base font-semibold transition-all ${selectedCategory === category.id ? 'bg-[#1C1C1E] text-white' : 'bg-white text-black border-black hover:bg-black hover:text-white'}`}
-                                    >
+                                    <button type="button" key={category.id} onClick={() => setSelectedCategory(category.id)} className={tabButtonClass(selectedCategory === category.id)}>
                                         {category.name}
                                     </button>
                                 ))}
@@ -528,30 +560,23 @@ export default function HomePageClient({
                     <div className="text-center py-12">
                         <div className="text-xl text-gray-600">등록된 타입이 존재하지 않습니다.</div>
                     </div>
-                ) : (
-                    <div className="grid min-h-[65vh] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {portfolios.map((portfolio) => (
-                            <div
-                                key={portfolio.id}
-                                onClick={() => {
-                                    handlePreviewOpen(portfolio.domain!, portfolio.title, portfolio.id);
-                                }}
-                                className="border-black transition-all overflow-hidden group h-[400px] cursor-pointer"
-                            >
-                                {portfolio.thumbnail && (
-                                    <div className="portfolio-list w-full h-48 bg-gray-200 overflow-hidden">
-                                        <img src={portfolio.thumbnail} alt={portfolio.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                ) : portfolioGroups ? (
+                    <div className="min-h-[65vh] space-y-16">
+                        {portfolioGroups.map((group) => (
+                            <section key={group.key}>
+                                <div className="flex items-end justify-between gap-4 mb-6 pb-3 border-b-2 border-black">
+                                    <div>
+                                        <h2 className="text-2xl md:text-3xl font-bold">{group.name}</h2>
+                                        {categoryCallouts[group.name] && <p className="mt-1 text-sm md:text-base text-gray-600">{categoryCallouts[group.name].description}</p>}
                                     </div>
-                                )}
-
-                                <div className="p-2 pt-6">
-                                    <h3 className="text-2xl font-bold mb-3 group-hover:text-gray-700">{portfolio.title}</h3>
-                                    {portfolio.description && <p className="text-gray-600 mb-2 whitespace-pre-line">{renderDescriptionWithBold(portfolio.description)}</p>}
-                                    {portfolio.mood && <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">#{portfolio.mood}</span>}
+                                    <span className="shrink-0 text-sm text-gray-500">{group.items.length}개</span>
                                 </div>
-                            </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{group.items.map(renderPortfolioCard)}</div>
+                            </section>
                         ))}
                     </div>
+                ) : (
+                    <div className="grid min-h-[65vh] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{portfolios.map(renderPortfolioCard)}</div>
                 )}
 
                 {/* Admin Login Link at Bottom */}
