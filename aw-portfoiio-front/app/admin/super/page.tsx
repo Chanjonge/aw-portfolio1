@@ -812,9 +812,9 @@ export default function SuperAdminPage() {
                             <button onClick={() => router.push('/')} className="px-2 md:px-4 py-2 bg-white text-black rounded-lg font-semibold hover:bg-gray-200 transition-all">
                                 메인 페이지
                             </button>
-                            <button onClick={() => router.push('/admin/dashboard')} className="hidden md:block px-2 md:px-4 py-2 bg-white text-black rounded-lg font-semibold hover:bg-gray-200 transition-all">
+                            {/* <button onClick={() => router.push('/admin/dashboard')} className="hidden md:block px-2 md:px-4 py-2 bg-white text-black rounded-lg font-semibold hover:bg-gray-200 transition-all">
                                 일반 대시보드
-                            </button>
+                            </button> */}
                             <button onClick={handleLogout} className="px-2 md:px-4 py-2 bg-gray-800 text-white rounded-lg font-semibold hover:bg-gray-700 transition-all">
                                 로그아웃
                             </button>
